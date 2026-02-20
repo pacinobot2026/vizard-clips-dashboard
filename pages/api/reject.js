@@ -12,7 +12,7 @@ export default function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { clipId } = req.body;
+  const { clipId, note } = req.body;
 
   if (!clipId) {
     return res.status(400).json({ error: 'Clip ID required' });
@@ -20,7 +20,8 @@ export default function handler(req, res) {
 
   try {
     const updatedClip = updateClip(clipId, {
-      status: 'rejected'
+      status: 'rejected',
+      rejection_note: note || null
     });
 
     return res.status(200).json({
