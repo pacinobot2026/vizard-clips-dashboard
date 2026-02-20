@@ -4,20 +4,34 @@ import { useRouter } from 'next/router';
 export default function Dashboard() {
   const [clips, setClips] = useState([]);
   const [stats, setStats] = useState({});
+  const [categories, setCategories] = useState([]);
   const [filter, setFilter] = useState('pending');
+  const [category, setCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('date_desc');
   const [loading, setLoading] = useState(true);
   const [publishing, setPublishing] = useState(false);
-  const [viewMode, setViewMode] = useState('compact'); // compact or detailed
+  const [viewMode, setViewMode] = useState('compact');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedClips, setSelectedClips] = useState(new Set());
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectingClipId, setRejectingClipId] = useState(null);
+  const [rejectionNote, setRejectionNote] = useState('');
+  const [bulkAction, setBulkAction] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     fetchClips();
-  }, [filter]);
+  }, [filter, category, sortBy]);
 
   const fetchClips = async () => {
     try {
-      const res = await fetch(`/api/clips?filter=${filter}`);
+      const params = new URLSearchParams({
+        filter,
+        category,
+        sortBy
+      });
+      
+      const res = await fetch(`/api/clips?${params}`);
       if (res.status === 401) {
         router.push('/');
         return;
@@ -25,7 +39,9 @@ export default function Dashboard() {
       const data = await res.json();
       setClips(data.clips);
       setStats(data.stats);
+      setCategories(data.categories || []);
       setLoading(false);
+      setSelectedClips(new Set()); // Clear selection when fetching new data
     } catch (err) {
       console.error('Error fetching clips:', err);
       setLoading(false);
@@ -48,12 +64,12 @@ export default function Dashboard() {
     }
   };
 
-  const handleReject = async (clipId) => {
+  const handleReject = async (clipId, note = null) => {
     try {
       const res = await fetch('/api/reject', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clipId })
+        body: JSON.stringify({ clipId, note })
       });
       
       if (res.ok) {
@@ -61,6 +77,83 @@ export default function Dashboard() {
       }
     } catch (err) {
       console.error('Error rejecting clip:', err);
+    }
+  };
+
+  const openRejectModal = (clipId) => {
+    setRejectingClipId(clipId);
+    setRejectionNote('');
+    setShowRejectModal(true);
+  };
+
+  const confirmReject = () => {
+    if (rejectingClipId) {
+      handleReject(rejectingClipId, rejectionNote);
+    }
+    setShowRejectModal(false);
+    setRejectingClipId(null);
+    setRejectionNote('');
+  };
+
+  const handleBulkAction = async (action) => {
+    if (selectedClips.size === 0) {
+      alert('No clips selected');
+      return;
+    }
+
+    let note = null;
+    if (action === 'reject') {
+      note = prompt('Rejection note (optional):');
+      if (note === null) return; // User cancelled
+    }
+
+    if (!confirm(`${action === 'approve' ? 'Approve' : 'Reject'} ${selectedClips.size} clips?`)) {
+      return;
+    }
+
+    setBulkAction(true);
+    try {
+      const res = await fetch('/api/bulk-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clipIds: Array.from(selectedClips),
+          action,
+          note
+        })
+      });
+
+      const data = await res.json();
+      
+      if (res.ok) {
+        alert(`✅ ${data.successful} clips ${action === 'approve' ? 'approved' : 'rejected'}!`);
+        fetchClips();
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (err) {
+      alert('Bulk action failed');
+      console.error(err);
+    } finally {
+      setBulkAction(false);
+    }
+  };
+
+  const toggleSelectClip = (clipId) => {
+    const newSelected = new Set(selectedClips);
+    if (newSelected.has(clipId)) {
+      newSelected.delete(clipId);
+    } else {
+      newSelected.add(clipId);
+    }
+    setSelectedClips(newSelected);
+  };
+
+  const selectAll = () => {
+    if (selectedClips.size === filteredClips.length) {
+      setSelectedClips(new Set());
+    } else {
+      setSelectedClips(new Set(filteredClips.map(c => c.clip_id)));
     }
   };
 
@@ -99,7 +192,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div style={styles.container}>
-        <div style={styles.loading}>Loading...</div>
+        <div style={styles.loading}>Loading clips...</div>
       </div>
     );
   }
@@ -109,12 +202,40 @@ export default function Dashboard() {
       <header style={styles.header}>
         <h1 style={styles.title}>🎬 Vizard Clips Dashboard</h1>
         
+        {/* Status Tabs */}
         <div style={styles.stats}>
           <StatBox label="Pending" count={stats.pending} active={filter === 'pending'} onClick={() => setFilter('pending')} />
           <StatBox label="Approved" count={stats.approved} active={filter === 'approved'} onClick={() => setFilter('approved')} />
           <StatBox label="Published" count={stats.published} active={filter === 'published'} onClick={() => setFilter('published')} />
+          <StatBox label="Rejected" count={stats.rejected} active={filter === 'rejected'} onClick={() => setFilter('rejected')} color="#f56565" />
         </div>
 
+        {/* Category Filter */}
+        <div style={styles.categoryBar}>
+          <button
+            onClick={() => setCategory('all')}
+            style={{
+              ...styles.categoryChip,
+              ...(category === 'all' ? styles.categoryChipActive : {})
+            }}
+          >
+            All Categories
+          </button>
+          {categories.map(cat => (
+            <button
+              key={cat.name}
+              onClick={() => setCategory(cat.name)}
+              style={{
+                ...styles.categoryChip,
+                ...(category === cat.name ? styles.categoryChipActive : {})
+              }}
+            >
+              {cat.emoji} {cat.name} ({cat.count})
+            </button>
+          ))}
+        </div>
+
+        {/* Toolbar */}
         <div style={styles.toolbar}>
           <input
             type="text"
@@ -124,14 +245,55 @@ export default function Dashboard() {
             style={styles.searchInput}
           />
           
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            style={styles.select}
+          >
+            <option value="date_desc">Newest First</option>
+            <option value="date_asc">Oldest First</option>
+            <option value="viral_score">Viral Score (High to Low)</option>
+            <option value="duration">Duration (Long to Short)</option>
+          </select>
+          
           <button
             onClick={() => setViewMode(viewMode === 'compact' ? 'detailed' : 'compact')}
             style={styles.viewButton}
           >
-            {viewMode === 'compact' ? '📋 Detailed View' : '📱 Compact View'}
+            {viewMode === 'compact' ? '📋 Detailed' : '📱 Compact'}
           </button>
         </div>
 
+        {/* Bulk Actions Bar */}
+        {selectedClips.size > 0 && filter === 'pending' && (
+          <div style={styles.bulkBar}>
+            <span style={styles.bulkText}>{selectedClips.size} selected</span>
+            <div style={styles.bulkActions}>
+              <button
+                onClick={() => handleBulkAction('approve')}
+                disabled={bulkAction}
+                style={{ ...styles.bulkButton, ...styles.bulkApprove }}
+              >
+                ✓ Approve All
+              </button>
+              <button
+                onClick={() => handleBulkAction('reject')}
+                disabled={bulkAction}
+                style={{ ...styles.bulkButton, ...styles.bulkReject }}
+              >
+                ✕ Reject All
+              </button>
+              <button
+                onClick={() => setSelectedClips(new Set())}
+                style={styles.bulkButton}
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Publish Button */}
         {stats.approved > 0 && (
           <button 
             onClick={handlePublishAll}
@@ -147,14 +309,22 @@ export default function Dashboard() {
         {filteredClips.length === 0 ? (
           <div style={styles.empty}>
             <p style={styles.emptyText}>
-              {searchTerm ? `No clips matching "${searchTerm}"` : `No ${filter} clips`}
+              {searchTerm ? `No clips matching "${searchTerm}"` : `No ${filter} clips${category !== 'all' ? ` in ${category}` : ''}`}
             </p>
           </div>
         ) : (
           <>
-            <div style={styles.resultsCount}>
-              Showing {filteredClips.length} clip{filteredClips.length !== 1 ? 's' : ''}
+            <div style={styles.resultsHeader}>
+              <span style={styles.resultsCount}>
+                {filteredClips.length} clip{filteredClips.length !== 1 ? 's' : ''}
+              </span>
+              {filter === 'pending' && (
+                <button onClick={selectAll} style={styles.selectAllButton}>
+                  {selectedClips.size === filteredClips.length ? 'Deselect All' : 'Select All'}
+                </button>
+              )}
             </div>
+            
             <div style={viewMode === 'compact' ? styles.compactGrid : styles.grid}>
               {filteredClips.map(clip => (
                 viewMode === 'compact' ? (
@@ -162,16 +332,20 @@ export default function Dashboard() {
                     key={clip.clip_id}
                     clip={clip}
                     onApprove={handleApprove}
-                    onReject={handleReject}
+                    onReject={openRejectModal}
                     showActions={filter === 'pending'}
+                    selected={selectedClips.has(clip.clip_id)}
+                    onSelect={toggleSelectClip}
                   />
                 ) : (
                   <ClipCard 
                     key={clip.clip_id}
                     clip={clip}
                     onApprove={handleApprove}
-                    onReject={handleReject}
+                    onReject={openRejectModal}
                     showActions={filter === 'pending'}
+                    selected={selectedClips.has(clip.clip_id)}
+                    onSelect={toggleSelectClip}
                   />
                 )
               ))}
@@ -179,17 +353,57 @@ export default function Dashboard() {
           </>
         )}
       </main>
+
+      {/* Rejection Note Modal */}
+      {showRejectModal && (
+        <Modal onClose={() => setShowRejectModal(false)}>
+          <h3 style={styles.modalTitle}>Reject Clip</h3>
+          <p style={styles.modalText}>Add a note explaining why this clip was rejected (optional):</p>
+          <textarea
+            value={rejectionNote}
+            onChange={(e) => setRejectionNote(e.target.value)}
+            placeholder="e.g., Audio quality is too low, Content doesn't match brand..."
+            style={styles.textarea}
+            rows={4}
+            autoFocus
+          />
+          <div style={styles.modalActions}>
+            <button
+              onClick={() => setShowRejectModal(false)}
+              style={styles.modalCancel}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmReject}
+              style={{ ...styles.modalButton, ...styles.modalReject }}
+            >
+              Reject Clip
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
 
-function StatBox({ label, count, active, onClick }) {
+function Modal({ children, onClose }) {
+  return (
+    <div style={styles.modalOverlay} onClick={onClose}>
+      <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function StatBox({ label, count, active, onClick, color }) {
   return (
     <div 
       onClick={onClick}
       style={{
         ...styles.statBox,
-        ...(active ? styles.statBoxActive : {})
+        ...(active ? { ...styles.statBoxActive, background: color || '#667eea', borderColor: color || '#667eea' } : {})
       }}
     >
       <div style={styles.statCount}>{count || 0}</div>
@@ -198,11 +412,26 @@ function StatBox({ label, count, active, onClick }) {
   );
 }
 
-function CompactClipCard({ clip, onApprove, onReject, showActions }) {
+function CompactClipCard({ clip, onApprove, onReject, showActions, selected, onSelect }) {
   const [showVideo, setShowVideo] = useState(false);
   
   return (
-    <div style={styles.compactCard}>
+    <div style={{
+      ...styles.compactCard,
+      ...(selected ? styles.compactCardSelected : {})
+    }}>
+      {showActions && (
+        <div style={styles.checkbox}>
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={() => onSelect(clip.clip_id)}
+            onClick={(e) => e.stopPropagation()}
+            style={styles.checkboxInput}
+          />
+        </div>
+      )}
+      
       {showVideo ? (
         <video 
           controls 
@@ -221,6 +450,9 @@ function CompactClipCard({ clip, onApprove, onReject, showActions }) {
       )}
       
       <div style={styles.compactContent}>
+        <div style={styles.categoryBadge}>
+          {clip.category_emoji} {clip.category}
+        </div>
         <h4 style={styles.compactTitle}>{clip.title}</h4>
         <div style={styles.compactMeta}>
           <span style={styles.viralBadge}>🔥 {clip.viral_score}/10</span>
@@ -228,6 +460,12 @@ function CompactClipCard({ clip, onApprove, onReject, showActions }) {
             <span style={styles.publishedBadge}>✓</span>
           )}
         </div>
+        
+        {clip.rejection_note && (
+          <div style={styles.rejectionNote}>
+            ❌ {clip.rejection_note}
+          </div>
+        )}
         
         {showActions && (
           <div style={styles.compactActions}>
@@ -252,18 +490,33 @@ function CompactClipCard({ clip, onApprove, onReject, showActions }) {
   );
 }
 
-function ClipCard({ clip, onApprove, onReject, showActions }) {
+function ClipCard({ clip, onApprove, onReject, showActions, selected, onSelect }) {
   return (
-    <div style={styles.card}>
+    <div style={{
+      ...styles.card,
+      ...(selected ? styles.cardSelected : {})
+    }}>
+      {showActions && (
+        <div style={styles.cardCheckbox}>
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={() => onSelect(clip.clip_id)}
+            style={styles.checkboxInput}
+          />
+        </div>
+      )}
+      
       <video 
         controls 
         style={styles.video}
         src={clip.clip_url}
-      >
-        Your browser does not support the video tag.
-      </video>
+      />
       
       <div style={styles.cardContent}>
+        <div style={styles.categoryBadge}>
+          {clip.category_emoji} {clip.category}
+        </div>
         <h3 style={styles.clipTitle}>{clip.title}</h3>
         <p style={styles.sourceTitle}>Source: {clip.source_video_title}</p>
         <p style={styles.caption}>{clip.suggested_caption}</p>
@@ -274,6 +527,12 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
             <span style={styles.badgePublished}>✓ Published</span>
           )}
         </div>
+
+        {clip.rejection_note && (
+          <div style={styles.rejectionNoteDetailed}>
+            <strong>Rejection Note:</strong> {clip.rejection_note}
+          </div>
+        )}
 
         {showActions && (
           <div style={styles.actions}>
@@ -342,6 +601,27 @@ const styles = {
     fontSize: '14px',
     opacity: 0.8
   },
+  categoryBar: {
+    display: 'flex',
+    gap: '8px',
+    flexWrap: 'wrap',
+    marginBottom: '16px'
+  },
+  categoryChip: {
+    padding: '8px 16px',
+    background: 'white',
+    border: '2px solid #e2e8f0',
+    borderRadius: '20px',
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s'
+  },
+  categoryChipActive: {
+    background: '#667eea',
+    color: 'white',
+    borderColor: '#667eea'
+  },
   toolbar: {
     display: 'flex',
     gap: '12px',
@@ -355,6 +635,16 @@ const styles = {
     fontSize: '15px',
     outline: 'none'
   },
+  select: {
+    padding: '12px 16px',
+    border: '2px solid #e2e8f0',
+    borderRadius: '8px',
+    fontSize: '15px',
+    fontWeight: '600',
+    background: 'white',
+    cursor: 'pointer',
+    outline: 'none'
+  },
   viewButton: {
     padding: '12px 24px',
     background: 'white',
@@ -364,6 +654,42 @@ const styles = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.2s'
+  },
+  bulkBar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '16px',
+    background: '#edf2f7',
+    borderRadius: '8px',
+    marginBottom: '16px'
+  },
+  bulkText: {
+    fontSize: '15px',
+    fontWeight: '600',
+    color: '#2d3748'
+  },
+  bulkActions: {
+    display: 'flex',
+    gap: '8px'
+  },
+  bulkButton: {
+    padding: '10px 20px',
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    background: 'white'
+  },
+  bulkApprove: {
+    background: '#48bb78',
+    color: 'white'
+  },
+  bulkReject: {
+    background: '#f56565',
+    color: 'white'
   },
   publishButton: {
     width: '100%',
@@ -382,10 +708,24 @@ const styles = {
     margin: '0 auto',
     padding: '0 24px 24px'
   },
+  resultsHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '16px'
+  },
   resultsCount: {
     fontSize: '14px',
-    color: '#718096',
-    marginBottom: '16px'
+    color: '#718096'
+  },
+  selectAllButton: {
+    padding: '8px 16px',
+    background: 'white',
+    border: '2px solid #e2e8f0',
+    borderRadius: '6px',
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer'
   },
   compactGrid: {
     display: 'grid',
@@ -403,6 +743,22 @@ const styles = {
     overflow: 'hidden',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     transition: 'transform 0.2s, box-shadow 0.2s',
+    cursor: 'pointer',
+    position: 'relative'
+  },
+  compactCardSelected: {
+    border: '3px solid #667eea',
+    boxShadow: '0 4px 12px rgba(102,126,234,0.3)'
+  },
+  checkbox: {
+    position: 'absolute',
+    top: '8px',
+    left: '8px',
+    zIndex: 10
+  },
+  checkboxInput: {
+    width: '20px',
+    height: '20px',
     cursor: 'pointer'
   },
   videoThumbnail: {
@@ -442,6 +798,16 @@ const styles = {
   compactContent: {
     padding: '12px'
   },
+  categoryBadge: {
+    display: 'inline-block',
+    padding: '4px 8px',
+    background: '#edf2f7',
+    borderRadius: '4px',
+    fontSize: '11px',
+    fontWeight: '600',
+    marginBottom: '8px',
+    color: '#4a5568'
+  },
   compactTitle: {
     fontSize: '14px',
     fontWeight: '600',
@@ -468,6 +834,15 @@ const styles = {
     fontSize: '12px',
     fontWeight: '600',
     color: '#059669'
+  },
+  rejectionNote: {
+    fontSize: '11px',
+    color: '#e53e3e',
+    background: '#fff5f5',
+    padding: '6px 8px',
+    borderRadius: '4px',
+    marginBottom: '8px',
+    lineHeight: '1.4'
   },
   compactActions: {
     display: 'flex',
@@ -502,7 +877,18 @@ const styles = {
     borderRadius: '12px',
     overflow: 'hidden',
     boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-    transition: 'transform 0.2s, box-shadow 0.2s'
+    transition: 'transform 0.2s, box-shadow 0.2s',
+    position: 'relative'
+  },
+  cardSelected: {
+    border: '3px solid #667eea',
+    boxShadow: '0 6px 16px rgba(102,126,234,0.3)'
+  },
+  cardCheckbox: {
+    position: 'absolute',
+    top: '12px',
+    left: '12px',
+    zIndex: 10
   },
   video: {
     width: '100%',
@@ -551,6 +937,16 @@ const styles = {
     fontSize: '13px',
     fontWeight: '600'
   },
+  rejectionNoteDetailed: {
+    fontSize: '13px',
+    color: '#e53e3e',
+    background: '#fff5f5',
+    padding: '12px',
+    borderRadius: '6px',
+    marginBottom: '16px',
+    lineHeight: '1.5',
+    border: '1px solid #feb2b2'
+  },
   actions: {
     display: 'flex',
     gap: '12px'
@@ -571,6 +967,75 @@ const styles = {
   },
   rejectButton: {
     background: 'linear-gradient(135deg, #f56565 0%, #e53e3e 100%)',
+    color: 'white'
+  },
+  modalOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000
+  },
+  modal: {
+    background: 'white',
+    borderRadius: '12px',
+    padding: '24px',
+    maxWidth: '500px',
+    width: '90%',
+    boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+  },
+  modalTitle: {
+    fontSize: '20px',
+    fontWeight: '700',
+    marginBottom: '12px',
+    color: '#1a202c'
+  },
+  modalText: {
+    fontSize: '14px',
+    color: '#718096',
+    marginBottom: '16px'
+  },
+  textarea: {
+    width: '100%',
+    padding: '12px',
+    border: '2px solid #e2e8f0',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontFamily: 'system-ui',
+    resize: 'vertical',
+    outline: 'none',
+    marginBottom: '16px'
+  },
+  modalActions: {
+    display: 'flex',
+    gap: '12px'
+  },
+  modalButton: {
+    flex: 1,
+    padding: '12px',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '15px',
+    fontWeight: '600',
+    cursor: 'pointer'
+  },
+  modalCancel: {
+    flex: 1,
+    padding: '12px',
+    border: '2px solid #e2e8f0',
+    borderRadius: '8px',
+    fontSize: '15px',
+    fontWeight: '600',
+    background: 'white',
+    cursor: 'pointer'
+  },
+  modalReject: {
+    background: '#f56565',
     color: 'white'
   },
   loading: {
