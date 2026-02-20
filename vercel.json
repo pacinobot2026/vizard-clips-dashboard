@@ -1,0 +1,12 @@
+{
+  "buildCommand": "npm run build",
+  "framework": "nextjs",
+  "env": {
+    "DASHBOARD_PASSWORD": "@dashboard_password",
+    "VIMEO_ACCESS_TOKEN": "@vimeo_access_token",
+    "VIMEO_USER_ID": "@vimeo_user_id",
+    "VIZARD_API_KEY": "@vizard_api_key",
+    "POSTBRIDGE_API_KEY": "@postbridge_api_key",
+    "SESSION_SECRET": "@session_secret"
+  }
+}
