@@ -69,28 +69,36 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)',
-    fontFamily: 'system-ui, -apple-system, sans-serif'
+    background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+    backgroundAttachment: 'fixed',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif'
   },
   card: {
-    background: '#1a202c',
-    padding: '40px',
-    borderRadius: '12px',
-    boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+    background: 'rgba(26, 32, 44, 0.8)',
+    backdropFilter: 'blur(20px)',
+    padding: '48px',
+    borderRadius: '24px',
+    boxShadow: '0 24px 80px rgba(0, 0, 0, 0.5)',
     width: '100%',
-    maxWidth: '400px'
+    maxWidth: '420px',
+    border: '1px solid rgba(255, 255, 255, 0.1)'
   },
   title: {
-    fontSize: '28px',
-    fontWeight: '700',
+    fontSize: '32px',
+    fontWeight: '800',
     textAlign: 'center',
-    marginBottom: '8px',
-    color: '#f7fafc'
+    marginBottom: '12px',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+    letterSpacing: '-0.5px'
   },
   subtitle: {
     textAlign: 'center',
-    color: '#a0aec0',
-    marginBottom: '30px'
+    color: '#cbd5e0',
+    marginBottom: '36px',
+    fontSize: '15px'
   },
   form: {
     display: 'flex',

@@ -558,20 +558,27 @@ function ClipCard({ clip, onApprove, onReject, showActions, selected, onSelect }
 const styles = {
   container: {
     minHeight: '100vh',
-    background: '#0f1419',
-    fontFamily: 'system-ui, -apple-system, sans-serif'
+    background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+    backgroundAttachment: 'fixed',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif'
   },
   header: {
-    background: '#1a202c',
-    padding: '24px',
-    borderBottom: '1px solid #2d3748',
-    marginBottom: '24px'
+    background: 'rgba(26, 32, 44, 0.7)',
+    backdropFilter: 'blur(10px)',
+    padding: '32px',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+    marginBottom: '32px',
+    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)'
   },
   title: {
-    fontSize: '32px',
-    fontWeight: '700',
-    marginBottom: '24px',
-    color: '#f7fafc'
+    fontSize: '36px',
+    fontWeight: '800',
+    marginBottom: '32px',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+    letterSpacing: '-0.5px'
   },
   stats: {
     display: 'flex',
@@ -580,17 +587,21 @@ const styles = {
   },
   statBox: {
     flex: 1,
-    padding: '20px',
-    background: '#0f1419',
-    borderRadius: '8px',
+    padding: '24px',
+    background: 'rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(10px)',
+    borderRadius: '16px',
     cursor: 'pointer',
-    transition: 'all 0.2s',
-    border: '2px solid transparent'
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
   },
   statBoxActive: {
-    background: '#667eea',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     color: 'white',
-    border: '2px solid #667eea'
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    transform: 'translateY(-2px)',
+    boxShadow: '0 12px 40px rgba(102, 126, 234, 0.4)'
   },
   statCount: {
     fontSize: '32px',
@@ -693,15 +704,17 @@ const styles = {
   },
   publishButton: {
     width: '100%',
-    padding: '16px',
+    padding: '18px',
     background: 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)',
     color: 'white',
     border: 'none',
-    borderRadius: '8px',
-    fontSize: '16px',
-    fontWeight: '600',
+    borderRadius: '12px',
+    fontSize: '17px',
+    fontWeight: '700',
     cursor: 'pointer',
-    transition: 'transform 0.2s'
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    boxShadow: '0 8px 24px rgba(72, 187, 120, 0.4)',
+    letterSpacing: '0.3px'
   },
   main: {
     maxWidth: '1400px',
@@ -738,17 +751,20 @@ const styles = {
     gap: '24px'
   },
   compactCard: {
-    background: '#1a202c',
-    borderRadius: '8px',
+    background: 'rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(10px)',
+    borderRadius: '16px',
     overflow: 'hidden',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    transition: 'transform 0.2s, box-shadow 0.2s',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     cursor: 'pointer',
-    position: 'relative'
+    position: 'relative',
+    border: '1px solid rgba(255, 255, 255, 0.1)'
   },
   compactCardSelected: {
-    border: '3px solid #667eea',
-    boxShadow: '0 4px 12px rgba(102,126,234,0.3)'
+    border: '2px solid #667eea',
+    boxShadow: '0 12px 40px rgba(102, 126, 234, 0.5)',
+    transform: 'translateY(-4px)'
   },
   checkbox: {
     position: 'absolute',
@@ -873,16 +889,19 @@ const styles = {
     transition: 'transform 0.2s'
   },
   card: {
-    background: '#1a202c',
-    borderRadius: '12px',
+    background: 'rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(10px)',
+    borderRadius: '20px',
     overflow: 'hidden',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-    transition: 'transform 0.2s, box-shadow 0.2s',
-    position: 'relative'
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    position: 'relative',
+    border: '1px solid rgba(255, 255, 255, 0.1)'
   },
   cardSelected: {
-    border: '3px solid #667eea',
-    boxShadow: '0 6px 16px rgba(102,126,234,0.3)'
+    border: '2px solid #667eea',
+    boxShadow: '0 16px 48px rgba(102, 126, 234, 0.5)',
+    transform: 'translateY(-4px)'
   },
   cardCheckbox: {
     position: 'absolute',
@@ -975,19 +994,22 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    background: 'rgba(0,0,0,0.5)',
+    background: 'rgba(0, 0, 0, 0.8)',
+    backdropFilter: 'blur(4px)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000
   },
   modal: {
-    background: '#1a202c',
-    borderRadius: '12px',
-    padding: '24px',
+    background: 'rgba(26, 32, 44, 0.95)',
+    backdropFilter: 'blur(20px)',
+    borderRadius: '20px',
+    padding: '32px',
     maxWidth: '500px',
     width: '90%',
-    boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+    boxShadow: '0 24px 80px rgba(0, 0, 0, 0.5)',
+    border: '1px solid rgba(255, 255, 255, 0.1)'
   },
   modalTitle: {
     fontSize: '20px',
