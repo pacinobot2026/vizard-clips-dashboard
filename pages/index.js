@@ -69,11 +69,11 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    background: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)',
     fontFamily: 'system-ui, -apple-system, sans-serif'
   },
   card: {
-    background: 'white',
+    background: '#1a202c',
     padding: '40px',
     borderRadius: '12px',
     boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
@@ -85,11 +85,11 @@ const styles = {
     fontWeight: '700',
     textAlign: 'center',
     marginBottom: '8px',
-    color: '#333'
+    color: '#f7fafc'
   },
   subtitle: {
     textAlign: 'center',
-    color: '#666',
+    color: '#a0aec0',
     marginBottom: '30px'
   },
   form: {
@@ -107,7 +107,7 @@ const styles = {
   },
   button: {
     padding: '14px',
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    background: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)',
     color: 'white',
     border: 'none',
     borderRadius: '8px',

@@ -558,20 +558,20 @@ function ClipCard({ clip, onApprove, onReject, showActions, selected, onSelect }
 const styles = {
   container: {
     minHeight: '100vh',
-    background: '#f7fafc',
+    background: '#0f1419',
     fontFamily: 'system-ui, -apple-system, sans-serif'
   },
   header: {
-    background: 'white',
+    background: '#1a202c',
     padding: '24px',
-    borderBottom: '1px solid #e2e8f0',
+    borderBottom: '1px solid #2d3748',
     marginBottom: '24px'
   },
   title: {
     fontSize: '32px',
     fontWeight: '700',
     marginBottom: '24px',
-    color: '#1a202c'
+    color: '#f7fafc'
   },
   stats: {
     display: 'flex',
@@ -581,7 +581,7 @@ const styles = {
   statBox: {
     flex: 1,
     padding: '20px',
-    background: '#f7fafc',
+    background: '#0f1419',
     borderRadius: '8px',
     cursor: 'pointer',
     transition: 'all 0.2s',
@@ -609,8 +609,8 @@ const styles = {
   },
   categoryChip: {
     padding: '8px 16px',
-    background: 'white',
-    border: '2px solid #e2e8f0',
+    background: '#1a202c',
+    border: '2px solid #2d3748',
     borderRadius: '20px',
     fontSize: '14px',
     fontWeight: '600',
@@ -630,25 +630,25 @@ const styles = {
   searchInput: {
     flex: 1,
     padding: '12px 16px',
-    border: '2px solid #e2e8f0',
+    border: '2px solid #2d3748',
     borderRadius: '8px',
     fontSize: '15px',
     outline: 'none'
   },
   select: {
     padding: '12px 16px',
-    border: '2px solid #e2e8f0',
+    border: '2px solid #2d3748',
     borderRadius: '8px',
     fontSize: '15px',
     fontWeight: '600',
-    background: 'white',
+    background: '#1a202c',
     cursor: 'pointer',
     outline: 'none'
   },
   viewButton: {
     padding: '12px 24px',
-    background: 'white',
-    border: '2px solid #e2e8f0',
+    background: '#1a202c',
+    border: '2px solid #2d3748',
     borderRadius: '8px',
     fontSize: '15px',
     fontWeight: '600',
@@ -660,14 +660,14 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '16px',
-    background: '#edf2f7',
+    background: '#2d3748',
     borderRadius: '8px',
     marginBottom: '16px'
   },
   bulkText: {
     fontSize: '15px',
     fontWeight: '600',
-    color: '#2d3748'
+    color: '#e2e8f0'
   },
   bulkActions: {
     display: 'flex',
@@ -681,7 +681,7 @@ const styles = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.2s',
-    background: 'white'
+    background: '#1a202c'
   },
   bulkApprove: {
     background: '#48bb78',
@@ -716,12 +716,12 @@ const styles = {
   },
   resultsCount: {
     fontSize: '14px',
-    color: '#718096'
+    color: '#a0aec0'
   },
   selectAllButton: {
     padding: '8px 16px',
-    background: 'white',
-    border: '2px solid #e2e8f0',
+    background: '#1a202c',
+    border: '2px solid #2d3748',
     borderRadius: '6px',
     fontSize: '14px',
     fontWeight: '600',
@@ -738,7 +738,7 @@ const styles = {
     gap: '24px'
   },
   compactCard: {
-    background: 'white',
+    background: '#1a202c',
     borderRadius: '8px',
     overflow: 'hidden',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
@@ -801,18 +801,18 @@ const styles = {
   categoryBadge: {
     display: 'inline-block',
     padding: '4px 8px',
-    background: '#edf2f7',
+    background: '#2d3748',
     borderRadius: '4px',
     fontSize: '11px',
     fontWeight: '600',
     marginBottom: '8px',
-    color: '#4a5568'
+    color: '#cbd5e0'
   },
   compactTitle: {
     fontSize: '14px',
     fontWeight: '600',
     marginBottom: '8px',
-    color: '#1a202c',
+    color: '#f7fafc',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     display: '-webkit-box',
@@ -873,7 +873,7 @@ const styles = {
     transition: 'transform 0.2s'
   },
   card: {
-    background: 'white',
+    background: '#1a202c',
     borderRadius: '12px',
     overflow: 'hidden',
     boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
@@ -902,16 +902,16 @@ const styles = {
     fontSize: '18px',
     fontWeight: '600',
     marginBottom: '8px',
-    color: '#1a202c'
+    color: '#f7fafc'
   },
   sourceTitle: {
     fontSize: '14px',
-    color: '#718096',
+    color: '#a0aec0',
     marginBottom: '12px'
   },
   caption: {
     fontSize: '14px',
-    color: '#4a5568',
+    color: '#cbd5e0',
     marginBottom: '16px',
     lineHeight: '1.5'
   },
@@ -982,7 +982,7 @@ const styles = {
     zIndex: 1000
   },
   modal: {
-    background: 'white',
+    background: '#1a202c',
     borderRadius: '12px',
     padding: '24px',
     maxWidth: '500px',
@@ -993,17 +993,17 @@ const styles = {
     fontSize: '20px',
     fontWeight: '700',
     marginBottom: '12px',
-    color: '#1a202c'
+    color: '#f7fafc'
   },
   modalText: {
     fontSize: '14px',
-    color: '#718096',
+    color: '#a0aec0',
     marginBottom: '16px'
   },
   textarea: {
     width: '100%',
     padding: '12px',
-    border: '2px solid #e2e8f0',
+    border: '2px solid #2d3748',
     borderRadius: '8px',
     fontSize: '14px',
     fontFamily: 'system-ui',
@@ -1027,11 +1027,11 @@ const styles = {
   modalCancel: {
     flex: 1,
     padding: '12px',
-    border: '2px solid #e2e8f0',
+    border: '2px solid #2d3748',
     borderRadius: '8px',
     fontSize: '15px',
     fontWeight: '600',
-    background: 'white',
+    background: '#1a202c',
     cursor: 'pointer'
   },
   modalReject: {
@@ -1044,7 +1044,7 @@ const styles = {
     justifyContent: 'center',
     minHeight: '100vh',
     fontSize: '20px',
-    color: '#718096'
+    color: '#a0aec0'
   },
   empty: {
     textAlign: 'center',
@@ -1052,6 +1052,6 @@ const styles = {
   },
   emptyText: {
     fontSize: '18px',
-    color: '#718096'
+    color: '#a0aec0'
   }
 };
