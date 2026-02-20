@@ -1,7 +1,7 @@
-import { getAuthToken, verifySessionToken } from '../../lib/auth';
-import { bulkUpdate } from '../../lib/storage';
+﻿import { getAuthToken, verifySessionToken } from '../../lib/auth';
+import { bulkUpdate } from '../../lib/github-storage';
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   // Verify authentication
   const token = getAuthToken(req);
   if (!verifySessionToken(token)) {
@@ -36,7 +36,7 @@ export default function handler(req, res) {
         return res.status(400).json({ error: 'Invalid action' });
     }
 
-    const results = bulkUpdate(clipIds, updates);
+    const results = await bulkUpdate(clipIds, updates);
     const successCount = results.filter(r => r.success).length;
 
     return res.status(200).json({
@@ -51,3 +51,4 @@ export default function handler(req, res) {
     return res.status(500).json({ error: 'Failed to perform bulk action' });
   }
 }
+

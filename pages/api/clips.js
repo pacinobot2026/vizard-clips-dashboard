@@ -1,7 +1,7 @@
 import { getAuthToken, verifySessionToken } from '../../lib/auth';
-import { getPendingClips, getApprovedClips, getPublishedClips, getRejectedClips, getStats, getCategories, getAllClips } from '../../lib/storage';
+import { getPendingClips, getApprovedClips, getPublishedClips, getRejectedClips, getStats, getCategories, getAllClips } from '../../lib/github-storage';
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   // Verify authentication
   const token = getAuthToken(req);
   if (!verifySessionToken(token)) {
@@ -19,22 +19,22 @@ export default function handler(req, res) {
     
     switch (filter) {
       case 'pending':
-        clips = getPendingClips();
+        clips = await getPendingClips();
         break;
       case 'approved':
-        clips = getApprovedClips();
+        clips = await getApprovedClips();
         break;
       case 'published':
-        clips = getPublishedClips();
+        clips = await getPublishedClips();
         break;
       case 'rejected':
-        clips = getRejectedClips();
+        clips = await getRejectedClips();
         break;
       case 'all':
-        clips = getAllClips();
+        clips = await getAllClips();
         break;
       default:
-        clips = getPendingClips(); // Default to pending
+        clips = await getPendingClips();
     }
 
     // Filter by category if specified
@@ -46,10 +46,10 @@ export default function handler(req, res) {
     if (sortBy) {
       switch (sortBy) {
         case 'viral_score':
-          clips.sort((a, b) => parseInt(b.viral_score) - parseInt(a.viral_score));
+          clips.sort((a, b) => parseFloat(b.viral_score) - parseFloat(a.viral_score));
           break;
         case 'duration':
-          clips.sort((a, b) => b.duration_ms - a.duration_ms);
+          clips.sort((a, b) => (b.duration_seconds || 0) - (a.duration_seconds || 0));
           break;
         case 'date_desc':
           clips.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -58,13 +58,12 @@ export default function handler(req, res) {
           clips.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
           break;
         default:
-          // Default: newest first
           clips.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       }
     }
 
-    const stats = getStats();
-    const categories = getCategories();
+    const stats = await getStats();
+    const categories = await getCategories();
 
     return res.status(200).json({
       clips,

@@ -1,5 +1,5 @@
-import { getAuthToken, verifySessionToken } from '../../lib/auth';
-import { getApprovedClips, updateClip } from '../../lib/storage';
+﻿import { getAuthToken, verifySessionToken } from '../../lib/auth';
+import { getApprovedClips, updateClip } from '../../lib/github-storage';
 import axios from 'axios';
 
 const POSTBRIDGE_API_KEY = process.env.POSTBRIDGE_API_KEY;
@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const approvedClips = getApprovedClips();
+    const approvedClips = await getApprovedClips();
     
     if (approvedClips.length === 0) {
       return res.status(200).json({
@@ -90,7 +90,7 @@ export default async function handler(req, res) {
         }
         
         // Update clip status
-        updateClip(clip.clip_id, {
+        await updateClip(clip.clip_id, {
           post_status: 'published',
           published_at: new Date().toISOString(),
           published_to_platforms: activeAccounts.map(a => a.platform).join(', ')
@@ -126,3 +126,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Failed to publish clips' });
   }
 }
+

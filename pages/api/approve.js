@@ -1,7 +1,7 @@
 import { getAuthToken, verifySessionToken } from '../../lib/auth';
-import { updateClip } from '../../lib/storage';
+import { updateClip } from '../../lib/github-storage';
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   // Verify authentication
   const token = getAuthToken(req);
   if (!verifySessionToken(token)) {
@@ -19,7 +19,7 @@ export default function handler(req, res) {
   }
 
   try {
-    const updatedClip = updateClip(clipId, {
+    const updatedClip = await updateClip(clipId, {
       status: 'approved'
     });
 
