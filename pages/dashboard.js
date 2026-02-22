@@ -11,20 +11,49 @@ export default function Dashboard() {
   const [sortBy, setSortBy] = useState('date_desc');
   const [loading, setLoading] = useState(true);
   const [processingCount, setProcessingCount] = useState(0);
+  const [nextCheckIn, setNextCheckIn] = useState(300); // 5 minutes in seconds
 
   useEffect(() => {
     fetchClips();
-    fetchProcessing();
   }, [filter, category, sortBy]);
+  
+  useEffect(() => {
+    fetchProcessing();
+    
+    // Check processing every 5 minutes
+    const processingInterval = setInterval(fetchProcessing, 5 * 60 * 1000);
+    
+    // Countdown timer (updates every second)
+    const countdownInterval = setInterval(() => {
+      setNextCheckIn(prev => {
+        if (prev <= 1) {
+          return 300; // Reset to 5 minutes
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => {
+      clearInterval(processingInterval);
+      clearInterval(countdownInterval);
+    };
+  }, []);
 
   const fetchProcessing = async () => {
     try {
       const res = await fetch('/api/processing');
       const data = await res.json();
       setProcessingCount(data.processing || 0);
+      setNextCheckIn(300); // Reset countdown on fetch
     } catch (err) {
       console.error('Error fetching processing count:', err);
     }
+  };
+  
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   const fetchClips = async () => {
@@ -107,22 +136,41 @@ export default function Dashboard() {
             <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '4px' }}>Video clip review and publishing</p>
           </div>
 
+          {/* Processing Status Banner */}
+          {processingCount > 0 && (
+            <div style={{
+              background: 'rgba(139, 92, 246, 0.1)',
+              border: '1px solid rgba(139, 92, 246, 0.3)',
+              borderRadius: '12px',
+              padding: '12px 20px',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
+              <div style={{
+                fontSize: '24px',
+                animation: 'spin 2s linear infinite'
+              }}>⚙️</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ color: '#a78bfa', fontSize: '14px', fontWeight: '600' }}>
+                  {processingCount} video{processingCount > 1 ? 's' : ''} being edited in Vizard
+                </div>
+                <div style={{ color: '#9ca3af', fontSize: '12px', marginTop: '2px' }}>
+                  Next check in {formatTime(nextCheckIn)}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Stats Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
             <StatCard 
               icon="⏳" 
               count={stats.pending || 0} 
               label="Pending"
               active={filter === 'pending'}
               onClick={() => setFilter('pending')}
-            />
-            <StatCard 
-              icon="⚙️" 
-              count={processingCount} 
-              label="Processing"
-              active={false}
-              onClick={() => {}}
-              style={{ cursor: 'default', opacity: 0.8 }}
             />
             <StatCard 
               icon="✅" 
@@ -146,6 +194,13 @@ export default function Dashboard() {
               onClick={() => setFilter('rejected')}
             />
           </div>
+          
+          <style jsx>{`
+            @keyframes spin {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+          `}</style>
 
           {/* Categories */}
           {categories.length > 0 && (
