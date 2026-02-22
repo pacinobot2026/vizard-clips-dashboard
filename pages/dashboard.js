@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [processingCount, setProcessingCount] = useState(0);
   const [nextCheckIn, setNextCheckIn] = useState(300); // 5 minutes in seconds
+  const [nextPostIn, setNextPostIn] = useState(7200); // 2 hours in seconds (default)
 
   useEffect(() => {
     fetchClips();
@@ -23,11 +24,20 @@ export default function Dashboard() {
     // Check processing every 5 minutes
     const processingInterval = setInterval(fetchProcessing, 5 * 60 * 1000);
     
-    // Countdown timer (updates every second)
+    // Countdown timers (updates every second)
     const countdownInterval = setInterval(() => {
+      // Processing check countdown
       setNextCheckIn(prev => {
         if (prev <= 1) {
           return 300; // Reset to 5 minutes
+        }
+        return prev - 1;
+      });
+      
+      // Social posting countdown
+      setNextPostIn(prev => {
+        if (prev <= 1) {
+          return 7200; // Reset to 2 hours
         }
         return prev - 1;
       });
@@ -54,6 +64,20 @@ export default function Dashboard() {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+  
+  const formatLongTime = (seconds) => {
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    if (hours > 0) {
+      return `${hours}h ${mins}m`;
+    } else if (mins > 0) {
+      return `${mins}m ${secs}s`;
+    } else {
+      return `${secs}s`;
+    }
   };
 
   const fetchClips = async () => {
@@ -136,30 +160,52 @@ export default function Dashboard() {
             <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '4px' }}>Video clip review and publishing</p>
           </div>
 
-          {/* Processing Status Banner - Always visible */}
+          {/* Status Banner - Always visible */}
           <div style={{
-            background: processingCount > 0 ? 'rgba(139, 92, 246, 0.1)' : 'rgba(75, 85, 99, 0.1)',
-            border: processingCount > 0 ? '1px solid rgba(139, 92, 246, 0.3)' : '1px solid rgba(75, 85, 99, 0.3)',
+            background: 'rgba(75, 85, 99, 0.1)',
+            border: '1px solid rgba(75, 85, 99, 0.3)',
             borderRadius: '12px',
             padding: '12px 20px',
             marginBottom: '16px',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px'
+            gap: '16px'
           }}>
-            <div style={{
-              fontSize: '24px',
-              animation: processingCount > 0 ? 'spin 2s linear infinite' : 'none'
-            }}>⚙️</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ color: processingCount > 0 ? '#a78bfa' : '#9ca3af', fontSize: '14px', fontWeight: '600' }}>
-                {processingCount > 0 
-                  ? `${processingCount} video${processingCount > 1 ? 's' : ''} being edited in Vizard`
-                  : 'No videos currently processing in Vizard'
-                }
+            {/* Processing Status */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+              <div style={{
+                fontSize: '24px',
+                animation: processingCount > 0 ? 'spin 2s linear infinite' : 'none'
+              }}>⚙️</div>
+              <div>
+                <div style={{ color: processingCount > 0 ? '#a78bfa' : '#9ca3af', fontSize: '13px', fontWeight: '600' }}>
+                  {processingCount > 0 
+                    ? `${processingCount} video${processingCount > 1 ? 's' : ''} being edited`
+                    : 'No videos processing'
+                  }
+                </div>
+                <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
+                  Next check: {formatTime(nextCheckIn)}
+                </div>
               </div>
-              <div style={{ color: '#9ca3af', fontSize: '12px', marginTop: '2px' }}>
-                Next check in {formatTime(nextCheckIn)}
+            </div>
+            
+            {/* Separator */}
+            <div style={{ width: '1px', height: '40px', background: 'rgba(75, 85, 99, 0.3)' }}></div>
+            
+            {/* Social Posting Timer */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+              <div style={{ fontSize: '24px' }}>🚀</div>
+              <div>
+                <div style={{ color: '#60a5fa', fontSize: '13px', fontWeight: '600' }}>
+                  Next social post
+                </div>
+                <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
+                  {stats.approved > 0 
+                    ? `In ${formatLongTime(nextPostIn)} (automated)`
+                    : 'No approved clips ready'
+                  }
+                </div>
               </div>
             </div>
           </div>
