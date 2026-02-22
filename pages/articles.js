@@ -619,33 +619,31 @@ export default function Articles() {
                           onClick={() => handleApprove(article.id)}
                           style={{
                             flex: 1,
-                            padding: '8px',
-                            background: 'rgba(16, 185, 129, 0.2)',
-                            border: '1px solid rgba(16, 185, 129, 0.4)',
+                            padding: '10px',
+                            background: 'transparent',
+                            border: 'none',
                             borderRadius: '6px',
                             color: '#10b981',
-                            fontSize: '11px',
-                            fontWeight: '500',
+                            fontSize: '20px',
                             cursor: 'pointer'
                           }}
                         >
-                          ✓ Approve
+                          ✓
                         </button>
                         <button
                           onClick={() => handleReject(article.id)}
                           style={{
                             flex: 1,
-                            padding: '8px',
-                            background: 'rgba(239, 68, 68, 0.2)',
-                            border: '1px solid rgba(239, 68, 68, 0.4)',
+                            padding: '10px',
+                            background: 'transparent',
+                            border: 'none',
                             borderRadius: '6px',
                             color: '#ef4444',
-                            fontSize: '11px',
-                            fontWeight: '500',
+                            fontSize: '20px',
                             cursor: 'pointer'
                           }}
                         >
-                          ✕ Reject
+                          ✕
                         </button>
                       </div>
                     )}
