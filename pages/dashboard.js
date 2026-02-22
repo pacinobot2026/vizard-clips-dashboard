@@ -648,19 +648,16 @@ export default function Dashboard() {
                       <tr key={clip.clip_id} style={{ borderBottom: '1px solid rgba(75, 85, 99, 0.3)' }}>
                         <td style={{ padding: '12px' }}>
                           {isMobile ? (
-                            <div style={{
-                              width: '80px',
-                              height: '100px',
-                              borderRadius: '8px',
-                              background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: 'white',
-                              fontSize: '24px'
-                            }}>
-                              ▶
-                            </div>
+                            <video 
+                              src={clip.clip_url}
+                              preload="metadata"
+                              muted
+                              playsInline
+                              style={{ width: '80px', height: '100px', objectFit: 'cover', borderRadius: '8px' }}
+                              onLoadedMetadata={(e) => {
+                                e.target.currentTime = 0.5;
+                              }}
+                            />
                           ) : (
                             <video 
                               src={clip.clip_url}
@@ -792,35 +789,22 @@ function ClipCard({ clip, onApprove, onReject, showActions, isMobile }) {
       }}>
         {clip.clip_url ? (
           isMobile ? (
-            /* Mobile: Static placeholder */
-            <div style={{
-              width: '100%',
-              height: '100%',
-              background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '48px',
-              color: 'white',
-              position: 'relative'
-            }}>
-              ▶
-              <div style={{
-                position: 'absolute',
-                bottom: '12px',
-                left: '12px',
-                right: '12px',
-                color: 'white',
-                fontSize: '12px',
-                fontWeight: '600',
-                textAlign: 'center',
-                background: 'rgba(0,0,0,0.5)',
-                padding: '4px 8px',
-                borderRadius: '4px'
-              }}>
-                {clip.title || 'Video Clip'}
-              </div>
-            </div>
+            /* Mobile: Static video thumbnail - load but don't play */
+            <video 
+              src={clip.clip_url}
+              preload="metadata"
+              muted
+              playsInline
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                filter: 'grayscale(100%)'
+              }}
+              onLoadedMetadata={(e) => {
+                e.target.currentTime = 0.5;
+              }}
+            />
           ) : (
             /* Desktop: Animated video */
             <video 
