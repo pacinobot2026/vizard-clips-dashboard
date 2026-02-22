@@ -246,6 +246,29 @@ export default function Ideas() {
               50% { background-position: 100% 50%; }
               100% { background-position: 0% 50%; }
             }
+
+            /* Mobile Responsive */
+            @media (max-width: 768px) {
+              main {
+                padding: 16px !important;
+              }
+              h1 {
+                font-size: 24px !important;
+              }
+              /* Stat cards - 2 columns on mobile (5 cards = 3 rows) */
+              div[style*="gridTemplateColumns: 'repeat(5, 1fr)'"] {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+              }
+              /* Search/filter row - stack vertically */
+              div[style*="flexWrap: 'wrap'"] {
+                flex-direction: column !important;
+              }
+              /* Card grids - 1 column */
+              div[style*="repeat(auto-fill"] {
+                grid-template-columns: 1fr !important;
+              }
+            }
           `}</style>
 
           {/* Stats Cards */}

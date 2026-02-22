@@ -345,6 +345,29 @@ export default function Articles() {
               from { transform: rotate(0deg); }
               to { transform: rotate(360deg); }
             }
+
+            /* Mobile Responsive */
+            @media (max-width: 768px) {
+              main {
+                padding: 16px !important;
+              }
+              h1 {
+                font-size: 24px !important;
+              }
+              /* Stat cards - 2 columns on mobile */
+              div[style*="gridTemplateColumns: 'repeat(4, 1fr)'"] {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+              }
+              /* Search/filter row - stack vertically */
+              div[style*="flexWrap: 'wrap'"] {
+                flex-direction: column !important;
+              }
+              /* Card grids - 1 column */
+              div[style*="repeat(auto-fill"] {
+                grid-template-columns: 1fr !important;
+              }
+            }
           `}</style>
 
           {/* Stats Cards */}

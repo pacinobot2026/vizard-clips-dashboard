@@ -137,6 +137,18 @@ export default function NavigationSidebar() {
           )}
         </div>
       </div>
+
+      <style jsx>{`
+        @media (max-width: 768px) {
+          div {
+            width: 0 !important;
+            min-width: 0 !important;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+          }
+        }
+      `}</style>
     </div>
   );
 }
