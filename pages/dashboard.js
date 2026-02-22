@@ -117,28 +117,40 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* Clips Grid */}
-          <div style={{ marginBottom: '16px', color: '#9ca3af', fontSize: '14px' }}>
-            {clips.length} clips
-          </div>
+          {/* Clips Section - in a box like Control Panel */}
+          <div style={{
+            background: 'rgba(17, 24, 39, 0.5)',
+            borderRadius: '16px',
+            padding: '24px',
+            border: '1px solid rgba(75, 85, 99, 0.5)'
+          }}>
+            <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#fff' }}>
+                📹 Video Clips
+              </h2>
+              <div style={{ color: '#9ca3af', fontSize: '14px' }}>
+                {clips.length} clips
+              </div>
+            </div>
 
-          {clips.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '64px', color: '#6b7280' }}>
-              No {filter} clips
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-              {clips.map((clip) => (
-                <ClipCard 
-                  key={clip.clip_id} 
-                  clip={clip}
-                  onApprove={() => handleApprove(clip.clip_id)}
-                  onReject={() => handleReject(clip.clip_id)}
-                  showActions={filter === 'pending'}
-                />
-              ))}
-            </div>
-          )}
+            {clips.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '64px', color: '#6b7280' }}>
+                No {filter} clips
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                {clips.map((clip) => (
+                  <ClipCard 
+                    key={clip.clip_id} 
+                    clip={clip}
+                    onApprove={() => handleApprove(clip.clip_id)}
+                    onReject={() => handleReject(clip.clip_id)}
+                    showActions={filter === 'pending'}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </main>
     </div>
@@ -177,11 +189,12 @@ function StatCard({ icon, count, label, active, onClick }) {
 function ClipCard({ clip, onApprove, onReject, showActions }) {
   return (
     <div style={{
-      background: 'rgba(31, 41, 55, 0.5)',
+      background: 'rgba(31, 41, 55, 0.7)',
       borderRadius: '12px',
       border: '1px solid rgba(75, 85, 99, 0.5)',
       overflow: 'hidden',
-      transition: 'all 0.3s'
+      transition: 'all 0.3s',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
     }}>
       {/* Video Thumbnail */}
       <div style={{ 
