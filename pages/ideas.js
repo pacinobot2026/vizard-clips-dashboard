@@ -299,7 +299,7 @@ export default function Ideas() {
             <StatCard 
               icon="✅" 
               count={stats.completed || 0} 
-              label="Completed"
+              label="Done"
               active={filter === 'completed'}
               onClick={() => setFilter('completed')}
               delay={0.3}
