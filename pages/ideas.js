@@ -266,17 +266,17 @@ export default function Ideas() {
           <div style={{ marginBottom: '24px' }}>
             <input
               type="text"
-              placeholder="🔍 Search ideas..."
+              placeholder="🔍 Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
-                maxWidth: '400px',
-                padding: '10px 16px',
+                maxWidth: '250px',
+                padding: '8px 12px',
                 background: 'rgba(31, 41, 55, 0.5)',
                 border: '1px solid rgba(75, 85, 99, 0.5)',
                 borderRadius: '8px',
                 color: '#fff',
-                fontSize: '14px',
+                fontSize: '13px',
                 outline: 'none'
               }}
             />
