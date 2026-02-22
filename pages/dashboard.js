@@ -199,18 +199,21 @@ export default function Dashboard() {
       <NavigationSidebar />
       <div style={styles.container}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 32px' }}>
-          <div style={styles.header}>
-            <h1 style={styles.title}>🎬 Video Cue Board</h1>
-            <p style={styles.subtitle}>Video clip review and publishing</p>
+          {/* Header */}
+          <div style={{ paddingTop: '24px', marginBottom: '24px' }}>
+            <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#fff', marginBottom: '4px' }}>
+              🎬 Video Cue Board
+            </h1>
+            <p style={{ fontSize: '14px', color: '#9ca3af' }}>Video clip review and publishing</p>
           </div>
           
-          {/* Status Tabs */}
-          <div style={styles.stats}>
-          <StatBox label="Pending" count={stats.pending} active={filter === 'pending'} onClick={() => setFilter('pending')} />
-          <StatBox label="Approved" count={stats.approved} active={filter === 'approved'} onClick={() => setFilter('approved')} />
-          <StatBox label="Published" count={stats.published} active={filter === 'published'} onClick={() => setFilter('published')} />
-          <StatBox label="Rejected" count={stats.rejected} active={filter === 'rejected'} onClick={() => setFilter('rejected')} color="#f56565" />
-        </div>
+          {/* Stats Cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+            <StatBox label="Pending" count={stats.pending} active={filter === 'pending'} onClick={() => setFilter('pending')} />
+            <StatBox label="Approved" count={stats.approved} active={filter === 'approved'} onClick={() => setFilter('approved')} />
+            <StatBox label="Published" count={stats.published} active={filter === 'published'} onClick={() => setFilter('published')} />
+            <StatBox label="Rejected" count={stats.rejected} active={filter === 'rejected'} onClick={() => setFilter('rejected')} />
+          </div>
 
         {/* Category Filter */}
         <div style={styles.categoryBar}>
@@ -400,7 +403,7 @@ function Modal({ children, onClose }) {
   );
 }
 
-function StatBox({ label, count, active, onClick, color }) {
+function StatBox({ label, count, active, onClick }) {
   const getIcon = () => {
     if (label === 'Pending') return '⏳';
     if (label === 'Approved') return '✅';
@@ -413,14 +416,19 @@ function StatBox({ label, count, active, onClick, color }) {
     <div 
       onClick={onClick}
       style={{
-        ...styles.statBox,
-        ...(active ? { background: color || '#8b5cf6', borderColor: color || '#8b5cf6', transform: 'scale(1.05)' } : {})
+        padding: '16px',
+        background: active ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
+        borderRadius: '12px',
+        cursor: 'pointer',
+        transition: 'all 0.3s',
+        border: `1px solid ${active ? '#8b5cf6' : 'rgba(75, 85, 99, 0.5)'}`,
+        transform: active ? 'scale(1.05)' : 'none'
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ fontSize: '32px' }}>{getIcon()}</div>
+        <div style={{ fontSize: '28px' }}>{getIcon()}</div>
         <div>
-          <div style={{ fontSize: '28px', fontWeight: '700', color: active ? '#fff' : '#06b6d4', lineHeight: 1, marginBottom: '4px' }}>
+          <div style={{ fontSize: '24px', fontWeight: '700', color: active ? '#fff' : '#06b6d4', lineHeight: 1, marginBottom: '4px' }}>
             {count || 0}
           </div>
           <div style={{ fontSize: '12px', color: active ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>
