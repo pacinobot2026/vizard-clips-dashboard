@@ -5,7 +5,7 @@ export default function Ideas() {
   const [ideas, setIdeas] = useState([]);
   const [stats, setStats] = useState({});
   const [categories, setCategories] = useState([]);
-  const [filter, setFilter] = useState('inbox');
+  const [filter, setFilter] = useState('urgent');
   const [category, setCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date_desc');
@@ -56,7 +56,7 @@ export default function Ideas() {
         title: "Weekly live Q&A for Entourage members",
         description: "Host a weekly Zoom call where members can ask questions about their local media sites",
         category: "Events",
-        status: "inbox",
+        status: "active",
         priority: "medium",
         tags: ["Entourage", "Live", "Support"],
         created_at: "2026-02-22T09:15:00Z"
@@ -86,7 +86,7 @@ export default function Ideas() {
         title: "Partner with local businesses for sponsored content",
         description: "Reach out to West Valley businesses to sponsor newsletter sections or dedicated articles",
         category: "Events",
-        status: "inbox",
+        status: "someday",
         priority: "medium",
         tags: ["Sponsorship", "Revenue", "Local"],
         created_at: "2026-02-21T11:00:00Z"
@@ -125,7 +125,6 @@ export default function Ideas() {
 
     // Calculate stats
     const statsCalc = {
-      inbox: mockIdeas.filter(i => i.status === 'inbox').length,
       urgent: mockIdeas.filter(i => i.status === 'urgent').length,
       active: mockIdeas.filter(i => i.status === 'active').length,
       someday: mockIdeas.filter(i => i.status === 'someday').length,
@@ -255,8 +254,8 @@ export default function Ideas() {
               h1 {
                 font-size: 24px !important;
               }
-              /* Stat cards - 2 columns on mobile (5 cards = 3 rows) */
-              div[style*="gridTemplateColumns: 'repeat(5, 1fr)'"] {
+              /* Stat cards - 2 columns on mobile (4 cards = 2 rows) */
+              div[style*="gridTemplateColumns: 'repeat(4, 1fr)'"] {
                 grid-template-columns: repeat(2, 1fr) !important;
                 gap: 12px !important;
               }
@@ -272,22 +271,14 @@ export default function Ideas() {
           `}</style>
 
           {/* Stats Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px', marginBottom: '16px' }}>
-            <StatCard 
-              icon="📥" 
-              count={stats.inbox || 0} 
-              label="Inbox"
-              active={filter === 'inbox'}
-              onClick={() => setFilter('inbox')}
-              delay={0}
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
             <StatCard 
               icon="🔥" 
               count={stats.urgent || 0} 
               label="Urgent"
               active={filter === 'urgent'}
               onClick={() => setFilter('urgent')}
-              delay={0.1}
+              delay={0}
             />
             <StatCard 
               icon="⚡" 
@@ -295,7 +286,7 @@ export default function Ideas() {
               label="Active"
               active={filter === 'active'}
               onClick={() => setFilter('active')}
-              delay={0.2}
+              delay={0.1}
             />
             <StatCard 
               icon="💭" 
@@ -303,7 +294,7 @@ export default function Ideas() {
               label="Someday"
               active={filter === 'someday'}
               onClick={() => setFilter('someday')}
-              delay={0.3}
+              delay={0.2}
             />
             <StatCard 
               icon="✅" 
@@ -311,7 +302,7 @@ export default function Ideas() {
               label="Completed"
               active={filter === 'completed'}
               onClick={() => setFilter('completed')}
-              delay={0.4}
+              delay={0.3}
             />
           </div>
 
