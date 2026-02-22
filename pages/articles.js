@@ -12,8 +12,10 @@ export default function Articles() {
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'cards'
   const [loading, setLoading] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [searchVisible, setSearchVisible] = useState(false);
   const [searchCountdown, setSearchCountdown] = useState(3600); // 1 hour in seconds
   const [postCountdown, setPostCountdown] = useState(7200); // 2 hours in seconds
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     loadMockArticles();
@@ -220,12 +222,17 @@ export default function Articles() {
   };
 
   const formatTime = (seconds) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    if (h > 0) return `${h}h ${m}m`;
-    if (m > 0) return `${m}m ${s}s`;
-    return `${s}s`;
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    if (hours > 0) {
+      return `${hours}h ${mins}m`;
+    } else if (mins > 0) {
+      return `${mins}m ${secs}s`;
+    } else {
+      return `${secs}s`;
+    }
   };
 
   if (loading) {
@@ -243,8 +250,91 @@ export default function Articles() {
     <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1423' }}>
       <NavigationSidebar />
       
-      <main style={{ flex: 1, padding: '32px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+      <main style={{ flex: 1, padding: '32px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', background: '#0D1423', position: 'relative' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+          
+          {/* Hamburger Menu - Top Right */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="hamburger-menu"
+            style={{
+              position: 'fixed',
+              top: '16px',
+              right: '16px',
+              zIndex: 1001,
+              background: '#1f2937',
+              border: '1px solid #374151',
+              borderRadius: '8px',
+              padding: '12px',
+              color: '#fff',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+              display: 'none'
+            }}
+          >
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          {/* Publications Menu Dropdown */}
+          {mobileMenuOpen && (
+            <>
+              <div
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: 'rgba(0, 0, 0, 0.5)',
+                  zIndex: 999
+                }}
+              />
+              <div style={{
+                position: 'fixed',
+                top: '72px',
+                right: '16px',
+                background: '#1f2937',
+                border: '1px solid #374151',
+                borderRadius: '12px',
+                padding: '8px',
+                zIndex: 1000,
+                minWidth: '200px',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)'
+              }}>
+                <div style={{ padding: '8px 12px', color: '#9ca3af', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+                  Publications
+                </div>
+                <a href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>🎬</span>
+                  <span style={{ fontSize: '14px' }}>Video Board</span>
+                </a>
+                <a href="/articles" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px', background: 'rgba(139, 92, 246, 0.2)' }}>
+                  <span style={{ fontSize: '20px' }}>📰</span>
+                  <span style={{ fontSize: '14px' }}>Article Board</span>
+                </a>
+                <a href="/ideas" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>💡</span>
+                  <span style={{ fontSize: '14px' }}>Idea Board</span>
+                </a>
+                <div style={{ height: '1px', background: '#374151', margin: '8px 0' }} />
+                <a href="https://dashboard-gilt-one-zc4y5uu95v.vercel.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>🎛️</span>
+                  <span style={{ fontSize: '14px' }}>Command Center</span>
+                </a>
+                <a href="https://kanban-rho-ivory.vercel.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>👥</span>
+                  <span style={{ fontSize: '14px' }}>Team Board</span>
+                </a>
+                <a href="/openclaw" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>🤖</span>
+                  <span style={{ fontSize: '14px' }}>OpenClaw Board</span>
+                </a>
+              </div>
+            </>
+          )}
           
           {/* Header */}
           <div style={{ 
@@ -267,179 +357,30 @@ export default function Articles() {
             <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '4px' }}>Article review and publishing</p>
           </div>
 
-          {/* Cron Job Status Banner */}
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1))',
-            border: '1px solid rgba(139, 92, 246, 0.3)',
-            borderRadius: '12px',
-            padding: '16px 24px',
-            marginBottom: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '32px',
-            animation: 'slideUp 0.5s ease-out 0.2s both'
-          }}>
-            {/* Article Search */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-              <div style={{ fontSize: '20px' }}>🔍</div>
-              <div>
-                <div style={{ fontSize: '13px', color: '#9ca3af', marginBottom: '2px' }}>Next article search</div>
-                <div style={{ fontSize: '15px', color: '#fff', fontWeight: '600' }}>
-                  In {formatTime(searchCountdown)}
-                </div>
-              </div>
-            </div>
-
-            {/* Separator */}
-            <div style={{ width: '1px', height: '40px', background: 'rgba(139, 92, 246, 0.3)' }} />
-
-            {/* Letterman Post */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-              <div style={{ fontSize: '20px' }}>📰</div>
-              <div>
-                <div style={{ fontSize: '13px', color: '#9ca3af', marginBottom: '2px' }}>Next Letterman post</div>
-                <div style={{ fontSize: '15px', color: '#fff', fontWeight: '600' }}>
-                  In {formatTime(postCountdown)}
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <style jsx>{`
-            @keyframes fadeIn {
-              from { opacity: 0; transform: translateY(-10px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes slideUp {
-              from { opacity: 0; transform: translateY(20px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes scaleIn {
-              from { opacity: 0; transform: scale(0.95); }
-              to { opacity: 1; transform: scale(1); }
-            }
-            @keyframes pulse {
-              0%, 100% { opacity: 1; }
-              50% { opacity: 0.6; }
-            }
-            @keyframes gradientShift {
-              0% { background-position: 0% 50%; }
-              50% { background-position: 100% 50%; }
-              100% { background-position: 0% 50%; }
-            }
-          `}</style>
-
-          {/* Stats Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
-            <StatCard 
-              icon="📝" 
-              count={stats.draft || 0} 
-              label="Draft"
-              active={filter === 'draft'}
-              onClick={() => setFilter('draft')}
-              delay={0}
-            />
-            <StatCard 
-              icon="✅" 
-              count={stats.approved || 0} 
-              label="Approved"
-              active={filter === 'approved'}
-              onClick={() => setFilter('approved')}
-              delay={0.1}
-            />
-            <StatCard 
-              icon="🚀" 
-              count={stats.published || 0} 
-              label="Published"
-              active={filter === 'published'}
-              onClick={() => setFilter('published')}
-              delay={0.2}
-            />
-            <StatCard 
-              icon="❌" 
-              count={stats.rejected || 0} 
-              label="Rejected"
-              active={filter === 'rejected'}
-              onClick={() => setFilter('rejected')}
-              delay={0.3}
-            />
-          </div>
-
-          {/* Categories */}
-          {categories.length > 0 && (
-            <div style={{ marginBottom: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => setCategory('all')}
-                style={{
-                  padding: '8px 16px',
-                  background: category === 'all' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                  border: '1px solid rgba(75, 85, 99, 0.5)',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-              >
-                All Publications
-              </button>
-              {categories.map(cat => (
-                <button
-                  key={cat.name}
-                  onClick={() => setCategory(cat.name)}
-                  style={{
-                    padding: '8px 16px',
-                    background: category === cat.name ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                    border: '1px solid rgba(75, 85, 99, 0.5)',
-                    borderRadius: '8px',
-                    color: '#fff',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  {cat.emoji} {cat.name} ({cat.count})
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Search, Filters, and View Toggle */}
-          <div style={{ marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <input
-              type="text"
-              placeholder="🔍 Search articles..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                flex: 1,
-                minWidth: '200px',
-                padding: '10px 16px',
-                background: 'rgba(31, 41, 55, 0.5)',
-                border: '1px solid rgba(75, 85, 99, 0.5)',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '14px',
-                outline: 'none'
-              }}
-            />
+          {/* Publications Dropdown + View Toggle */}
+          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            {/* Publications Dropdown */}
             <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
               style={{
-                padding: '10px 16px',
+                padding: '6px 16px',
                 background: 'rgba(31, 41, 55, 0.5)',
                 border: '1px solid rgba(75, 85, 99, 0.5)',
                 borderRadius: '8px',
                 color: '#fff',
-                fontSize: '14px',
+                fontSize: '13px',
                 cursor: 'pointer',
-                outline: 'none'
+                outline: 'none',
+                fontWeight: '600'
               }}
             >
-              <option value="date_desc">Newest First</option>
-              <option value="date_asc">Oldest First</option>
-              <option value="title">Title</option>
+              <option value="all">All Publications</option>
+              {categories.map(cat => (
+                <option key={cat.name} value={cat.name}>
+                  {cat.emoji} {cat.name}
+                </option>
+              ))}
             </select>
             
             {/* View Toggle */}
@@ -479,6 +420,292 @@ export default function Articles() {
             </div>
           </div>
 
+          {/* Status Banner - Desktop only */}
+          <div className="status-banner" style={{
+            background: 'rgba(75, 85, 99, 0.1)',
+            border: '1px solid rgba(75, 85, 99, 0.3)',
+            borderRadius: '12px',
+            padding: '12px 20px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px'
+          }}>
+            {/* Article Search */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+              <div style={{
+                fontSize: '24px',
+                animation: 'spin 2s linear infinite'
+              }}>🔍</div>
+              <div>
+                <div className="status-title" style={{ color: '#a78bfa', fontSize: '13px', fontWeight: '600' }}>
+                  Next article search
+                </div>
+                <div className="status-time" style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
+                  In {formatTime(searchCountdown)} (automated)
+                </div>
+              </div>
+            </div>
+            
+            {/* Separator */}
+            <div style={{ width: '1px', height: '40px', background: 'rgba(75, 85, 99, 0.3)' }}></div>
+            
+            {/* Letterman Posting */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+              <div style={{ fontSize: '24px' }}>📰</div>
+              <div>
+                <div className="status-title" style={{ color: '#60a5fa', fontSize: '13px', fontWeight: '600' }}>
+                  Next Letterman post
+                </div>
+                <div className="status-time" style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
+                  {stats.approved > 0 
+                    ? `In ${formatTime(postCountdown)} (automated)`
+                    : 'No approved articles ready'
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <style jsx>{`
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(-10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes slideUp {
+              from { opacity: 0; transform: translateY(20px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes scaleIn {
+              from { opacity: 0; transform: scale(0.95); }
+              to { opacity: 1; transform: scale(1); }
+            }
+            @keyframes pulse {
+              0%, 100% { opacity: 1; }
+              50% { opacity: 0.6; }
+            }
+            @keyframes gradientShift {
+              0% { background-position: 0% 50%; }
+              50% { background-position: 100% 50%; }
+              100% { background-position: 0% 50%; }
+            }
+            @keyframes spin {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+
+            /* Mobile Responsive */
+            @media (max-width: 768px) {
+              main {
+                padding: 16px !important;
+                padding-top: 64px !important;
+              }
+              h1 {
+                font-size: 24px !important;
+              }
+              /* Show hamburger on mobile */
+              .hamburger-menu {
+                display: block !important;
+              }
+              /* Stat cards - 2 columns on mobile */
+              div[style*="gridTemplateColumns: 'repeat(4, 1fr)'"] {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+              }
+              /* Keep filters row horizontal on mobile */
+              .filters-row {
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+              }
+              .filters-row > input {
+                flex: 1 !important;
+                min-width: 120px !important;
+              }
+              .filters-row > select {
+                flex-shrink: 0 !important;
+              }
+              /* Card grids - 1 column */
+              div[style*="repeat(auto-fill"] {
+                grid-template-columns: 1fr !important;
+              }
+              /* Table list view - hide on mobile, show mobile list instead */
+              .desktop-table {
+                display: none !important;
+              }
+              .mobile-list {
+                display: block !important;
+              }
+              /* Categories - dropdown on mobile */
+              .desktop-categories {
+                display: none !important;
+              }
+              .mobile-categories {
+                display: block !important;
+              }
+              /* Status banner - BIGGER text on mobile */
+              .status-title {
+                font-size: 18px !important;
+              }
+              .status-time {
+                font-size: 16px !important;
+                color: #9ca3af !important;
+              }
+            }
+            @media (min-width: 769px) {
+              /* Hide hamburger on desktop */
+              .hamburger-menu {
+                display: none !important;
+              }
+            }
+          `}</style>
+
+          {/* Stats Cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
+            <StatCard 
+              icon="📝" 
+              count={stats.draft || 0} 
+              label="Draft"
+              active={filter === 'draft'}
+              onClick={() => setFilter('draft')}
+              delay={0}
+            />
+            <StatCard 
+              icon="✅" 
+              count={stats.approved || 0} 
+              label="Approved"
+              active={filter === 'approved'}
+              onClick={() => setFilter('approved')}
+              delay={0.1}
+            />
+            <StatCard 
+              icon="🚀" 
+              count={stats.published || 0} 
+              label="Published"
+              active={filter === 'published'}
+              onClick={() => setFilter('published')}
+              delay={0.2}
+            />
+            <StatCard 
+              icon="❌" 
+              count={stats.rejected || 0} 
+              label="Rejected"
+              active={filter === 'rejected'}
+              onClick={() => setFilter('rejected')}
+              delay={0.3}
+            />
+          </div>
+
+          {/* Categories */}
+          {categories.length > 0 && (
+            <>
+              {/* Desktop Category Buttons */}
+              <div className="desktop-categories" style={{ marginBottom: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => setCategory('all')}
+                  style={{
+                    padding: '8px 16px',
+                    background: category === 'all' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
+                    border: '1px solid rgba(75, 85, 99, 0.5)',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  All Publications
+                </button>
+                {categories.map(cat => (
+                  <button
+                    key={cat.name}
+                    onClick={() => setCategory(cat.name)}
+                    style={{
+                      padding: '8px 16px',
+                      background: category === cat.name ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
+                      border: '1px solid rgba(75, 85, 99, 0.5)',
+                      borderRadius: '8px',
+                      color: '#fff',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {cat.emoji} {cat.name} ({cat.count})
+                  </button>
+                ))}
+              </div>
+              
+            </>
+          )}
+
+          {/* Search, Filters, and View Toggle */}
+          {searchVisible && (
+          <div className="filters-row" style={{ marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            {/* Mobile Category Dropdown */}
+            {categories.length > 0 && (
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="mobile-categories"
+                style={{
+                  display: 'none',
+                  padding: '10px 16px',
+                  background: 'rgba(31, 41, 55, 0.5)',
+                  border: '1px solid rgba(75, 85, 99, 0.5)',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                <option value="all">All Publications</option>
+                {categories.map(cat => (
+                  <option key={cat.name} value={cat.name}>
+                    {cat.emoji} {cat.name} ({cat.count})
+                  </option>
+                ))}
+              </select>
+            )}
+            
+            <input
+              type="text"
+              placeholder="🔍 Search articles..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                flex: 1,
+                minWidth: '200px',
+                padding: '10px 16px',
+                background: 'rgba(31, 41, 55, 0.5)',
+                border: '1px solid rgba(75, 85, 99, 0.5)',
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '14px',
+                outline: 'none'
+              }}
+            />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{
+                padding: '10px 16px',
+                background: 'rgba(31, 41, 55, 0.5)',
+                border: '1px solid rgba(75, 85, 99, 0.5)',
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '14px',
+                cursor: 'pointer',
+                outline: 'none'
+              }}
+            >
+              <option value="date_desc">Newest First</option>
+              <option value="date_asc">Oldest First</option>
+              <option value="title">Title</option>
+            </select>
+          </div>
+          )}
+
           {/* Articles - List or Card View */}
           {filteredArticles.length === 0 ? (
             <div style={{
@@ -501,7 +728,7 @@ export default function Articles() {
               overflow: 'hidden',
               animation: 'scaleIn 0.4s ease-out 0.4s both'
             }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }} className="desktop-table">
                 <thead>
                   <tr style={{ 
                     background: 'rgba(31, 41, 55, 0.7)', 
@@ -541,6 +768,67 @@ export default function Articles() {
                   ))}
                 </tbody>
               </table>
+              
+              {/* Mobile List View */}
+              <div className="mobile-list" style={{ display: 'none', padding: '16px' }}>
+                {filteredArticles.map((article) => (
+                  <div key={article.id} style={{
+                    background: 'rgba(31, 41, 55, 0.7)',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    marginBottom: '12px',
+                    border: '1px solid rgba(75, 85, 99, 0.5)'
+                  }}>
+                    <div style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
+                      <img src={article.image_url} alt="" style={{ width: '60px', height: '60px', borderRadius: '6px', objectFit: 'cover', filter: 'grayscale(100%)' }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ color: '#fff', fontSize: '22px', fontWeight: '600', marginBottom: '8px', lineHeight: 1.3 }}>
+                          {article.title}
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', fontSize: '12px', color: '#9ca3af' }}>
+                          <span>{article.publication}</span>
+                          <span>•</span>
+                          <span>{new Date(article.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                        </div>
+                      </div>
+                    </div>
+                    {filter === 'draft' && (
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          onClick={() => handleApprove(article.id)}
+                          style={{
+                            flex: 1,
+                            padding: '10px',
+                            background: 'transparent',
+                            border: 'none',
+                            borderRadius: '6px',
+                            color: '#10b981',
+                            fontSize: '20px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ✓
+                        </button>
+                        <button
+                          onClick={() => handleReject(article.id)}
+                          style={{
+                            flex: 1,
+                            padding: '10px',
+                            background: 'transparent',
+                            border: 'none',
+                            borderRadius: '6px',
+                            color: '#ef4444',
+                            fontSize: '20px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             // CARD VIEW
