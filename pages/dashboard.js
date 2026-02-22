@@ -399,24 +399,31 @@ function Modal({ children, onClose }) {
 }
 
 function StatBox({ label, count, active, onClick, color }) {
+  const getIcon = () => {
+    if (label === 'Pending') return '⏳';
+    if (label === 'Approved') return '✅';
+    if (label === 'Published') return '🚀';
+    if (label === 'Rejected') return '❌';
+    return '📊';
+  };
+
   return (
     <div 
       onClick={onClick}
       style={{
         ...styles.statBox,
-        ...(active ? { background: color || '#8b5cf6', borderColor: color || '#8b5cf6' } : {})
+        ...(active ? { background: color || '#8b5cf6', borderColor: color || '#8b5cf6', transform: 'scale(1.05)' } : {})
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ fontSize: '24px' }}>
-          {label === 'Pending' && '⏳'}
-          {label === 'Approved' && '✅'}
-          {label === 'Published' && '🚀'}
-          {label === 'Rejected' && '❌'}
-        </div>
+        <div style={{ fontSize: '32px' }}>{getIcon()}</div>
         <div>
-          <div style={{ ...styles.statCount, color: active ? '#fff' : '#06b6d4' }}>{count || 0}</div>
-          <div style={{ ...styles.statLabel, color: active ? 'rgba(255,255,255,0.8)' : '#6b7280' }}>{label}</div>
+          <div style={{ fontSize: '28px', fontWeight: '700', color: active ? '#fff' : '#06b6d4', lineHeight: 1, marginBottom: '4px' }}>
+            {count || 0}
+          </div>
+          <div style={{ fontSize: '12px', color: active ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>
+            {label}
+          </div>
         </div>
       </div>
     </div>
@@ -600,21 +607,12 @@ const styles = {
   },
   statBox: {
     flex: 1,
-    padding: '16px',
+    padding: '16px 20px',
     background: 'rgba(31, 41, 55, 0.5)',
     borderRadius: '12px',
     cursor: 'pointer',
     transition: 'all 0.3s',
     border: '1px solid rgba(75, 85, 99, 0.5)'
-  },
-  statBoxActive: {},
-  statCount: {
-    fontSize: '24px',
-    fontWeight: '700',
-    marginBottom: '2px'
-  },
-  statLabel: {
-    fontSize: '12px'
   },
   categoryBar: {
     display: 'flex',
