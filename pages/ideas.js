@@ -9,7 +9,7 @@ export default function Ideas() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newIdea, setNewIdea] = useState({ title: '', description: '', category: 'business', priority: 'medium', urgent: false });
+  const [newIdea, setNewIdea] = useState({ title: '', description: '', category: 'business', priority: 'medium' });
 
   useEffect(() => {
     loadMockIdeas();
@@ -23,9 +23,8 @@ export default function Ideas() {
         title: "AI-powered local news aggregator for each city",
         description: "Build a system that scrapes local news sources and creates personalized newsletters for different neighborhoods",
         category: "Product Idea",
-        status: "inbox",
+        status: "urgent",
         priority: "high",
-        urgent: true,
         tags: ["AI", "Newsletter", "Local"],
         created_at: "2026-02-22T00:45:00Z"
       },
@@ -34,9 +33,8 @@ export default function Ideas() {
         title: "Automated video clip generation from long-form content",
         description: "Use Vizard to automatically create short clips from all our training videos and post to social",
         category: "Content Strategy",
-        status: "active",
+        status: "urgent",
         priority: "high",
-        urgent: false,
         tags: ["Video", "Automation", "Social Media"],
         created_at: "2026-02-21T10:30:00Z"
       },
@@ -47,7 +45,6 @@ export default function Ideas() {
         category: "Product Idea",
         status: "active",
         priority: "medium",
-        urgent: true,
         tags: ["Integration", "Course Sprout", "MintBird"],
         created_at: "2026-02-20T14:20:00Z"
       },
@@ -58,7 +55,6 @@ export default function Ideas() {
         category: "Community",
         status: "inbox",
         priority: "medium",
-        urgent: false,
         tags: ["Entourage", "Live", "Support"],
         created_at: "2026-02-22T09:15:00Z"
       },
@@ -69,7 +65,6 @@ export default function Ideas() {
         category: "Business Model",
         status: "someday",
         priority: "low",
-        urgent: false,
         tags: ["Pricing", "Bundle", "Strategy"],
         created_at: "2026-02-19T16:45:00Z"
       },
@@ -78,9 +73,8 @@ export default function Ideas() {
         title: "Launch 'Local Media OS' course teaching the full system",
         description: "Complete course on building local media empire: finding topics, setting up sites, monetization, scaling",
         category: "Product Idea",
-        status: "active",
+        status: "urgent",
         priority: "high",
-        urgent: true,
         tags: ["Course", "Training", "Local Media"],
         created_at: "2026-02-18T12:30:00Z"
       },
@@ -91,7 +85,6 @@ export default function Ideas() {
         category: "Revenue",
         status: "inbox",
         priority: "medium",
-        urgent: false,
         tags: ["Sponsorship", "Revenue", "Local"],
         created_at: "2026-02-21T11:00:00Z"
       },
@@ -102,7 +95,6 @@ export default function Ideas() {
         category: "Product Feature",
         status: "completed",
         priority: "medium",
-        urgent: false,
         tags: ["PopLinks", "Templates", "UX"],
         created_at: "2026-02-15T15:20:00Z"
       }
@@ -119,6 +111,7 @@ export default function Ideas() {
     // Calculate stats
     const statsCalc = {
       inbox: mockIdeas.filter(i => i.status === 'inbox').length,
+      urgent: mockIdeas.filter(i => i.status === 'urgent').length,
       active: mockIdeas.filter(i => i.status === 'active').length,
       someday: mockIdeas.filter(i => i.status === 'someday').length,
       completed: mockIdeas.filter(i => i.status === 'completed').length
@@ -138,7 +131,7 @@ export default function Ideas() {
   const handleAddIdea = () => {
     console.log('New idea:', newIdea);
     setShowAddModal(false);
-    setNewIdea({ title: '', description: '', category: 'business', priority: 'medium', urgent: false });
+    setNewIdea({ title: '', description: '', category: 'business', priority: 'medium' });
     loadMockIdeas();
   };
 
@@ -226,7 +219,7 @@ export default function Ideas() {
           `}</style>
 
           {/* Stats Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px', marginBottom: '16px' }}>
             <StatCard 
               icon="📥" 
               count={stats.inbox || 0} 
@@ -237,11 +230,19 @@ export default function Ideas() {
             />
             <StatCard 
               icon="🔥" 
+              count={stats.urgent || 0} 
+              label="Urgent"
+              active={filter === 'urgent'}
+              onClick={() => setFilter('urgent')}
+              delay={0.1}
+            />
+            <StatCard 
+              icon="⚡" 
               count={stats.active || 0} 
               label="Active"
               active={filter === 'active'}
               onClick={() => setFilter('active')}
-              delay={0.1}
+              delay={0.2}
             />
             <StatCard 
               icon="💭" 
@@ -249,7 +250,7 @@ export default function Ideas() {
               label="Someday"
               active={filter === 'someday'}
               onClick={() => setFilter('someday')}
-              delay={0.2}
+              delay={0.3}
             />
             <StatCard 
               icon="✅" 
@@ -257,7 +258,7 @@ export default function Ideas() {
               label="Completed"
               active={filter === 'completed'}
               onClick={() => setFilter('completed')}
-              delay={0.3}
+              delay={0.4}
             />
           </div>
 
@@ -376,23 +377,6 @@ export default function Ideas() {
                 }}
               />
 
-              <label style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '8px',
-                color: '#9ca3af',
-                fontSize: '14px',
-                cursor: 'pointer'
-              }}>
-                <input
-                  type="checkbox"
-                  checked={newIdea.urgent}
-                  onChange={(e) => setNewIdea({...newIdea, urgent: e.target.checked})}
-                  style={{ cursor: 'pointer', width: '16px', height: '16px' }}
-                />
-                <span>🔥 Mark as urgent</span>
-              </label>
-
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button
                   onClick={handleAddIdea}
@@ -496,9 +480,6 @@ function IdeaCard({ idea }) {
     >
       {/* Single line with title and badges */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-        {idea.urgent && (
-          <span style={{ fontSize: '14px' }} title="Urgent">🔥</span>
-        )}
         <h3 style={{ color: '#fff', fontSize: '14px', fontWeight: '500', flex: 1, minWidth: '200px' }}>
           {idea.title}
         </h3>
