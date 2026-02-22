@@ -638,7 +638,7 @@ export default function Shopping() {
 ];
 
     // Filter by status
-    let filtered = mockShopping.filter(b => b.status === filter);
+    let filtered = mockItems.filter(b => b.status === filter);
 
     // Filter by category
     if (category !== 'all') {
@@ -656,14 +656,14 @@ export default function Shopping() {
 
     // Calculate stats
     const statsCalc = {
-      'to-buy': mockShopping.filter(b => b.status === 'to-buy').length,
-      Watching: mockShopping.filter(b => b.status === 'Watching').length,
-      archived: mockShopping.filter(b => b.status === 'archived').length,
+      'to-buy': mockItems.filter(b => b.status === 'to-buy').length,
+      watching: mockItems.filter(b => b.status === 'watching').length,
+      archived: mockItems.filter(b => b.status === 'archived').length,
     };
 
     // Calculate categories
     const categoryMap = {};
-    mockShopping.forEach(b => {
+    mockItems.forEach(b => {
       if (!categoryMap[b.category]) {
         categoryMap[b.category] = 0;
       }
@@ -681,10 +681,10 @@ export default function Shopping() {
     setLoading(false);
   };
 
-  const filteredShopping = shopping.filter(bookmark => 
+  const filteredShopping = shopping.filter(item => 
     searchTerm === '' || 
-    (bookmark.title && bookmark.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (bookmark.description && bookmark.description.toLowerCase().includes(searchTerm.toLowerCase()))
+    (item.title && item.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   if (loading) {
@@ -769,11 +769,11 @@ export default function Shopping() {
                   <span style={{ fontSize: '20px' }}>💡</span>
                   <span style={{ fontSize: '14px' }}>Idea Board</span>
                 </a>
-                <a href="/Shopping" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px', background: 'rgba(139, 92, 246, 0.2)' }}>
+                <a href="/bookmarks" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
                   <span style={{ fontSize: '20px' }}>📑</span>
-                  <span style={{ fontSize: '14px' }}>Shopping</span>
+                  <span style={{ fontSize: '14px' }}>Bookmarks</span>
                 </a>
-                <a href="/shopping" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+                <a href="/shopping" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px', background: 'rgba(139, 92, 246, 0.2)' }}>
                   <span style={{ fontSize: '20px' }}>🛒</span>
                   <span style={{ fontSize: '14px' }}>Shopping/Watch</span>
                 </a>
@@ -859,8 +859,8 @@ export default function Shopping() {
               icon="⭐" 
               count={stats.Watching || 0} 
               label="Watching"
-              active={filter === 'Watching'}
-              onClick={() => setFilter('Watching')}
+              active={filter === 'watching'}
+              onClick={() => setFilter('watching')}
               delay={0.1}
             />
             <StatCard 
@@ -961,19 +961,19 @@ export default function Shopping() {
           }}>
             {filteredShopping.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '64px', color: '#6b7280' }}>
-                {searchTerm ? `No Shopping matching "${searchTerm}"` : `No ${filter} Shopping`}
+                {searchTerm ? `No items matching "${searchTerm}"` : `No ${filter} items`}
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
-                {filteredShopping.map((bookmark) => (
-                  <BookmarkCard key={bookmark.id} bookmark={bookmark} />
+                {filteredShopping.map((item) => (
+                  <ShoppingCard key={item.id} item={item} />
                 ))}
               </div>
             )}
           </div>
 
           <div style={{ marginTop: '16px', textAlign: 'right', color: '#9ca3af', fontSize: '14px' }}>
-            {filteredShopping.length} {filteredShopping.length === 1 ? 'bookmark' : 'Shopping'}
+            {filteredShopping.length} {filteredShopping.length === 1 ? 'item' : 'items'}
           </div>
         </div>
       </main>
@@ -1011,7 +1011,7 @@ function StatCard({ icon, count, label, active, onClick, delay = 0 }) {
   );
 }
 
-function BookmarkCard({ bookmark }) {
+function ShoppingCard({ item }) {
   const [isHovered, setIsHovered] = React.useState(false);
   
   return (
@@ -1028,8 +1028,22 @@ function BookmarkCard({ bookmark }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {item.image && (
+        <img 
+          src={item.image} 
+          alt={item.title}
+          style={{ 
+            width: '100%', 
+            height: '200px', 
+            objectFit: 'cover', 
+            borderRadius: '8px',
+            marginBottom: '12px'
+          }}
+        />
+      )}
+      
       <a 
-        href={bookmark.url} 
+        href={item.url} 
         target="_blank" 
         rel="noopener noreferrer"
         style={{ 
@@ -1043,14 +1057,26 @@ function BookmarkCard({ bookmark }) {
           transition: 'color 0.2s'
         }}
       >
-        {bookmark.title}
+        {item.title}
       </a>
       
       <p style={{ color: '#9ca3af', fontSize: '14px', marginBottom: '12px', lineHeight: 1.5 }}>
-        {bookmark.description}
+        {item.description}
       </p>
 
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+        {item.price && (
+          <span style={{ 
+            padding: '4px 8px', 
+            background: '#059669', 
+            borderRadius: '6px', 
+            fontSize: '12px',
+            fontWeight: '600',
+            color: '#fff'
+          }}>
+            {item.price}
+          </span>
+        )}
         <span style={{ 
           padding: '4px 8px', 
           background: '#1f2937', 
@@ -1058,7 +1084,7 @@ function BookmarkCard({ bookmark }) {
           fontSize: '11px',
           color: '#9ca3af'
         }}>
-          {bookmark.category}
+          {item.category}
         </span>
         <span style={{ 
           padding: '4px 8px', 
@@ -1067,12 +1093,12 @@ function BookmarkCard({ bookmark }) {
           fontSize: '11px',
           color: '#9ca3af'
         }}>
-          {new Date(bookmark.created_at).toLocaleDateString()}
+          {new Date(item.created_at).toLocaleDateString()}
         </span>
       </div>
 
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-        {bookmark.tags.map(tag => (
+        {item.tags.map(tag => (
           <span 
             key={tag}
             style={{
