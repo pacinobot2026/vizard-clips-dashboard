@@ -367,6 +367,13 @@ export default function Articles() {
               div[style*="repeat(auto-fill"] {
                 grid-template-columns: 1fr !important;
               }
+              /* Table list view - hide on mobile, show mobile list instead */
+              .desktop-table {
+                display: none !important;
+              }
+              .mobile-list {
+                display: block !important;
+              }
             }
           `}</style>
 
@@ -542,7 +549,7 @@ export default function Articles() {
               overflow: 'hidden',
               animation: 'scaleIn 0.4s ease-out 0.4s both'
             }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }} className="desktop-table">
                 <thead>
                   <tr style={{ 
                     background: 'rgba(31, 41, 55, 0.7)', 
@@ -582,6 +589,69 @@ export default function Articles() {
                   ))}
                 </tbody>
               </table>
+              
+              {/* Mobile List View */}
+              <div className="mobile-list" style={{ display: 'none', padding: '16px' }}>
+                {filteredArticles.map((article) => (
+                  <div key={article.id} style={{
+                    background: 'rgba(31, 41, 55, 0.7)',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    marginBottom: '12px',
+                    border: '1px solid rgba(75, 85, 99, 0.5)'
+                  }}>
+                    <div style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
+                      <img src={article.image_url} alt="" style={{ width: '60px', height: '60px', borderRadius: '6px', objectFit: 'cover', filter: 'grayscale(100%)' }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ color: '#fff', fontSize: '14px', fontWeight: '600', marginBottom: '4px', lineHeight: 1.3 }}>
+                          {article.title}
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', fontSize: '11px', color: '#9ca3af' }}>
+                          <span>{article.publication}</span>
+                          <span>•</span>
+                          <span>{new Date(article.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                        </div>
+                      </div>
+                    </div>
+                    {filter === 'draft' && (
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          onClick={() => handleApprove(article.id)}
+                          style={{
+                            flex: 1,
+                            padding: '8px',
+                            background: '#10b981',
+                            border: 'none',
+                            borderRadius: '6px',
+                            color: 'white',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ✓ Approve
+                        </button>
+                        <button
+                          onClick={() => handleReject(article.id)}
+                          style={{
+                            flex: 1,
+                            padding: '8px',
+                            background: '#ef4444',
+                            border: 'none',
+                            borderRadius: '6px',
+                            color: 'white',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ✕ Reject
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             // CARD VIEW
