@@ -603,10 +603,10 @@ export default function Articles() {
                     <div style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
                       <img src={article.image_url} alt="" style={{ width: '60px', height: '60px', borderRadius: '6px', objectFit: 'cover', filter: 'grayscale(100%)' }} />
                       <div style={{ flex: 1 }}>
-                        <div style={{ color: '#fff', fontSize: '14px', fontWeight: '600', marginBottom: '4px', lineHeight: 1.3 }}>
+                        <div style={{ color: '#fff', fontSize: '16px', fontWeight: '600', marginBottom: '6px', lineHeight: 1.4 }}>
                           {article.title}
                         </div>
-                        <div style={{ display: 'flex', gap: '8px', fontSize: '11px', color: '#9ca3af' }}>
+                        <div style={{ display: 'flex', gap: '8px', fontSize: '12px', color: '#9ca3af' }}>
                           <span>{article.publication}</span>
                           <span>•</span>
                           <span>{new Date(article.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
@@ -620,12 +620,12 @@ export default function Articles() {
                           style={{
                             flex: 1,
                             padding: '8px',
-                            background: '#10b981',
-                            border: 'none',
+                            background: 'rgba(16, 185, 129, 0.2)',
+                            border: '1px solid rgba(16, 185, 129, 0.4)',
                             borderRadius: '6px',
-                            color: 'white',
-                            fontSize: '12px',
-                            fontWeight: '600',
+                            color: '#10b981',
+                            fontSize: '11px',
+                            fontWeight: '500',
                             cursor: 'pointer'
                           }}
                         >
@@ -636,12 +636,12 @@ export default function Articles() {
                           style={{
                             flex: 1,
                             padding: '8px',
-                            background: '#ef4444',
-                            border: 'none',
+                            background: 'rgba(239, 68, 68, 0.2)',
+                            border: '1px solid rgba(239, 68, 68, 0.4)',
                             borderRadius: '6px',
-                            color: 'white',
-                            fontSize: '12px',
-                            fontWeight: '600',
+                            color: '#ef4444',
+                            fontSize: '11px',
+                            fontWeight: '500',
                             cursor: 'pointer'
                           }}
                         >
