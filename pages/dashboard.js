@@ -71,7 +71,15 @@ export default function Dashboard() {
           
           {/* Header */}
           <div style={{ marginBottom: '24px' }}>
-            <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#fff', marginBottom: '4px' }}>
+            <h1 style={{ 
+              fontSize: '30px', 
+              fontWeight: '700', 
+              background: 'linear-gradient(to right, #22d3ee, #60a5fa, #a78bfa)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              marginBottom: '4px' 
+            }}>
               🎬 Video Cue Board
             </h1>
             <p style={{ fontSize: '14px', color: '#9ca3af' }}>Video clip review and publishing</p>
