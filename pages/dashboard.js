@@ -16,6 +16,15 @@ export default function Dashboard() {
   const [nextPostIn, setNextPostIn] = useState(7200); // 2 hours in seconds (default)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [viewMode, setViewMode] = useState('gallery'); // 'list' or 'gallery'
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Detect mobile on mount
+    setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     fetchClips();
@@ -416,13 +425,6 @@ export default function Dashboard() {
                 padding: 16px !important;
                 padding-top: 64px !important;
               }
-              /* Mobile: Show static poster, hide video */
-              .desktop-video {
-                display: none !important;
-              }
-              .mobile-poster {
-                display: block !important;
-              }
               h1 {
                 font-size: 24px !important;
               }
@@ -460,13 +462,6 @@ export default function Dashboard() {
             @media (min-width: 769px) {
               .video-gallery {
                 grid-template-columns: repeat(2, 1fr) !important;
-              }
-              /* Desktop: Show video, hide poster */
-              .desktop-video {
-                display: block !important;
-              }
-              .mobile-poster {
-                display: none !important;
               }
             }
           `}</style>
@@ -651,28 +646,29 @@ export default function Dashboard() {
                   <tbody>
                     {filteredClips.map((clip) => (
                       <tr key={clip.clip_id} style={{ borderBottom: '1px solid rgba(75, 85, 99, 0.3)' }}>
-                        <td style={{ padding: '12px', position: 'relative' }}>
-                          {/* Desktop: Animated video */}
-                          <video 
-                            className="desktop-video"
-                            src={clip.clip_url}
-                            poster={clip.clip_url + '#t=0.5'}
-                            style={{ width: '80px', height: '100px', objectFit: 'cover', borderRadius: '8px', pointerEvents: 'none' }}
-                            preload="metadata"
-                          />
-                          {/* Mobile: Static poster image */}
-                          <div
-                            className="mobile-poster"
-                            style={{
-                              display: 'none',
+                        <td style={{ padding: '12px' }}>
+                          {isMobile ? (
+                            <div style={{
                               width: '80px',
                               height: '100px',
                               borderRadius: '8px',
-                              backgroundImage: `url(${clip.clip_url}#t=0.5)`,
-                              backgroundSize: 'cover',
-                              backgroundPosition: 'center'
-                            }}
-                          />
+                              background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: 'white',
+                              fontSize: '24px'
+                            }}>
+                              ▶
+                            </div>
+                          ) : (
+                            <video 
+                              src={clip.clip_url}
+                              poster={clip.clip_url + '#t=0.5'}
+                              style={{ width: '80px', height: '100px', objectFit: 'cover', borderRadius: '8px', pointerEvents: 'none' }}
+                              preload="metadata"
+                            />
+                          )}
                         </td>
                         <td style={{ padding: '12px', color: '#fff', fontSize: '14px' }}>{clip.title || 'Untitled'}</td>
                         <td style={{ padding: '12px', color: '#9ca3af', fontSize: '14px' }}>{clip.viral_score || 0}/10</td>
@@ -727,6 +723,7 @@ export default function Dashboard() {
                     onApprove={() => handleApprove(clip.clip_id)}
                     onReject={() => handleReject(clip.clip_id)}
                     showActions={filter === 'pending'}
+                    isMobile={isMobile}
                   />
                 ))}
               </div>
@@ -769,7 +766,7 @@ function StatCard({ icon, count, label, active, onClick, delay = 0, style }) {
   );
 }
 
-function ClipCard({ clip, onApprove, onReject, showActions }) {
+function ClipCard({ clip, onApprove, onReject, showActions, isMobile }) {
   const [isHovered, setIsHovered] = React.useState(false);
   
   return (
@@ -794,10 +791,39 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
         overflow: 'hidden'
       }}>
         {clip.clip_url ? (
-          <>
-            {/* Desktop: Animated video */}
+          isMobile ? (
+            /* Mobile: Static placeholder */
+            <div style={{
+              width: '100%',
+              height: '100%',
+              background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '48px',
+              color: 'white',
+              position: 'relative'
+            }}>
+              ▶
+              <div style={{
+                position: 'absolute',
+                bottom: '12px',
+                left: '12px',
+                right: '12px',
+                color: 'white',
+                fontSize: '12px',
+                fontWeight: '600',
+                textAlign: 'center',
+                background: 'rgba(0,0,0,0.5)',
+                padding: '4px 8px',
+                borderRadius: '4px'
+              }}>
+                {clip.title || 'Video Clip'}
+              </div>
+            </div>
+          ) : (
+            /* Desktop: Animated video */
             <video 
-              className="desktop-video"
               src={clip.clip_url}
               poster={clip.clip_url + '#t=0.5'}
               preload="metadata"
@@ -810,20 +836,7 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
                 pointerEvents: 'none'
               }}
             />
-            {/* Mobile: Static poster image */}
-            <div
-              className="mobile-poster"
-              style={{
-                display: 'none',
-                width: '100%',
-                height: '100%',
-                backgroundImage: `url(${clip.clip_url}#t=0.5)`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                filter: 'grayscale(100%)'
-              }}
-            />
-          </>
+          )
         ) : (
           <div style={{
             width: '100%',
