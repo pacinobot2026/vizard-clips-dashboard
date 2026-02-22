@@ -287,7 +287,7 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
     }}>
       {/* Video Thumbnail */}
       <div style={{ 
-        aspectRatio: '9/16', 
+        aspectRatio: '4/5', 
         background: clip.thumbnail_url ? 'transparent' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         display: 'flex',
         alignItems: 'center',
