@@ -692,7 +692,7 @@ export default function Shopping() {
       <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1423' }}>
         <NavigationSidebar />
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
-          Loading Shopping...
+          Loading items...
         </div>
       </div>
     );
@@ -916,7 +916,7 @@ export default function Shopping() {
           <div style={{ marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             <input
               type="text"
-              placeholder="🔍 Search Shopping..."
+              placeholder="🔍 Search items..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
@@ -1098,7 +1098,7 @@ function ShoppingCard({ item }) {
       </div>
 
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-        {item.tags.map(tag => (
+        {item.tags && item.tags.map(tag => (
           <span 
             key={tag}
             style={{
