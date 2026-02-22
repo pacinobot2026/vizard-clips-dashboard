@@ -13,6 +13,7 @@ export default function Ideas() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newIdea, setNewIdea] = useState({ title: '', description: '', category: 'business', priority: 'medium' });
   const [viewMode, setViewMode] = useState('cards'); // 'list' or 'cards'
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     loadMockIdeas();
@@ -179,8 +180,90 @@ export default function Ideas() {
     <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1423' }}>
       <NavigationSidebar />
       
-      <main style={{ flex: 1, padding: '32px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', background: '#0D1423' }}>
+      <main style={{ flex: 1, padding: '32px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', background: '#0D1423', position: 'relative' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+          
+          {/* Hamburger Menu - Top Right */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="hamburger-menu"
+            style={{
+              position: 'fixed',
+              top: '16px',
+              right: '16px',
+              zIndex: 1001,
+              background: '#1f2937',
+              border: '1px solid #374151',
+              borderRadius: '8px',
+              padding: '12px',
+              color: '#fff',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+            }}
+          >
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          {/* Publications Menu Dropdown */}
+          {mobileMenuOpen && (
+            <>
+              <div
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: 'rgba(0, 0, 0, 0.5)',
+                  zIndex: 999
+                }}
+              />
+              <div style={{
+                position: 'fixed',
+                top: '72px',
+                right: '16px',
+                background: '#1f2937',
+                border: '1px solid #374151',
+                borderRadius: '12px',
+                padding: '8px',
+                zIndex: 1000,
+                minWidth: '200px',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)'
+              }}>
+                <div style={{ padding: '8px 12px', color: '#9ca3af', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+                  Publications
+                </div>
+                <a href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>🎬</span>
+                  <span style={{ fontSize: '14px' }}>Video Board</span>
+                </a>
+                <a href="/articles" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>📰</span>
+                  <span style={{ fontSize: '14px' }}>Article Board</span>
+                </a>
+                <a href="/ideas" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px', background: 'rgba(139, 92, 246, 0.2)' }}>
+                  <span style={{ fontSize: '20px' }}>💡</span>
+                  <span style={{ fontSize: '14px' }}>Idea Board</span>
+                </a>
+                <div style={{ height: '1px', background: '#374151', margin: '8px 0' }} />
+                <a href="https://dashboard-gilt-one-zc4y5uu95v.vercel.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>🎛️</span>
+                  <span style={{ fontSize: '14px' }}>Command Center</span>
+                </a>
+                <a href="https://kanban-rho-ivory.vercel.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>👥</span>
+                  <span style={{ fontSize: '14px' }}>Team Board</span>
+                </a>
+                <a href="/openclaw" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>🤖</span>
+                  <span style={{ fontSize: '14px' }}>OpenClaw Board</span>
+                </a>
+              </div>
+            </>
+          )}
           
           {/* Header */}
           <div style={{ 
@@ -250,6 +333,7 @@ export default function Ideas() {
             @media (max-width: 768px) {
               main {
                 padding: 16px !important;
+                padding-top: 64px !important;
               }
               h1 {
                 font-size: 24px !important;
