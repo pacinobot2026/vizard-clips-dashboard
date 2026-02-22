@@ -198,13 +198,14 @@ export default function Dashboard() {
     <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1423' }}>
       <NavigationSidebar />
       <div style={styles.container}>
-        <div style={styles.header}>
-          <h1 style={styles.title}>🎬 Video Cue Board</h1>
-          <p style={styles.subtitle}>Video clip review and publishing</p>
-        </div>
-        
-        {/* Status Tabs */}
-        <div style={styles.stats}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 32px' }}>
+          <div style={styles.header}>
+            <h1 style={styles.title}>🎬 Video Cue Board</h1>
+            <p style={styles.subtitle}>Video clip review and publishing</p>
+          </div>
+          
+          {/* Status Tabs */}
+          <div style={styles.stats}>
           <StatBox label="Pending" count={stats.pending} active={filter === 'pending'} onClick={() => setFilter('pending')} />
           <StatBox label="Approved" count={stats.approved} active={filter === 'approved'} onClick={() => setFilter('approved')} />
           <StatBox label="Published" count={stats.published} active={filter === 'published'} onClick={() => setFilter('published')} />
@@ -383,6 +384,7 @@ export default function Dashboard() {
           </div>
         </Modal>
       )}
+        </div>
       </div>
     </div>
   );
@@ -582,7 +584,7 @@ const styles = {
   },
   header: {
     background: 'transparent',
-    padding: '24px 32px 16px',
+    padding: '24px 0 16px',
     borderBottom: 'none',
     marginBottom: '0'
   },
@@ -602,8 +604,7 @@ const styles = {
   stats: {
     display: 'flex',
     gap: '12px',
-    marginBottom: '16px',
-    padding: '0 32px'
+    marginBottom: '16px'
   },
   statBox: {
     flex: 1,
