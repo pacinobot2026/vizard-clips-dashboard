@@ -569,8 +569,8 @@ const styles = {
     marginBottom: '0'
   },
   title: {
-    fontSize: '24px',
-    fontWeight: '600',
+    fontSize: '30px',
+    fontWeight: '700',
     marginBottom: '24px',
     color: '#fff',
     backgroundClip: 'text',
