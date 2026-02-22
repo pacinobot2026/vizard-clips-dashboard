@@ -199,7 +199,8 @@ export default function Dashboard() {
       <NavigationSidebar />
       <div style={styles.container}>
         <div style={styles.header}>
-          <h1 style={styles.title}>🎬 Video Cue Dashboard</h1>
+          <h1 style={styles.title}>🎬 Video Cue Board</h1>
+          <p style={styles.subtitle}>Video clip review and publishing</p>
         </div>
         
         {/* Status Tabs */}
@@ -581,10 +582,15 @@ const styles = {
   title: {
     fontSize: '30px',
     fontWeight: '700',
-    marginBottom: '24px',
+    marginBottom: '4px',
     color: '#fff',
-    backgroundClip: 'text',
     letterSpacing: '-0.5px'
+  },
+  subtitle: {
+    fontSize: '14px',
+    color: '#9ca3af',
+    marginBottom: '24px',
+    marginTop: '4px'
   },
   stats: {
     display: 'flex',
