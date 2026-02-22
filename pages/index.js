@@ -1,33 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 export default function Login() {
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+  useEffect(() => {
+    // Auto-redirect to dashboard (password protection removed)
+    router.push('/dashboard');
+  }, [router]);
 
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
-      });
-
-      if (res.ok) {
-        router.push('/dashboard');
-      } else {
-        const data = await res.json();
-        setError(data.error || 'Invalid password');
-      }
-    } catch (err) {
-      setError('Login failed. Please try again.');
-    } finally {
+  return (
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="text-white">Redirecting to dashboard...</div>
+    </div>
+  );
+}
       setLoading(false);
     }
   };

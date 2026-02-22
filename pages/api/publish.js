@@ -1,4 +1,3 @@
-﻿import { getAuthToken, verifySessionToken } from '../../lib/auth';
 import { getApprovedClips, updateClip } from '../../lib/github-storage';
 import axios from 'axios';
 
@@ -6,11 +5,7 @@ const POSTBRIDGE_API_KEY = process.env.POSTBRIDGE_API_KEY;
 const POSTBRIDGE_BASE = 'https://api.post-bridge.com/v1';
 
 export default async function handler(req, res) {
-  // Verify authentication
-  const token = getAuthToken(req);
-  if (!verifySessionToken(token)) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
+  // Password protection removed - public access
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });

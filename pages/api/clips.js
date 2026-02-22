@@ -1,12 +1,7 @@
-import { getAuthToken, verifySessionToken } from '../../lib/auth';
 import { getPendingClips, getApprovedClips, getPublishedClips, getRejectedClips, getStats, getCategories, getAllClips } from '../../lib/github-storage';
 
 export default async function handler(req, res) {
-  // Verify authentication
-  const token = getAuthToken(req);
-  if (!verifySessionToken(token)) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
+  // Password protection removed - public access
 
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });

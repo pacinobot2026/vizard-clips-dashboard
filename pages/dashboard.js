@@ -32,10 +32,6 @@ export default function Dashboard() {
       });
       
       const res = await fetch(`/api/clips?${params}`);
-      if (res.status === 401) {
-        router.push('/');
-        return;
-      }
       const data = await res.json();
       setClips(data.clips);
       setStats(data.stats);
