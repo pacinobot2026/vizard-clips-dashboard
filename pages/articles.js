@@ -220,17 +220,12 @@ export default function Articles() {
   };
 
   const formatTime = (seconds) => {
-    const hours = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    
-    if (hours > 0) {
-      return `${hours}h ${mins}m`;
-    } else if (mins > 0) {
-      return `${mins}m ${secs}s`;
-    } else {
-      return `${secs}s`;
-    }
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) return `${h}h ${m}m`;
+    if (m > 0) return `${m}m ${s}s`;
+    return `${s}s`;
   };
 
   if (loading) {
@@ -272,48 +267,39 @@ export default function Articles() {
             <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '4px' }}>Article review and publishing</p>
           </div>
 
-          {/* Status Banner - Always visible */}
+          {/* Cron Job Status Banner */}
           <div style={{
-            background: 'rgba(75, 85, 99, 0.1)',
-            border: '1px solid rgba(75, 85, 99, 0.3)',
+            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1))',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
             borderRadius: '12px',
-            padding: '12px 20px',
-            marginBottom: '16px',
+            padding: '16px 24px',
+            marginBottom: '24px',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px'
+            gap: '32px',
+            animation: 'slideUp 0.5s ease-out 0.2s both'
           }}>
             {/* Article Search */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-              <div style={{
-                fontSize: '24px',
-                animation: 'spin 2s linear infinite'
-              }}>🔍</div>
+              <div style={{ fontSize: '20px' }}>🔍</div>
               <div>
-                <div style={{ color: '#a78bfa', fontSize: '13px', fontWeight: '600' }}>
-                  Next article search
-                </div>
-                <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
-                  In {formatTime(searchCountdown)} (automated)
+                <div style={{ fontSize: '13px', color: '#9ca3af', marginBottom: '2px' }}>Next article search</div>
+                <div style={{ fontSize: '15px', color: '#fff', fontWeight: '600' }}>
+                  In {formatTime(searchCountdown)}
                 </div>
               </div>
             </div>
-            
+
             {/* Separator */}
-            <div style={{ width: '1px', height: '40px', background: 'rgba(75, 85, 99, 0.3)' }}></div>
-            
-            {/* Letterman Posting */}
+            <div style={{ width: '1px', height: '40px', background: 'rgba(139, 92, 246, 0.3)' }} />
+
+            {/* Letterman Post */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-              <div style={{ fontSize: '24px' }}>📰</div>
+              <div style={{ fontSize: '20px' }}>📰</div>
               <div>
-                <div style={{ color: '#60a5fa', fontSize: '13px', fontWeight: '600' }}>
-                  Next Letterman post
-                </div>
-                <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
-                  {stats.approved > 0 
-                    ? `In ${formatTime(postCountdown)} (automated)`
-                    : 'No approved articles ready'
-                  }
+                <div style={{ fontSize: '13px', color: '#9ca3af', marginBottom: '2px' }}>Next Letterman post</div>
+                <div style={{ fontSize: '15px', color: '#fff', fontWeight: '600' }}>
+                  In {formatTime(postCountdown)}
                 </div>
               </div>
             </div>
@@ -341,14 +327,10 @@ export default function Articles() {
               50% { background-position: 100% 50%; }
               100% { background-position: 0% 50%; }
             }
-            @keyframes spin {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-            }
           `}</style>
 
           {/* Stats Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
             <StatCard 
               icon="📝" 
               count={stats.draft || 0} 
