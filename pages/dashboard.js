@@ -300,8 +300,12 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
             style={{
               width: '100%',
               height: '100%',
-              objectFit: 'cover'
+              objectFit: 'cover',
+              filter: 'grayscale(100%)',
+              transition: 'filter 0.3s ease'
             }}
+            onMouseEnter={(e) => e.target.style.filter = 'grayscale(0%)'}
+            onMouseLeave={(e) => e.target.style.filter = 'grayscale(100%)'}
           />
         ) : (
           <div style={{
