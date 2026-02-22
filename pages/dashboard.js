@@ -174,16 +174,35 @@ export default function Dashboard() {
             marginBottom: '16px',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px'
+            gap: '16px',
+            animation: 'slideUp 0.5s ease-out 0.2s both',
+            boxShadow: '0 4px 12px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+            position: 'relative',
+            overflow: 'hidden'
           }}>
             {/* Processing Status */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              flex: 1,
+              padding: '8px 12px',
+              borderRadius: '8px',
+              background: processingCount > 0 ? 'rgba(167, 139, 250, 0.1)' : 'transparent',
+              transition: 'all 0.3s ease'
+            }}>
               <div style={{
                 fontSize: '24px',
-                animation: processingCount > 0 ? 'spin 2s linear infinite' : 'none'
+                animation: processingCount > 0 ? 'spin 2s linear infinite' : 'pulse 2s ease-in-out infinite',
+                filter: processingCount > 0 ? 'drop-shadow(0 0 8px rgba(167, 139, 250, 0.6))' : 'none'
               }}>⚙️</div>
               <div>
-                <div style={{ color: processingCount > 0 ? '#a78bfa' : '#9ca3af', fontSize: '13px', fontWeight: '600' }}>
+                <div style={{ 
+                  color: processingCount > 0 ? '#a78bfa' : '#9ca3af', 
+                  fontSize: '13px', 
+                  fontWeight: '600',
+                  animation: processingCount > 0 ? 'pulse 2s ease-in-out infinite' : 'none'
+                }}>
                   {processingCount > 0 
                     ? `${processingCount} video${processingCount > 1 ? 's' : ''} being edited`
                     : 'No videos processing'
@@ -196,13 +215,36 @@ export default function Dashboard() {
             </div>
             
             {/* Separator */}
-            <div style={{ width: '1px', height: '40px', background: 'rgba(75, 85, 99, 0.3)' }}></div>
+            <div style={{ 
+              width: '1px', 
+              height: '40px', 
+              background: 'linear-gradient(180deg, rgba(139, 92, 246, 0) 0%, rgba(139, 92, 246, 0.5) 50%, rgba(139, 92, 246, 0) 100%)',
+              animation: 'pulse 3s ease-in-out infinite'
+            }}></div>
             
             {/* Social Posting Timer */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-              <div style={{ fontSize: '24px' }}>🚀</div>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              flex: 1,
+              padding: '8px 12px',
+              borderRadius: '8px',
+              background: stats.approved > 0 ? 'rgba(96, 165, 250, 0.1)' : 'transparent',
+              transition: 'all 0.3s ease'
+            }}>
+              <div style={{ 
+                fontSize: '24px',
+                animation: stats.approved > 0 ? 'pulse 2s ease-in-out infinite' : 'none',
+                filter: stats.approved > 0 ? 'drop-shadow(0 0 8px rgba(96, 165, 250, 0.6))' : 'none'
+              }}>🚀</div>
               <div>
-                <div style={{ color: '#60a5fa', fontSize: '13px', fontWeight: '600' }}>
+                <div style={{ 
+                  color: '#60a5fa', 
+                  fontSize: '13px', 
+                  fontWeight: '600',
+                  animation: stats.approved > 0 ? 'pulse 2s ease-in-out infinite' : 'none'
+                }}>
                   Next social post
                 </div>
                 <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
@@ -272,6 +314,14 @@ export default function Dashboard() {
             @keyframes spin {
               from { transform: rotate(0deg); }
               to { transform: rotate(360deg); }
+            }
+            @keyframes pulse {
+              0%, 100% { opacity: 1; }
+              50% { opacity: 0.7; }
+            }
+            @keyframes glow {
+              0%, 100% { filter: brightness(1); }
+              50% { filter: brightness(1.3); }
             }
           `}</style>
 
