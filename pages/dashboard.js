@@ -479,13 +479,13 @@ export default function Dashboard() {
               div[style*="repeat(auto-fill"] {
                 grid-template-columns: 1fr !important;
               }
-              /* Gallery view - 1 column on mobile */
+              /* Gallery view - 2 columns on mobile */
               .video-gallery {
-                grid-template-columns: 1fr !important;
+                grid-template-columns: repeat(2, 1fr) !important;
               }
             }
             
-            /* Desktop - Gallery view 2 columns */
+            /* Desktop - Gallery view stays 2 columns */
             @media (min-width: 769px) {
               .video-gallery {
                 grid-template-columns: repeat(2, 1fr) !important;
