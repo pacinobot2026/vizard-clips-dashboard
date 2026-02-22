@@ -4,26 +4,36 @@ import NavigationSidebar from '../components/NavigationSidebar';
 export default function Dashboard() {
   const [clips, setClips] = useState([]);
   const [stats, setStats] = useState({});
+  const [categories, setCategories] = useState([]);
   const [filter, setFilter] = useState('pending');
+  const [category, setCategory] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('date_desc');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchClips();
-  }, [filter]);
+  }, [filter, category, sortBy]);
 
   const fetchClips = async () => {
     try {
-      const params = new URLSearchParams({ filter });
+      const params = new URLSearchParams({ filter, category, sortBy });
       const res = await fetch(`/api/clips?${params}`);
       const data = await res.json();
       setClips(data.clips);
       setStats(data.stats);
+      setCategories(data.categories || []);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching clips:', err);
       setLoading(false);
     }
   };
+
+  const filteredClips = clips.filter(clip => 
+    searchTerm === '' || 
+    (clip.title && clip.title.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   const handleApprove = async (clipId) => {
     try {
@@ -86,7 +96,7 @@ export default function Dashboard() {
           </div>
 
           {/* Stats Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
             <StatCard 
               icon="⏳" 
               count={stats.pending || 0} 
@@ -117,6 +127,85 @@ export default function Dashboard() {
             />
           </div>
 
+          {/* Categories */}
+          {categories.length > 0 && (
+            <div style={{ marginBottom: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setCategory('all')}
+                style={{
+                  padding: '8px 16px',
+                  background: category === 'all' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
+                  border: '1px solid rgba(75, 85, 99, 0.5)',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                All Categories
+              </button>
+              {categories.map(cat => (
+                <button
+                  key={cat.name}
+                  onClick={() => setCategory(cat.name)}
+                  style={{
+                    padding: '8px 16px',
+                    background: category === cat.name ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
+                    border: '1px solid rgba(75, 85, 99, 0.5)',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {cat.emoji} {cat.name} ({cat.count})
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Search and Filters */}
+          <div style={{ marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              placeholder="🔍 Search clips..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                flex: 1,
+                minWidth: '200px',
+                padding: '10px 16px',
+                background: 'rgba(31, 41, 55, 0.5)',
+                border: '1px solid rgba(75, 85, 99, 0.5)',
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '14px',
+                outline: 'none'
+              }}
+            />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{
+                padding: '10px 16px',
+                background: 'rgba(31, 41, 55, 0.5)',
+                border: '1px solid rgba(75, 85, 99, 0.5)',
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '14px',
+                cursor: 'pointer',
+                outline: 'none'
+              }}
+            >
+              <option value="date_desc">Newest First</option>
+              <option value="date_asc">Oldest First</option>
+              <option value="viral_score">Viral Score</option>
+              <option value="duration">Duration</option>
+            </select>
+          </div>
+
           {/* Clips Section - in a box like Control Panel */}
           <div style={{
             background: 'rgba(17, 24, 39, 0.5)',
@@ -129,17 +218,17 @@ export default function Dashboard() {
                 📹 Video Clips
               </h2>
               <div style={{ color: '#9ca3af', fontSize: '14px' }}>
-                {clips.length} clips
+                {filteredClips.length} clips
               </div>
             </div>
 
-            {clips.length === 0 ? (
+            {filteredClips.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '64px', color: '#6b7280' }}>
-                No {filter} clips
+                {searchTerm ? `No clips matching "${searchTerm}"` : `No ${filter} clips`}
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-                {clips.map((clip) => (
+                {filteredClips.map((clip) => (
                   <ClipCard 
                     key={clip.clip_id} 
                     clip={clip}
