@@ -453,86 +453,68 @@ function IdeaCard({ idea }) {
     <div 
       style={{
         background: 'rgba(31, 41, 55, 0.7)',
-        borderRadius: '12px',
+        borderRadius: '8px',
         border: '1px solid rgba(75, 85, 99, 0.5)',
-        padding: '20px',
+        padding: '12px 16px',
         transition: 'all 0.3s ease',
         cursor: 'pointer'
       }}
       onClick={() => setIsExpanded(!isExpanded)}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.5)';
-        e.currentTarget.style.boxShadow = '0 8px 16px rgba(139, 92, 246, 0.2)';
+        e.currentTarget.style.background = 'rgba(31, 41, 55, 0.9)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = 'rgba(75, 85, 99, 0.5)';
-        e.currentTarget.style.boxShadow = 'none';
+        e.currentTarget.style.background = 'rgba(31, 41, 55, 0.7)';
       }}
     >
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'start', gap: '12px', marginBottom: '12px' }}>
-        <div style={{ flex: 1 }}>
-          <h3 style={{ color: '#fff', fontSize: '16px', fontWeight: '600', marginBottom: '8px', lineHeight: 1.4 }}>
-            {idea.title}
-          </h3>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{ 
-              padding: '4px 8px', 
-              background: 'rgba(139, 92, 246, 0.2)',
-              border: '1px solid rgba(139, 92, 246, 0.3)',
-              borderRadius: '6px', 
-              fontSize: '11px',
-              color: '#a78bfa',
-              fontWeight: '600'
-            }}>
-              {idea.category}
-            </span>
-            <span style={{ 
-              padding: '4px 8px', 
-              background: `${priorityColors[idea.priority]}15`,
-              border: `1px solid ${priorityColors[idea.priority]}30`,
-              borderRadius: '6px', 
-              fontSize: '11px',
-              color: priorityColors[idea.priority],
-              fontWeight: '600'
-            }}>
-              {idea.priority}
-            </span>
-            <span style={{ 
-              padding: '4px 8px', 
-              background: '#1f2937', 
-              borderRadius: '6px', 
-              fontSize: '11px',
-              color: '#9ca3af'
-            }}>
-              {new Date(idea.created_at).toLocaleDateString()}
-            </span>
-          </div>
+      {/* Single line with title and badges */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <h3 style={{ color: '#fff', fontSize: '14px', fontWeight: '500', flex: 1, minWidth: '200px' }}>
+          {idea.title}
+        </h3>
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <span style={{ 
+            padding: '2px 8px', 
+            background: `${priorityColors[idea.priority]}20`,
+            borderRadius: '4px', 
+            fontSize: '10px',
+            color: priorityColors[idea.priority],
+            fontWeight: '600'
+          }}>
+            {idea.priority}
+          </span>
+          <span style={{ 
+            fontSize: '11px',
+            color: '#6b7280'
+          }}>
+            {new Date(idea.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          </span>
         </div>
       </div>
 
-      {/* Description */}
+      {/* Description (expanded only) */}
       {isExpanded && (
         <div style={{ 
-          marginTop: '16px', 
-          paddingTop: '16px', 
+          marginTop: '10px', 
+          paddingTop: '10px', 
           borderTop: '1px solid rgba(75, 85, 99, 0.3)',
-          color: '#d1d5db',
-          fontSize: '14px',
-          lineHeight: 1.6
+          color: '#9ca3af',
+          fontSize: '13px',
+          lineHeight: 1.5
         }}>
           {idea.description}
           
           {/* Tags */}
           {idea.tags && idea.tags.length > 0 && (
-            <div style={{ marginTop: '12px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            <div style={{ marginTop: '8px', display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
               {idea.tags.map(tag => (
                 <span key={tag} style={{ 
-                  padding: '4px 10px', 
-                  background: 'rgba(96, 165, 250, 0.1)',
-                  border: '1px solid rgba(96, 165, 250, 0.2)',
-                  borderRadius: '6px', 
-                  fontSize: '11px',
+                  padding: '2px 6px', 
+                  background: 'rgba(96, 165, 250, 0.15)',
+                  borderRadius: '4px', 
+                  fontSize: '10px',
                   color: '#60a5fa'
                 }}>
                   #{tag}
