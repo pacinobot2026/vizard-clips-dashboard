@@ -228,7 +228,10 @@ export default function Articles() {
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           
           {/* Header */}
-          <div style={{ marginBottom: '24px' }}>
+          <div style={{ 
+            marginBottom: '24px',
+            animation: 'fadeIn 0.6s ease-out'
+          }}>
             <h1 style={{ 
               fontSize: '30px', 
               fontWeight: '700', 
@@ -242,6 +245,25 @@ export default function Articles() {
             </h1>
             <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '4px' }}>Article review and publishing</p>
           </div>
+          
+          <style jsx>{`
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(-10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes slideUp {
+              from { opacity: 0; transform: translateY(20px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes scaleIn {
+              from { opacity: 0; transform: scale(0.95); }
+              to { opacity: 1; transform: scale(1); }
+            }
+            @keyframes pulse {
+              0%, 100% { opacity: 1; }
+              50% { opacity: 0.6; }
+            }
+          `}</style>
 
           {/* Stats Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
@@ -251,6 +273,7 @@ export default function Articles() {
               label="Draft"
               active={filter === 'draft'}
               onClick={() => setFilter('draft')}
+              delay={0}
             />
             <StatCard 
               icon="✅" 
@@ -258,6 +281,7 @@ export default function Articles() {
               label="Approved"
               active={filter === 'approved'}
               onClick={() => setFilter('approved')}
+              delay={0.1}
             />
             <StatCard 
               icon="🚀" 
@@ -265,6 +289,7 @@ export default function Articles() {
               label="Published"
               active={filter === 'published'}
               onClick={() => setFilter('published')}
+              delay={0.2}
             />
             <StatCard 
               icon="❌" 
@@ -272,6 +297,7 @@ export default function Articles() {
               label="Rejected"
               active={filter === 'rejected'}
               onClick={() => setFilter('rejected')}
+              delay={0.3}
             />
           </div>
 
@@ -397,7 +423,8 @@ export default function Articles() {
               border: '1px solid rgba(75, 85, 99, 0.5)',
               textAlign: 'center', 
               padding: '64px', 
-              color: '#6b7280'
+              color: '#6b7280',
+              animation: 'scaleIn 0.4s ease-out 0.4s both'
             }}>
               {searchTerm ? `No articles matching "${searchTerm}"` : `No ${filter} articles`}
             </div>
@@ -407,7 +434,8 @@ export default function Articles() {
               background: 'rgba(17, 24, 39, 0.5)',
               borderRadius: '16px',
               border: '1px solid rgba(75, 85, 99, 0.5)',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              animation: 'scaleIn 0.4s ease-out 0.4s both'
             }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
@@ -456,7 +484,8 @@ export default function Articles() {
               background: 'rgba(17, 24, 39, 0.5)',
               borderRadius: '16px',
               padding: '24px',
-              border: '1px solid rgba(75, 85, 99, 0.5)'
+              border: '1px solid rgba(75, 85, 99, 0.5)',
+              animation: 'scaleIn 0.4s ease-out 0.4s both'
             }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
                 {filteredArticles.map((article) => (
@@ -490,7 +519,7 @@ export default function Articles() {
   );
 }
 
-function StatCard({ icon, count, label, active, onClick }) {
+function StatCard({ icon, count, label, active, onClick, delay = 0 }) {
   return (
     <div 
       onClick={onClick}
@@ -501,7 +530,8 @@ function StatCard({ icon, count, label, active, onClick }) {
         cursor: 'pointer',
         transition: 'all 0.3s',
         border: `1px solid ${active ? '#8b5cf6' : 'rgba(75, 85, 99, 0.5)'}`,
-        transform: active ? 'scale(1.05)' : 'none'
+        transform: active ? 'scale(1.05)' : 'none',
+        animation: `slideUp 0.5s ease-out ${delay}s both`
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -531,9 +561,10 @@ function ArticleRow({ article, index, onClick, onApprove, onReject, showActions 
   return (
     <tr 
       style={{
-        background: index % 2 === 0 ? 'rgba(31, 41, 55, 0.3)' : 'transparent',
+        background: isHovered ? 'rgba(139, 92, 246, 0.1)' : (index % 2 === 0 ? 'rgba(31, 41, 55, 0.3)' : 'transparent'),
         borderBottom: '1px solid rgba(75, 85, 99, 0.3)',
-        transition: 'all 0.2s'
+        transition: 'all 0.3s ease',
+        transform: isHovered ? 'scale(1.01)' : 'none'
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -563,9 +594,18 @@ function ArticleRow({ article, index, onClick, onApprove, onReject, showActions 
 
       {/* Scrapable Indicator */}
       <td style={{ padding: '12px 20px', textAlign: 'center' }}>
-        <div style={{ fontSize: '20px' }} title={article.scrapable ? 'Can be scraped' : 'Protected - cannot scrape'}>
-          {article.scrapable ? '🟢' : '🔴'}
-        </div>
+        <div 
+          style={{ 
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: article.scrapable ? '#10b981' : '#ef4444',
+            margin: '0 auto',
+            boxShadow: article.scrapable ? '0 0 8px rgba(16, 185, 129, 0.5)' : '0 0 8px rgba(239, 68, 68, 0.5)',
+            animation: 'pulse 2s ease-in-out infinite'
+          }} 
+          title={article.scrapable ? 'Can be scraped' : 'Protected - cannot scrape'}
+        />
       </td>
 
       {/* Title */}
@@ -663,10 +703,11 @@ function ArticleCard({ article, onClick, onApprove, onReject, showActions }) {
       style={{
         background: 'rgba(31, 41, 55, 0.7)',
         borderRadius: '12px',
-        border: '1px solid rgba(75, 85, 99, 0.5)',
+        border: `1px solid ${isHovered ? 'rgba(139, 92, 246, 0.5)' : 'rgba(75, 85, 99, 0.5)'}`,
         overflow: 'hidden',
-        transition: 'all 0.3s',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+        transition: 'all 0.3s ease',
+        boxShadow: isHovered ? '0 8px 16px rgba(139, 92, 246, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
+        transform: isHovered ? 'translateY(-4px)' : 'none'
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -713,16 +754,15 @@ function ArticleCard({ article, onClick, onApprove, onReject, showActions }) {
           position: 'absolute',
           top: '12px',
           right: '12px',
-          background: 'rgba(0, 0, 0, 0.7)',
+          background: article.scrapable ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+          backdropFilter: 'blur(8px)',
           borderRadius: '50%',
-          width: '32px',
-          height: '32px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '16px'
+          width: '12px',
+          height: '12px',
+          border: `2px solid ${article.scrapable ? '#10b981' : '#ef4444'}`,
+          boxShadow: article.scrapable ? '0 0 12px rgba(16, 185, 129, 0.6)' : '0 0 12px rgba(239, 68, 68, 0.6)',
+          animation: 'pulse 2s ease-in-out infinite'
         }} title={article.scrapable ? 'Can be scraped' : 'Protected - cannot scrape'}>
-          {article.scrapable ? '🟢' : '🔴'}
         </div>
       </div>
 
