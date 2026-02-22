@@ -2,14 +2,14 @@ const axios = require('axios');
 
 // Letterman publications
 const PUBLICATIONS = {
-  'West Valley Shoutouts': '677895a2584a3ce5878fcf5b',
-  'Save The Doggy': '68a78eba3ce3e647df7fefaa',
+  'West Valley': '677895a2584a3ce5878fcf5b',
+  'Save the Doggy': '68a78eba3ce3e647df7fefaa',
   'Vegas Fork': '68a790aa3ce3e647df7ff272'
 };
 
 const PUBLICATION_EMOJIS = {
-  'West Valley Shoutouts': '📍',
-  'Save The Doggy': '🐕',
+  'West Valley': '📍',
+  'Save the Doggy': '🐕',
   'Vegas Fork': '🍴'
 };
 
