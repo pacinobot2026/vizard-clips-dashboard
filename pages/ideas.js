@@ -270,8 +270,8 @@ export default function Ideas() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
-                width: '100%',
-                padding: '12px 16px',
+                maxWidth: '400px',
+                padding: '10px 16px',
                 background: 'rgba(31, 41, 55, 0.5)',
                 border: '1px solid rgba(75, 85, 99, 0.5)',
                 borderRadius: '8px',
