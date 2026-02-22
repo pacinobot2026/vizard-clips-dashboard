@@ -10,10 +10,22 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date_desc');
   const [loading, setLoading] = useState(true);
+  const [processingCount, setProcessingCount] = useState(0);
 
   useEffect(() => {
     fetchClips();
+    fetchProcessing();
   }, [filter, category, sortBy]);
+
+  const fetchProcessing = async () => {
+    try {
+      const res = await fetch('/api/processing');
+      const data = await res.json();
+      setProcessingCount(data.processing || 0);
+    } catch (err) {
+      console.error('Error fetching processing count:', err);
+    }
+  };
 
   const fetchClips = async () => {
     try {
@@ -96,13 +108,21 @@ export default function Dashboard() {
           </div>
 
           {/* Stats Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px', marginBottom: '24px' }}>
             <StatCard 
               icon="⏳" 
               count={stats.pending || 0} 
               label="Pending"
               active={filter === 'pending'}
               onClick={() => setFilter('pending')}
+            />
+            <StatCard 
+              icon="⚙️" 
+              count={processingCount} 
+              label="Processing"
+              active={false}
+              onClick={() => {}}
+              style={{ cursor: 'default', opacity: 0.8 }}
             />
             <StatCard 
               icon="✅" 
@@ -246,7 +266,7 @@ export default function Dashboard() {
   );
 }
 
-function StatCard({ icon, count, label, active, onClick }) {
+function StatCard({ icon, count, label, active, onClick, style }) {
   return (
     <div 
       onClick={onClick}
@@ -257,7 +277,8 @@ function StatCard({ icon, count, label, active, onClick }) {
         cursor: 'pointer',
         transition: 'all 0.3s',
         border: `1px solid ${active ? '#8b5cf6' : 'rgba(75, 85, 99, 0.5)'}`,
-        transform: active ? 'scale(1.05)' : 'none'
+        transform: active ? 'scale(1.05)' : 'none',
+        ...style
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
