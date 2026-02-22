@@ -227,7 +227,7 @@ export default function Dashboard() {
                 {searchTerm ? `No clips matching "${searchTerm}"` : `No ${filter} clips`}
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
                 {filteredClips.map((clip) => (
                   <ClipCard 
                     key={clip.clip_id} 
@@ -287,15 +287,29 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
     }}>
       {/* Video Thumbnail */}
       <div style={{ 
-        aspectRatio: '16/9', 
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        aspectRatio: '9/16', 
+        background: clip.thumbnail_url ? 'transparent' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: '48px',
-        color: 'white'
+        color: 'white',
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        ▶
+        {clip.thumbnail_url ? (
+          <img 
+            src={clip.thumbnail_url} 
+            alt={clip.title || 'Video thumbnail'}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }}
+          />
+        ) : (
+          <span>▶</span>
+        )}
       </div>
 
       {/* Content */}
