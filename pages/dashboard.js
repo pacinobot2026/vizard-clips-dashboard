@@ -145,15 +145,20 @@ export default function Dashboard() {
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           
           {/* Header */}
-          <div style={{ marginBottom: '24px' }}>
+          <div style={{ 
+            marginBottom: '24px',
+            animation: 'fadeIn 0.6s ease-out'
+          }}>
             <h1 style={{ 
               fontSize: '30px', 
               fontWeight: '700', 
-              background: 'linear-gradient(to right, #22d3ee, #60a5fa, #a78bfa)',
+              background: 'linear-gradient(90deg, #22d3ee, #60a5fa, #a78bfa, #22d3ee)',
+              backgroundSize: '200% 100%',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
-              marginBottom: '4px' 
+              marginBottom: '4px',
+              animation: 'gradientShift 3s ease infinite'
             }}>
               Video Cue Board
             </h1>
@@ -211,13 +216,14 @@ export default function Dashboard() {
           </div>
 
           {/* Stats Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
             <StatCard 
               icon="⏳" 
               count={stats.pending || 0} 
               label="Pending"
               active={filter === 'pending'}
               onClick={() => setFilter('pending')}
+              delay={0}
             />
             <StatCard 
               icon="✅" 
@@ -225,6 +231,7 @@ export default function Dashboard() {
               label="Approved"
               active={filter === 'approved'}
               onClick={() => setFilter('approved')}
+              delay={0.1}
             />
             <StatCard 
               icon="🚀" 
@@ -232,6 +239,7 @@ export default function Dashboard() {
               label="Published"
               active={filter === 'published'}
               onClick={() => setFilter('published')}
+              delay={0.2}
             />
             <StatCard 
               icon="❌" 
@@ -239,10 +247,28 @@ export default function Dashboard() {
               label="Rejected"
               active={filter === 'rejected'}
               onClick={() => setFilter('rejected')}
+              delay={0.3}
             />
           </div>
           
           <style jsx>{`
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(-10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes slideUp {
+              from { opacity: 0; transform: translateY(20px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes scaleIn {
+              from { opacity: 0; transform: scale(0.95); }
+              to { opacity: 1; transform: scale(1); }
+            }
+            @keyframes gradientShift {
+              0% { background-position: 0% 50%; }
+              50% { background-position: 100% 50%; }
+              100% { background-position: 0% 50%; }
+            }
             @keyframes spin {
               from { transform: rotate(0deg); }
               to { transform: rotate(360deg); }
@@ -333,7 +359,8 @@ export default function Dashboard() {
             background: 'rgba(17, 24, 39, 0.5)',
             borderRadius: '16px',
             padding: '24px',
-            border: '1px solid rgba(75, 85, 99, 0.5)'
+            border: '1px solid rgba(75, 85, 99, 0.5)',
+            animation: 'scaleIn 0.4s ease-out 0.4s both'
           }}>
             <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#fff' }}>
@@ -368,7 +395,7 @@ export default function Dashboard() {
   );
 }
 
-function StatCard({ icon, count, label, active, onClick, style }) {
+function StatCard({ icon, count, label, active, onClick, delay = 0, style }) {
   return (
     <div 
       onClick={onClick}
@@ -380,6 +407,7 @@ function StatCard({ icon, count, label, active, onClick, style }) {
         transition: 'all 0.3s',
         border: `1px solid ${active ? '#8b5cf6' : 'rgba(75, 85, 99, 0.5)'}`,
         transform: active ? 'scale(1.05)' : 'none',
+        animation: `slideUp 0.5s ease-out ${delay}s both`,
         ...style
       }}
     >
@@ -406,10 +434,11 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
       style={{
         background: 'rgba(31, 41, 55, 0.7)',
         borderRadius: '12px',
-        border: '1px solid rgba(75, 85, 99, 0.5)',
+        border: `1px solid ${isHovered ? 'rgba(139, 92, 246, 0.5)' : 'rgba(75, 85, 99, 0.5)'}`,
         overflow: 'hidden',
-        transition: 'all 0.3s',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+        transition: 'all 0.3s ease',
+        boxShadow: isHovered ? '0 8px 16px rgba(139, 92, 246, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
+        transform: isHovered ? 'translateY(-4px)' : 'none'
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
