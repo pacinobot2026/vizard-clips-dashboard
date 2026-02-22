@@ -11,6 +11,7 @@ export default function Articles() {
   const [sortBy, setSortBy] = useState('date_desc');
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'cards'
   const [loading, setLoading] = useState(true);
+  const [selectedArticle, setSelectedArticle] = useState(null);
 
   useEffect(() => {
     loadMockArticles();
@@ -25,7 +26,9 @@ export default function Articles() {
         publication: "West Valley Shoutouts",
         status: "draft",
         image_url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=80&h=80&fit=crop",
-        created_at: "2026-02-20T10:30:00Z"
+        created_at: "2026-02-20T10:30:00Z",
+        scrapable: true,
+        content: "A new Italian restaurant, Bella Vita Trattoria, has opened its doors in the heart of Summerlin. The family-owned establishment brings authentic Italian cuisine to the neighborhood, featuring handmade pasta, wood-fired pizzas, and traditional recipes passed down through generations. Owner Marco Rossi says the restaurant aims to create a warm, welcoming atmosphere where families can gather for memorable meals."
       },
       {
         id: 2,
@@ -33,7 +36,9 @@ export default function Articles() {
         publication: "West Valley Shoutouts",
         status: "draft",
         image_url: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=80&h=80&fit=crop",
-        created_at: "2026-02-21T14:20:00Z"
+        created_at: "2026-02-21T14:20:00Z",
+        scrapable: false,
+        content: "Ms. Sarah Chen, a science teacher at Green Valley High School, has launched an innovative after-school STEM program for underserved students. The program provides free robotics, coding, and engineering workshops three times a week. With support from local tech companies, students gain hands-on experience with cutting-edge technology and mentorship from industry professionals."
       },
       {
         id: 3,
@@ -41,7 +46,9 @@ export default function Articles() {
         publication: "Save The Doggy",
         status: "draft",
         image_url: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=80&h=80&fit=crop",
-        created_at: "2026-02-21T09:15:00Z"
+        created_at: "2026-02-21T09:15:00Z",
+        scrapable: true,
+        content: "Max, a 5-year-old golden retriever mix, has finally found his forever home after spending nearly two years at the Henderson Animal Shelter. The sweet-natured pup was adopted by the Johnson family, who fell in love with his gentle personality and playful spirit. Shelter staff say this heartwarming adoption shows that older dogs deserve a second chance too."
       },
       {
         id: 4,
@@ -49,7 +56,9 @@ export default function Articles() {
         publication: "Vegas Fork",
         status: "approved",
         image_url: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=80&h=80&fit=crop",
-        created_at: "2026-02-19T16:45:00Z"
+        created_at: "2026-02-19T16:45:00Z",
+        scrapable: true,
+        content: "Tucked away in a Henderson strip mall, Taqueria El Comal is earning rave reviews for its authentic street tacos. Using family recipes from Jalisco, owner Carlos Martinez serves up perfectly seasoned carne asada, al pastor, and carnitas on fresh handmade tortillas. Locals say it's the best Mexican food in the valley—and the prices can't be beat."
       },
       {
         id: 5,
@@ -57,7 +66,9 @@ export default function Articles() {
         publication: "Save The Doggy",
         status: "draft",
         image_url: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=80&h=80&fit=crop",
-        created_at: "2026-02-22T08:00:00Z"
+        created_at: "2026-02-22T08:00:00Z",
+        scrapable: true,
+        content: "The Animal Foundation will host a special adoption event this Saturday from 10 AM to 4 PM. All adoption fees are waived for dogs and cats over one year old. The shelter currently has over 200 animals looking for homes, including many loving senior pets. Volunteers will be on hand to help families find their perfect match."
       },
       {
         id: 6,
@@ -65,7 +76,9 @@ export default function Articles() {
         publication: "Vegas Fork",
         status: "published",
         image_url: "https://images.unsplash.com/photo-1565123409695-7b5ef63a2efb?w=80&h=80&fit=crop",
-        created_at: "2026-02-18T12:30:00Z"
+        created_at: "2026-02-18T12:30:00Z",
+        scrapable: false,
+        content: "Downtown Las Vegas Container Park has expanded with a new food truck area featuring rotating vendors every weekend. The space includes covered seating, live music, and a curated selection of local food trucks serving everything from Korean BBQ to gourmet grilled cheese. Open Friday through Sunday, 4 PM to midnight."
       },
       {
         id: 7,
@@ -73,7 +86,9 @@ export default function Articles() {
         publication: "West Valley Shoutouts",
         status: "approved",
         image_url: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=80&h=80&fit=crop",
-        created_at: "2026-02-20T11:00:00Z"
+        created_at: "2026-02-20T11:00:00Z",
+        scrapable: true,
+        content: "The Henderson Chamber of Commerce has announced nominees for its annual Small Business Excellence Awards. Categories include Innovation, Customer Service, and Community Impact. Winners will be revealed at a gala dinner on March 15th at the M Resort. Over 50 local businesses have been nominated this year."
       },
       {
         id: 8,
@@ -81,7 +96,9 @@ export default function Articles() {
         publication: "Save The Doggy",
         status: "rejected",
         image_url: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=80&h=80&fit=crop",
-        created_at: "2026-02-17T15:20:00Z"
+        created_at: "2026-02-17T15:20:00Z",
+        scrapable: false,
+        content: "Local rescue groups are partnering for a month-long campaign to find homes for senior dogs. Adopters receive a free veterinary checkup, supplies starter kit, and ongoing support from experienced volunteers. Senior dogs make wonderful companions and often require less training than puppies."
       },
       {
         id: 9,
@@ -89,7 +106,9 @@ export default function Articles() {
         publication: "Vegas Fork",
         status: "draft",
         image_url: "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=80&h=80&fit=crop",
-        created_at: "2026-02-21T07:45:00Z"
+        created_at: "2026-02-21T07:45:00Z",
+        scrapable: true,
+        content: "From bottomless mimosas to decadent French toast, the Las Vegas Strip has become a brunch destination. Our top picks include Bouchon at The Venetian for classic French fare, Wicked Spoon at Cosmopolitan for variety, and Mon Ami Gabi at Paris for people-watching. Reservations recommended for weekend brunch service."
       },
       {
         id: 10,
@@ -97,7 +116,9 @@ export default function Articles() {
         publication: "West Valley Shoutouts",
         status: "published",
         image_url: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=80&h=80&fit=crop",
-        created_at: "2026-02-16T13:10:00Z"
+        created_at: "2026-02-16T13:10:00Z",
+        scrapable: true,
+        content: "Coffee entrepreneur Jessica Park has opened her third location of Daily Grind Coffee in Green Valley Ranch. The cozy cafe features locally roasted beans, fresh pastries from a nearby bakery, and a community-focused atmosphere. Park credits her success to building relationships with customers and supporting other local businesses."
       },
       {
         id: 11,
@@ -105,7 +126,9 @@ export default function Articles() {
         publication: "Save The Doggy",
         status: "approved",
         image_url: "https://images.unsplash.com/photo-1558788353-f76d92427f16?w=80&h=80&fit=crop",
-        created_at: "2026-02-19T10:30:00Z"
+        created_at: "2026-02-19T10:30:00Z",
+        scrapable: true,
+        content: "The newly renovated Sunset Park Dog Park reopened today with exciting upgrades. New features include separate areas for small and large dogs, agility equipment, shaded seating, and a water fountain station. The $2.3 million renovation was funded through a bond measure approved by voters last year."
       },
       {
         id: 12,
@@ -113,7 +136,9 @@ export default function Articles() {
         publication: "Vegas Fork",
         status: "draft",
         image_url: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=80&h=80&fit=crop",
-        created_at: "2026-02-22T09:20:00Z"
+        created_at: "2026-02-22T09:20:00Z",
+        scrapable: false,
+        content: "Celebrity chef Michael Thompson has opened Harvest Kitchen in Downtown Summerlin, focusing on locally sourced ingredients and seasonal menus. The restaurant partners with Nevada farms and ranchers to create dishes that highlight regional flavors. The dining room features floor-to-ceiling windows overlooking Red Rock Canyon."
       }
     ];
 
@@ -393,6 +418,9 @@ export default function Articles() {
                     <th style={{ padding: '16px 20px', textAlign: 'left', color: '#9ca3af', fontSize: '13px', fontWeight: '600', width: '60px' }}>
                       
                     </th>
+                    <th style={{ padding: '16px 20px', textAlign: 'left', color: '#9ca3af', fontSize: '13px', fontWeight: '600', width: '60px' }}>
+                      
+                    </th>
                     <th style={{ padding: '16px 20px', textAlign: 'left', color: '#9ca3af', fontSize: '13px', fontWeight: '600' }}>
                       TITLE
                     </th>
@@ -413,6 +441,7 @@ export default function Articles() {
                       key={article.id} 
                       article={article}
                       index={index}
+                      onClick={() => setSelectedArticle(article)}
                       onApprove={() => handleApprove(article.id)}
                       onReject={() => handleReject(article.id)}
                       showActions={filter === 'draft'}
@@ -434,6 +463,7 @@ export default function Articles() {
                   <ArticleCard 
                     key={article.id} 
                     article={article}
+                    onClick={() => setSelectedArticle(article)}
                     onApprove={() => handleApprove(article.id)}
                     onReject={() => handleReject(article.id)}
                     showActions={filter === 'draft'}
@@ -448,6 +478,14 @@ export default function Articles() {
           </div>
         </div>
       </main>
+
+      {/* Article Modal */}
+      {selectedArticle && (
+        <ArticleModal 
+          article={selectedArticle} 
+          onClose={() => setSelectedArticle(null)} 
+        />
+      )}
     </div>
   );
 }
@@ -481,7 +519,7 @@ function StatCard({ icon, count, label, active, onClick }) {
   );
 }
 
-function ArticleRow({ article, index, onApprove, onReject, showActions }) {
+function ArticleRow({ article, index, onClick, onApprove, onReject, showActions }) {
   const [isHovered, setIsHovered] = React.useState(false);
   
   const publicationColors = {
@@ -523,9 +561,26 @@ function ArticleRow({ article, index, onApprove, onReject, showActions }) {
         </div>
       </td>
 
+      {/* Scrapable Indicator */}
+      <td style={{ padding: '12px 20px', textAlign: 'center' }}>
+        <div style={{ fontSize: '20px' }} title={article.scrapable ? 'Can be scraped' : 'Protected - cannot scrape'}>
+          {article.scrapable ? '🟢' : '🔴'}
+        </div>
+      </td>
+
       {/* Title */}
       <td style={{ padding: '12px 20px' }}>
-        <div style={{ color: '#fff', fontSize: '14px', fontWeight: '500', lineHeight: 1.4 }}>
+        <div 
+          onClick={onClick}
+          style={{ 
+            color: isHovered ? '#60a5fa' : '#fff', 
+            fontSize: '14px', 
+            fontWeight: '500', 
+            lineHeight: 1.4,
+            cursor: 'pointer',
+            transition: 'color 0.2s'
+          }}
+        >
           {article.title}
         </div>
       </td>
@@ -600,7 +655,7 @@ function ArticleRow({ article, index, onApprove, onReject, showActions }) {
   );
 }
 
-function ArticleCard({ article, onApprove, onReject, showActions }) {
+function ArticleCard({ article, onClick, onApprove, onReject, showActions }) {
   const [isHovered, setIsHovered] = React.useState(false);
   
   return (
@@ -617,14 +672,18 @@ function ArticleCard({ article, onApprove, onReject, showActions }) {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Article Preview */}
-      <div style={{ 
-        aspectRatio: '4/5', 
-        background: article.image_url ? 'transparent' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        position: 'relative',
-        overflow: 'hidden',
-        filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
-        transition: 'filter 0.3s ease'
-      }}>
+      <div 
+        onClick={onClick}
+        style={{ 
+          aspectRatio: '4/5', 
+          background: article.image_url ? 'transparent' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          position: 'relative',
+          overflow: 'hidden',
+          filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
+          transition: 'filter 0.3s ease',
+          cursor: 'pointer'
+        }}
+      >
         {article.image_url ? (
           <img 
             src={article.image_url.replace('w=80&h=80', 'w=400&h=500')} 
@@ -648,11 +707,39 @@ function ArticleCard({ article, onApprove, onReject, showActions }) {
             📰
           </div>
         )}
+        
+        {/* Scrapable Badge */}
+        <div style={{
+          position: 'absolute',
+          top: '12px',
+          right: '12px',
+          background: 'rgba(0, 0, 0, 0.7)',
+          borderRadius: '50%',
+          width: '32px',
+          height: '32px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '16px'
+        }} title={article.scrapable ? 'Can be scraped' : 'Protected - cannot scrape'}>
+          {article.scrapable ? '🟢' : '🔴'}
+        </div>
       </div>
 
       {/* Content */}
       <div style={{ padding: '16px' }}>
-        <h3 style={{ color: '#fff', fontSize: '14px', fontWeight: '600', marginBottom: '8px', lineHeight: 1.4 }}>
+        <h3 
+          onClick={onClick}
+          style={{ 
+            color: isHovered ? '#60a5fa' : '#fff', 
+            fontSize: '14px', 
+            fontWeight: '600', 
+            marginBottom: '8px', 
+            lineHeight: 1.4,
+            cursor: 'pointer',
+            transition: 'color 0.2s'
+          }}
+        >
           {article.title || 'Untitled Article'}
         </h3>
         
@@ -719,6 +806,147 @@ function ArticleCard({ article, onApprove, onReject, showActions }) {
             </button>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function ArticleModal({ article, onClose }) {
+  return (
+    <div 
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0, 0, 0, 0.85)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: '20px'
+      }}
+      onClick={onClose}
+    >
+      <div 
+        style={{
+          background: '#1f2937',
+          borderRadius: '16px',
+          border: '1px solid rgba(75, 85, 99, 0.5)',
+          maxWidth: '800px',
+          width: '100%',
+          maxHeight: '90vh',
+          overflow: 'hidden',
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div style={{
+          padding: '24px',
+          borderBottom: '1px solid rgba(75, 85, 99, 0.5)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: '16px'
+        }}>
+          <div style={{ flex: 1 }}>
+            <h2 style={{ 
+              fontSize: '24px', 
+              fontWeight: '700', 
+              color: '#fff',
+              marginBottom: '12px',
+              lineHeight: 1.3
+            }}>
+              {article.title}
+            </h2>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ 
+                padding: '6px 12px', 
+                background: '#8b5cf6',
+                borderRadius: '6px', 
+                fontSize: '12px',
+                color: '#fff',
+                fontWeight: '600'
+              }}>
+                {article.publication}
+              </span>
+              <span style={{ 
+                padding: '6px 12px', 
+                background: 'rgba(31, 41, 55, 0.7)',
+                borderRadius: '6px', 
+                fontSize: '12px',
+                color: '#9ca3af',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                {article.scrapable ? '??' : '??'}
+                {article.scrapable ? 'Scrapable' : 'Protected'}
+              </span>
+              <span style={{ 
+                fontSize: '13px',
+                color: '#9ca3af'
+              }}>
+                {new Date(article.created_at).toLocaleDateString('en-US', { 
+                  month: 'long', 
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'rgba(31, 41, 55, 0.7)',
+              border: '1px solid rgba(75, 85, 99, 0.5)',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              color: '#9ca3af',
+              cursor: 'pointer',
+              fontSize: '20px',
+              lineHeight: 1,
+              transition: 'all 0.2s'
+            }}
+          >
+            ?
+          </button>
+        </div>
+
+        {/* Content */}
+        <div style={{
+          padding: '24px',
+          overflowY: 'auto',
+          maxHeight: 'calc(90vh - 180px)'
+        }}>
+          {article.image_url && (
+            <div style={{
+              marginBottom: '24px',
+              borderRadius: '12px',
+              overflow: 'hidden'
+            }}>
+              <img 
+                src={article.image_url.replace('w=80&h=80', 'w=800&h=400')} 
+                alt={article.title}
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  display: 'block'
+                }}
+              />
+            </div>
+          )}
+          
+          <div style={{
+            fontSize: '16px',
+            lineHeight: 1.7,
+            color: '#e5e7eb'
+          }}>
+            {article.content}
+          </div>
+        </div>
       </div>
     </div>
   );
