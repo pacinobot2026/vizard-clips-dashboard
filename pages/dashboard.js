@@ -649,9 +649,9 @@ export default function Dashboard() {
                         <td style={{ padding: '12px' }}>
                           {isMobile ? (
                             <video 
-                              src={clip.clip_url + '#t=0.5'}
+                              src={clip.clip_url}
+                              poster={clip.clip_url + '#t=0.5'}
                               preload="metadata"
-                              muted
                               playsInline
                               style={{ width: '80px', height: '100px', objectFit: 'cover', borderRadius: '8px' }}
                             />
@@ -786,17 +786,19 @@ function ClipCard({ clip, onApprove, onReject, showActions, isMobile }) {
       }}>
         {clip.clip_url ? (
           isMobile ? (
-            /* Mobile: Static video thumbnail */
+            /* Mobile: Playable video with thumbnail */
             <video 
-              src={clip.clip_url + '#t=0.5'}
+              src={clip.clip_url}
+              poster={clip.clip_url + '#t=0.5'}
+              controls
               preload="metadata"
-              muted
               playsInline
               style={{
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-                filter: 'grayscale(100%)'
+                filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
+                transition: 'filter 0.3s ease'
               }}
             />
           ) : (
