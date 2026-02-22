@@ -403,11 +403,21 @@ function StatBox({ label, count, active, onClick, color }) {
       onClick={onClick}
       style={{
         ...styles.statBox,
-        ...(active ? { ...styles.statBoxActive, background: color || '#667eea', borderColor: color || '#667eea' } : {})
+        ...(active ? { background: color || '#8b5cf6', borderColor: color || '#8b5cf6' } : {})
       }}
     >
-      <div style={styles.statCount}>{count || 0}</div>
-      <div style={styles.statLabel}>{label}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ fontSize: '24px' }}>
+          {label === 'Pending' && '⏳'}
+          {label === 'Approved' && '✅'}
+          {label === 'Published' && '🚀'}
+          {label === 'Rejected' && '❌'}
+        </div>
+        <div>
+          <div style={{ ...styles.statCount, color: active ? '#fff' : '#06b6d4' }}>{count || 0}</div>
+          <div style={{ ...styles.statLabel, color: active ? 'rgba(255,255,255,0.8)' : '#6b7280' }}>{label}</div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -584,27 +594,21 @@ const styles = {
   },
   statBox: {
     flex: 1,
-    padding: '16px 20px',
-    background: '#111827',
-    borderRadius: '8px',
+    padding: '16px',
+    background: 'rgba(31, 41, 55, 0.5)',
+    borderRadius: '12px',
     cursor: 'pointer',
-    transition: 'all 0.2s',
-    border: '1px solid #1f2937'
+    transition: 'all 0.3s',
+    border: '1px solid rgba(75, 85, 99, 0.5)'
   },
-  statBoxActive: {
-    background: '#8b5cf6',
-    color: 'white',
-    border: '1px solid #8b5cf6'
-  },
+  statBoxActive: {},
   statCount: {
     fontSize: '24px',
-    fontWeight: '600',
-    marginBottom: '4px',
-    color: '#fff'
+    fontWeight: '700',
+    marginBottom: '2px'
   },
   statLabel: {
-    fontSize: '14px',
-    opacity: 0.8
+    fontSize: '12px'
   },
   categoryBar: {
     display: 'flex',
