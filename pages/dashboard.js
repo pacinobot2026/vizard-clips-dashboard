@@ -227,7 +227,7 @@ export default function Dashboard() {
                 {searchTerm ? `No clips matching "${searchTerm}"` : `No ${filter} clips`}
               </div>
             ) : (
-              <div className="video-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
                 {filteredClips.map((clip) => (
                   <ClipCard 
                     key={clip.clip_id} 
@@ -242,22 +242,6 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
-      
-      <style jsx>{`
-        /* Mobile - 2 columns */
-        @media (max-width: 768px) {
-          .video-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
-        }
-        
-        /* Desktop - 3 columns */
-        @media (min-width: 769px) {
-          .video-grid {
-            grid-template-columns: repeat(3, 1fr) !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }
