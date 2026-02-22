@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import NavigationSidebar from '../components/NavigationSidebar';
 
-// v2.1 - Mobile improvements
 export default function Dashboard() {
   const [clips, setClips] = useState([]);
   const [stats, setStats] = useState({});
@@ -352,6 +351,42 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* View Toggle */}
+          <div className="view-toggle" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            <button
+              onClick={() => setViewMode('list')}
+              style={{
+                padding: '6px 16px',
+                background: viewMode === 'list' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
+                border: `1px solid ${viewMode === 'list' ? '#8b5cf6' : 'rgba(75, 85, 99, 0.5)'}`,
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '13px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                transition: 'all 0.3s'
+              }}
+            >
+              📋 List
+            </button>
+            <button
+              onClick={() => setViewMode('gallery')}
+              style={{
+                padding: '6px 16px',
+                background: viewMode === 'gallery' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
+                border: `1px solid ${viewMode === 'gallery' ? '#8b5cf6' : 'rgba(75, 85, 99, 0.5)'}`,
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '13px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                transition: 'all 0.3s'
+              }}
+            >
+              🎨 Gallery
+            </button>
+          </div>
+
           {/* Stats Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
             <StatCard 
@@ -423,7 +458,7 @@ export default function Dashboard() {
             @media (max-width: 768px) {
               main {
                 padding: 16px !important;
-                padding-top: 64px !important;
+                padding-top: 80px !important;
               }
               h1 {
                 font-size: 24px !important;
@@ -432,12 +467,13 @@ export default function Dashboard() {
               .hamburger-menu {
                 display: block !important;
               }
-              /* Mobile: Show category dropdown, hide buttons */
-              .category-dropdown-mobile {
-                display: block !important;
-              }
-              .category-buttons-desktop {
-                display: none !important;
+              /* Move view toggle to top on mobile */
+              .view-toggle {
+                position: fixed !important;
+                top: 12px !important;
+                left: 16px !important;
+                z-index: 1000 !important;
+                margin-bottom: 0 !important;
               }
               /* Stat cards - 2 columns on mobile */
               div[style*="gridTemplateColumns: 'repeat(4, 1fr)'"] {
@@ -452,13 +488,13 @@ export default function Dashboard() {
               div[style*="repeat(auto-fill"] {
                 grid-template-columns: 1fr !important;
               }
-              /* Gallery view - 2 columns on mobile */
+              /* Gallery view - 1 column on mobile */
               .video-gallery {
-                grid-template-columns: repeat(2, 1fr) !important;
+                grid-template-columns: 1fr !important;
               }
             }
             
-            /* Desktop - Gallery view stays 2 columns */
+            /* Desktop - Gallery view 2 columns */
             @media (min-width: 769px) {
               .video-gallery {
                 grid-template-columns: repeat(2, 1fr) !important;
@@ -466,42 +502,31 @@ export default function Dashboard() {
             }
           `}</style>
 
-          {/* Categories Dropdown + View Toggle */}
+          {/* Categories */}
           {categories.length > 0 && (
-            <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px', flexWrap: 'wrap' }}>
-              {/* Categories Dropdown (Mobile Only) */}
-              <select
-                className="category-dropdown-mobile"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
+            <div style={{ marginBottom: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setCategory('all')}
                 style={{
-                  display: 'none',
-                  padding: '6px 16px',
-                  background: 'rgba(31, 41, 55, 0.5)',
+                  padding: '8px 16px',
+                  background: category === 'all' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
                   border: '1px solid rgba(75, 85, 99, 0.5)',
                   borderRadius: '8px',
                   color: '#fff',
                   fontSize: '13px',
                   cursor: 'pointer',
-                  outline: 'none',
-                  fontWeight: '600'
+                  transition: 'all 0.2s'
                 }}
               >
-                <option value="all">All Categories</option>
-                {categories.map(cat => (
-                  <option key={cat.name} value={cat.name}>
-                    {cat.emoji} {cat.name} ({cat.count})
-                  </option>
-                ))}
-              </select>
-
-              {/* Categories Buttons (Desktop Only) */}
-              <div className="category-buttons-desktop" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                All Categories
+              </button>
+              {categories.map(cat => (
                 <button
-                  onClick={() => setCategory('all')}
+                  key={cat.name}
+                  onClick={() => setCategory(cat.name)}
                   style={{
                     padding: '8px 16px',
-                    background: category === 'all' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
+                    background: category === cat.name ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
                     border: '1px solid rgba(75, 85, 99, 0.5)',
                     borderRadius: '8px',
                     color: '#fff',
@@ -510,63 +535,9 @@ export default function Dashboard() {
                     transition: 'all 0.2s'
                   }}
                 >
-                  All Categories
+                  {cat.emoji} {cat.name} ({cat.count})
                 </button>
-                {categories.map(cat => (
-                  <button
-                    key={cat.name}
-                    onClick={() => setCategory(cat.name)}
-                    style={{
-                      padding: '8px 16px',
-                      background: category === cat.name ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                      border: '1px solid rgba(75, 85, 99, 0.5)',
-                      borderRadius: '8px',
-                      color: '#fff',
-                      fontSize: '13px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    {cat.emoji} {cat.name} ({cat.count})
-                  </button>
-                ))}
-              </div>
-
-              {/* View Toggle */}
-              <div style={{ display: 'flex', gap: '4px', background: 'rgba(31, 41, 55, 0.5)', borderRadius: '8px', padding: '4px', border: '1px solid rgba(75, 85, 99, 0.5)' }}>
-                <button
-                  onClick={() => setViewMode('list')}
-                  style={{
-                    padding: '6px 16px',
-                    background: viewMode === 'list' ? '#8b5cf6' : 'transparent',
-                    border: 'none',
-                    borderRadius: '6px',
-                    color: '#fff',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  📋 List
-                </button>
-                <button
-                  onClick={() => setViewMode('gallery')}
-                  style={{
-                    padding: '6px 16px',
-                    background: viewMode === 'gallery' ? '#8b5cf6' : 'transparent',
-                    border: 'none',
-                    borderRadius: '6px',
-                    color: '#fff',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  🎨 Gallery
-                </button>
-              </div>
+              ))}
             </div>
           )}
 
@@ -647,21 +618,12 @@ export default function Dashboard() {
                     {filteredClips.map((clip) => (
                       <tr key={clip.clip_id} style={{ borderBottom: '1px solid rgba(75, 85, 99, 0.3)' }}>
                         <td style={{ padding: '12px' }}>
-                          {isMobile ? (
-                            <video 
-                              src={clip.clip_url}
-                              poster={clip.clip_url + '#t=0.5'}
-                              preload="none"
-                              style={{ width: '80px', height: '100px', objectFit: 'cover', borderRadius: '8px', filter: 'grayscale(100%)' }}
-                            />
-                          ) : (
-                            <video 
-                              src={clip.clip_url}
-                              poster={clip.clip_url + '#t=0.5'}
-                              style={{ width: '80px', height: '100px', objectFit: 'cover', borderRadius: '8px', pointerEvents: 'none' }}
-                              preload="metadata"
-                            />
-                          )}
+                          <video 
+                            src={clip.clip_url}
+                            poster={clip.clip_url + '#t=0.5'}
+                            style={{ width: '80px', height: '100px', objectFit: 'cover', borderRadius: '8px', pointerEvents: 'none' }}
+                            preload="metadata"
+                          />
                         </td>
                         <td style={{ padding: '12px', color: '#fff', fontSize: '14px' }}>{clip.title || 'Untitled'}</td>
                         <td style={{ padding: '12px', color: '#9ca3af', fontSize: '14px' }}>{clip.viral_score || 0}/10</td>
@@ -708,7 +670,7 @@ export default function Dashboard() {
                 </table>
               </div>
             ) : (
-              <div className="video-gallery" style={{ display: 'grid', gap: '16px' }}>
+              <div className="video-gallery" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                 {filteredClips.map((clip) => (
                   <ClipCard 
                     key={clip.clip_id} 
@@ -784,40 +746,24 @@ function ClipCard({ clip, onApprove, onReject, showActions, isMobile }) {
         overflow: 'hidden'
       }}>
         {clip.clip_url ? (
-          isMobile ? (
-            /* Mobile: Static gray thumbnail, click controls to play */
-            <video 
-              src={clip.clip_url}
-              poster={clip.clip_url + '#t=0.5'}
-              preload="none"
-              controls
-              playsInline
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                filter: 'grayscale(100%)'
-              }}
-              onPlay={(e) => e.target.style.filter = 'grayscale(0%)'}
-              onPause={(e) => e.target.style.filter = 'grayscale(100%)'}
-              onEnded={(e) => e.target.style.filter = 'grayscale(100%)'}
-            />
-          ) : (
-            /* Desktop: Animated video */
-            <video 
-              src={clip.clip_url}
-              poster={clip.clip_url + '#t=0.5'}
-              preload="metadata"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
-                transition: 'filter 0.3s ease',
-                pointerEvents: 'none'
-              }}
-            />
-          )
+          <video 
+            src={clip.clip_url}
+            poster={clip.clip_url + '#t=0.5'}
+            preload="metadata"
+            controls={isMobile}
+            playsInline
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
+              transition: 'filter 0.3s ease',
+              pointerEvents: isMobile ? 'auto' : 'none'
+            }}
+            onPlay={(e) => { if (isMobile) e.target.style.filter = 'grayscale(0%)'; }}
+            onPause={(e) => { if (isMobile) e.target.style.filter = 'grayscale(100%)'; }}
+            onEnded={(e) => { if (isMobile) e.target.style.filter = 'grayscale(100%)'; }}
+          />
         ) : (
           <div style={{
             width: '100%',
