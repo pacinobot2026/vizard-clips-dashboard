@@ -195,7 +195,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0a0a' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#101828' }}>
       <NavigationSidebar />
       <div style={styles.container}>
         <div style={styles.header}>
@@ -559,7 +559,7 @@ const styles = {
   container: {
     flex: 1,
     minHeight: '100vh',
-    background: '#0a0a0a',
+    background: '#101828',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif'
   },
   header: {
