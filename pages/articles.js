@@ -358,7 +358,7 @@ export default function Articles() {
           </div>
 
           {/* Publications Dropdown + View Toggle */}
-          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
             {/* Publications Dropdown */}
             <select
               value={category}
@@ -372,7 +372,8 @@ export default function Articles() {
                 fontSize: '13px',
                 cursor: 'pointer',
                 outline: 'none',
-                fontWeight: '600'
+                fontWeight: '600',
+                flex: 1
               }}
             >
               <option value="all">All Publications</option>
