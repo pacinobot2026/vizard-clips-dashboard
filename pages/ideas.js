@@ -10,6 +10,7 @@ export default function Ideas() {
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newIdea, setNewIdea] = useState({ title: '', description: '', category: 'business', priority: 'medium' });
+  const [viewMode, setViewMode] = useState('cards'); // 'list' or 'cards'
 
   useEffect(() => {
     loadMockIdeas();
@@ -262,27 +263,65 @@ export default function Ideas() {
             />
           </div>
 
-          {/* Search */}
-          <div style={{ marginBottom: '20px' }}>
+          {/* Search and View Toggle */}
+          <div style={{ marginBottom: '20px', display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
             <input
               type="text"
-              placeholder="🔍 Search"
+              placeholder="🔍 Search ideas..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
-                width: '200px',
-                padding: '8px 12px',
+                flex: 1,
+                minWidth: '200px',
+                maxWidth: '400px',
+                padding: '10px 16px',
                 background: 'rgba(31, 41, 55, 0.5)',
                 border: '1px solid rgba(75, 85, 99, 0.5)',
                 borderRadius: '8px',
                 color: '#fff',
-                fontSize: '13px',
+                fontSize: '14px',
                 outline: 'none'
               }}
             />
+            
+            {/* View Mode Toggle */}
+            <div style={{ display: 'flex', gap: '8px', background: 'rgba(31, 41, 55, 0.5)', borderRadius: '8px', padding: '4px', border: '1px solid rgba(75, 85, 99, 0.5)' }}>
+              <button
+                onClick={() => setViewMode('list')}
+                style={{
+                  padding: '8px 16px',
+                  background: viewMode === 'list' ? '#8b5cf6' : 'transparent',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: viewMode === 'list' ? '#fff' : '#9ca3af',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                📋 List
+              </button>
+              <button
+                onClick={() => setViewMode('cards')}
+                style={{
+                  padding: '8px 16px',
+                  background: viewMode === 'cards' ? '#8b5cf6' : 'transparent',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: viewMode === 'cards' ? '#fff' : '#9ca3af',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                🎴 Cards
+              </button>
+            </div>
           </div>
 
-          {/* Ideas List */}
+          {/* Ideas List/Cards */}
           <div style={{
             background: 'rgba(17, 24, 39, 0.5)',
             borderRadius: '16px',
@@ -290,22 +329,34 @@ export default function Ideas() {
             border: '1px solid rgba(75, 85, 99, 0.5)',
             animation: 'scaleIn 0.4s ease-out 0.4s both'
           }}>
+            <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#fff' }}>
+                💡 Ideas
+              </h2>
+              <div style={{ color: '#9ca3af', fontSize: '14px' }}>
+                {filteredIdeas.length} {filteredIdeas.length === 1 ? 'idea' : 'ideas'}
+              </div>
+            </div>
+
             {filteredIdeas.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '64px', color: '#6b7280' }}>
-                No ideas in {filter}
+                {searchTerm ? `No ideas matching "${searchTerm}"` : `No ideas in ${filter}`}
               </div>
-            ) : (
+            ) : viewMode === 'list' ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {filteredIdeas.map((idea) => (
-                  <IdeaCard key={idea.id} idea={idea} />
+                  <IdeaCardList key={idea.id} idea={idea} />
+                ))}
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+                {filteredIdeas.map((idea) => (
+                  <IdeaCardGrid key={idea.id} idea={idea} />
                 ))}
               </div>
             )}
           </div>
 
-          <div style={{ marginTop: '16px', textAlign: 'right', color: '#9ca3af', fontSize: '14px' }}>
-            {filteredIdeas.length} {filteredIdeas.length === 1 ? 'idea' : 'ideas'}
-          </div>
         </div>
       </main>
 
@@ -449,7 +500,8 @@ function StatCard({ icon, count, label, active, onClick, delay = 0 }) {
   );
 }
 
-function IdeaCard({ idea }) {
+// List View - Expandable rows
+function IdeaCardList({ idea }) {
   const [isExpanded, setIsExpanded] = React.useState(false);
   
   const priorityColors = {
@@ -533,6 +585,104 @@ function IdeaCard({ idea }) {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+// Cards View - Grid cards like Video Board
+function IdeaCardGrid({ idea }) {
+  const priorityColors = {
+    high: '#ef4444',
+    medium: '#f59e0b',
+    low: '#10b981'
+  };
+
+  const priorityGradients = {
+    high: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+    medium: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+    low: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+  };
+
+  return (
+    <div style={{
+      background: 'rgba(31, 41, 55, 0.7)',
+      borderRadius: '12px',
+      border: '1px solid rgba(75, 85, 99, 0.5)',
+      overflow: 'hidden',
+      transition: 'all 0.3s',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+    }}>
+      {/* Priority Header */}
+      <div style={{ 
+        background: priorityGradients[idea.priority],
+        padding: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '80px'
+      }}>
+        <span style={{ fontSize: '48px' }}>
+          {idea.priority === 'high' ? '🔥' : idea.priority === 'medium' ? '⚡' : '💭'}
+        </span>
+      </div>
+
+      {/* Content */}
+      <div style={{ padding: '16px' }}>
+        <h3 style={{ color: '#fff', fontSize: '14px', fontWeight: '600', marginBottom: '8px', lineHeight: 1.4, minHeight: '40px' }}>
+          {idea.title}
+        </h3>
+        
+        <p style={{ color: '#9ca3af', fontSize: '12px', marginBottom: '12px', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          {idea.description}
+        </p>
+
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+          <span style={{ 
+            padding: '4px 8px', 
+            background: '#1f2937', 
+            borderRadius: '6px', 
+            fontSize: '11px',
+            color: '#9ca3af'
+          }}>
+            {idea.category}
+          </span>
+          <span style={{ 
+            padding: '4px 8px', 
+            background: '#1f2937', 
+            borderRadius: '6px', 
+            fontSize: '11px',
+            color: '#9ca3af'
+          }}>
+            {new Date(idea.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          </span>
+        </div>
+
+        {/* Tags */}
+        {idea.tags && idea.tags.length > 0 && (
+          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+            {idea.tags.slice(0, 3).map(tag => (
+              <span key={tag} style={{ 
+                padding: '2px 6px', 
+                background: 'rgba(96, 165, 250, 0.15)',
+                borderRadius: '4px', 
+                fontSize: '10px',
+                color: '#60a5fa'
+              }}>
+                #{tag}
+              </span>
+            ))}
+            {idea.tags.length > 3 && (
+              <span style={{ 
+                padding: '2px 6px', 
+                fontSize: '10px',
+                color: '#6b7280'
+              }}>
+                +{idea.tags.length - 3}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
