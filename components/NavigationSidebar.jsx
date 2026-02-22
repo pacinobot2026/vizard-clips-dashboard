@@ -1,25 +1,77 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const NAV_ITEMS = [
+  { id: 'video', label: 'Video Board', icon: '🎬', href: '/dashboard' },
+  { id: 'articles', label: 'Article Board', icon: '📰', href: '/articles' },
+  { id: 'ideas', label: 'Idea Board', icon: '💡', href: '/ideas' },
+  { id: 'control', label: 'Command Center', icon: '🎛️', href: 'https://dashboard-gilt-one-zc4y5uu95v.vercel.app' },
   { id: 'team', label: 'Team Board', icon: '👥', href: 'https://kanban-rho-ivory.vercel.app' },
   { id: 'openclaw', label: 'OpenClaw Board', icon: '🤖', href: '/openclaw' },
-  { id: 'video', label: 'Video Board', icon: '🎬', href: 'https://vizard-clips-app.vercel.app' },
-  { id: 'control', label: 'Control Panel', icon: '🎛️', href: 'https://dashboard-gilt-one-zc4y5uu95v.vercel.app' },
 ];
 
 export default function NavigationSidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [hoveredItem, setHoveredItem] = useState(null);
+  const [currentPath, setCurrentPath] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentPath(window.location.pathname);
+    }
+  }, []);
 
   return (
-    <div 
-      className={`min-h-screen h-full bg-gray-900 border-r border-gray-800 flex flex-col transition-all duration-300 ${
-        isExpanded ? 'w-48' : 'w-14'
-      }`}
-      onMouseEnter={() => setIsExpanded(true)}
-      onMouseLeave={() => setIsExpanded(false)}
-      style={{ minHeight: '100vh', background: '#111827', borderRight: '1px solid #1f2937' }}
-    >
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        style={{
+          position: 'fixed',
+          top: '16px',
+          left: '16px',
+          zIndex: 1000,
+          background: '#1f2937',
+          border: '1px solid #374151',
+          borderRadius: '8px',
+          padding: '12px',
+          color: '#fff',
+          cursor: 'pointer',
+          display: 'none'
+        }}
+        className="mobile-menu-btn"
+      >
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      {/* Mobile Overlay */}
+      {mobileMenuOpen && (
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 999,
+            display: 'none'
+          }}
+          className="mobile-overlay"
+        />
+      )}
+
+      <div 
+        className={`min-h-screen h-full bg-gray-900 border-r border-gray-800 flex flex-col transition-all duration-300 ${
+          isExpanded ? 'w-48' : 'w-14'
+        } ${mobileMenuOpen ? 'mobile-menu-open' : ''}`}
+        onMouseEnter={() => setIsExpanded(true)}
+        onMouseLeave={() => setIsExpanded(false)}
+        style={{ minHeight: '100vh', background: '#111827', borderRight: '1px solid #1f2937' }}
+      >
       {/* Toggle Button */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
@@ -61,8 +113,8 @@ export default function NavigationSidebar() {
               color: '#d1d5db',
               textDecoration: 'none',
               transition: 'background 0.2s, color 0.2s',
-              background: item.id === 'video' ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
-              borderRight: item.id === 'video' ? '2px solid #8b5cf6' : 'none'
+              background: currentPath === item.href ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
+              borderRight: currentPath === item.href ? '2px solid #8b5cf6' : 'none'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = '#1f2937';
@@ -70,7 +122,7 @@ export default function NavigationSidebar() {
               setHoveredItem(item.id);
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = item.id === 'video' ? 'rgba(139, 92, 246, 0.1)' : 'transparent';
+              e.currentTarget.style.background = currentPath === item.href ? 'rgba(139, 92, 246, 0.1)' : 'transparent';
               e.currentTarget.style.color = '#d1d5db';
               setHoveredItem(null);
             }}
@@ -119,15 +171,38 @@ export default function NavigationSidebar() {
         ))}
       </nav>
 
-      {/* Logo/Bottom */}
-      <div style={{ padding: '12px', borderTop: '1px solid #1f2937' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '20px', flexShrink: 0 }}>🎬</span>
-          {isExpanded && (
-            <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden' }}>Pacino</span>
-          )}
+        {/* Logo/Bottom */}
+        <div style={{ padding: '12px', borderTop: '1px solid #1f2937' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '20px', flexShrink: 0 }}>🎬</span>
+            {isExpanded && (
+              <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden' }}>Pacino</span>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .mobile-menu-btn {
+            display: block !important;
+          }
+          .mobile-overlay {
+            display: block !important;
+          }
+          div:not(.mobile-menu-btn):not(.mobile-overlay) {
+            position: fixed;
+            left: -100%;
+            top: 0;
+            width: 240px !important;
+            transition: left 0.3s ease;
+            z-index: 1000;
+          }
+          .mobile-menu-open {
+            left: 0 !important;
+          }
+        }
+      `}</style>
+    </>
   );
 }
