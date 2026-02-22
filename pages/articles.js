@@ -9,6 +9,7 @@ export default function Articles() {
   const [category, setCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date_desc');
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'cards'
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -288,7 +289,7 @@ export default function Articles() {
             </div>
           )}
 
-          {/* Search and Filters */}
+          {/* Search, Filters, and View Toggle */}
           <div style={{ marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             <input
               type="text"
@@ -325,20 +326,64 @@ export default function Articles() {
               <option value="date_asc">Oldest First</option>
               <option value="title">Title</option>
             </select>
+            
+            {/* View Toggle */}
+            <div style={{ display: 'flex', gap: '4px', background: 'rgba(31, 41, 55, 0.5)', borderRadius: '8px', padding: '4px', border: '1px solid rgba(75, 85, 99, 0.5)' }}>
+              <button
+                onClick={() => setViewMode('list')}
+                style={{
+                  padding: '6px 16px',
+                  background: viewMode === 'list' ? '#8b5cf6' : 'transparent',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: '#fff',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  fontWeight: '600'
+                }}
+              >
+                📋 List
+              </button>
+              <button
+                onClick={() => setViewMode('cards')}
+                style={{
+                  padding: '6px 16px',
+                  background: viewMode === 'cards' ? '#8b5cf6' : 'transparent',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: '#fff',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  fontWeight: '600'
+                }}
+              >
+                🎴 Cards
+              </button>
+            </div>
           </div>
 
-          {/* Articles Table */}
-          <div style={{
-            background: 'rgba(17, 24, 39, 0.5)',
-            borderRadius: '16px',
-            border: '1px solid rgba(75, 85, 99, 0.5)',
-            overflow: 'hidden'
-          }}>
-            {filteredArticles.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '64px', color: '#6b7280' }}>
-                {searchTerm ? `No articles matching "${searchTerm}"` : `No ${filter} articles`}
-              </div>
-            ) : (
+          {/* Articles - List or Card View */}
+          {filteredArticles.length === 0 ? (
+            <div style={{
+              background: 'rgba(17, 24, 39, 0.5)',
+              borderRadius: '16px',
+              border: '1px solid rgba(75, 85, 99, 0.5)',
+              textAlign: 'center', 
+              padding: '64px', 
+              color: '#6b7280'
+            }}>
+              {searchTerm ? `No articles matching "${searchTerm}"` : `No ${filter} articles`}
+            </div>
+          ) : viewMode === 'list' ? (
+            // LIST VIEW
+            <div style={{
+              background: 'rgba(17, 24, 39, 0.5)',
+              borderRadius: '16px',
+              border: '1px solid rgba(75, 85, 99, 0.5)',
+              overflow: 'hidden'
+            }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ 
@@ -375,8 +420,28 @@ export default function Articles() {
                   ))}
                 </tbody>
               </table>
-            )}
-          </div>
+            </div>
+          ) : (
+            // CARD VIEW
+            <div style={{
+              background: 'rgba(17, 24, 39, 0.5)',
+              borderRadius: '16px',
+              padding: '24px',
+              border: '1px solid rgba(75, 85, 99, 0.5)'
+            }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+                {filteredArticles.map((article) => (
+                  <ArticleCard 
+                    key={article.id} 
+                    article={article}
+                    onApprove={() => handleApprove(article.id)}
+                    onReject={() => handleReject(article.id)}
+                    showActions={filter === 'draft'}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           <div style={{ marginTop: '16px', textAlign: 'right', color: '#9ca3af', fontSize: '14px' }}>
             {filteredArticles.length} {filteredArticles.length === 1 ? 'article' : 'articles'}
@@ -532,5 +597,129 @@ function ArticleRow({ article, index, onApprove, onReject, showActions }) {
         )}
       </td>
     </tr>
+  );
+}
+
+function ArticleCard({ article, onApprove, onReject, showActions }) {
+  const [isHovered, setIsHovered] = React.useState(false);
+  
+  return (
+    <div 
+      style={{
+        background: 'rgba(31, 41, 55, 0.7)',
+        borderRadius: '12px',
+        border: '1px solid rgba(75, 85, 99, 0.5)',
+        overflow: 'hidden',
+        transition: 'all 0.3s',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Article Preview */}
+      <div style={{ 
+        aspectRatio: '4/5', 
+        background: article.image_url ? 'transparent' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        position: 'relative',
+        overflow: 'hidden',
+        filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
+        transition: 'filter 0.3s ease'
+      }}>
+        {article.image_url ? (
+          <img 
+            src={article.image_url.replace('w=80&h=80', 'w=400&h=500')} 
+            alt={article.title || 'Article preview'}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }}
+          />
+        ) : (
+          <div style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '48px',
+            color: 'white'
+          }}>
+            📰
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div style={{ padding: '16px' }}>
+        <h3 style={{ color: '#fff', fontSize: '14px', fontWeight: '600', marginBottom: '8px', lineHeight: 1.4 }}>
+          {article.title || 'Untitled Article'}
+        </h3>
+        
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+          {article.publication && (
+            <span style={{ 
+              padding: '4px 8px', 
+              background: '#1f2937', 
+              borderRadius: '6px', 
+              fontSize: '11px',
+              color: '#9ca3af'
+            }}>
+              {article.publication}
+            </span>
+          )}
+          {article.created_at && (
+            <span style={{ 
+              padding: '4px 8px', 
+              background: '#1f2937', 
+              borderRadius: '6px', 
+              fontSize: '11px',
+              color: '#9ca3af'
+            }}>
+              {new Date(article.created_at).toLocaleDateString()}
+            </span>
+          )}
+        </div>
+
+        {showActions && isHovered && (
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={onApprove}
+              style={{
+                flex: 1,
+                padding: '8px',
+                background: '#10b981',
+                border: 'none',
+                borderRadius: '6px',
+                color: 'white',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              ✓ Approve
+            </button>
+            <button
+              onClick={onReject}
+              style={{
+                flex: 1,
+                padding: '8px',
+                background: '#ef4444',
+                border: 'none',
+                borderRadius: '6px',
+                color: 'white',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              ✕ Reject
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
