@@ -10,41 +10,10 @@ export default function Login() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-      <div className="text-white">Redirecting to dashboard...</div>
-    </div>
-  );
-}
-      setLoading(false);
-    }
-  };
-
-  return (
     <div style={styles.container}>
       <div style={styles.card}>
         <h1 style={styles.title}>🎬 Vizard Clips Dashboard</h1>
-        <p style={styles.subtitle}>Enter password to access</p>
-        
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={styles.input}
-            autoFocus
-          />
-          
-          {error && <p style={styles.error}>{error}</p>}
-          
-          <button 
-            type="submit" 
-            disabled={loading}
-            style={styles.button}
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
+        <p style={styles.subtitle}>Redirecting to dashboard...</p>
       </div>
     </div>
   );
@@ -86,35 +55,5 @@ const styles = {
     color: '#cbd5e0',
     marginBottom: '36px',
     fontSize: '15px'
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px'
-  },
-  input: {
-    padding: '14px 16px',
-    border: '2px solid #e0e0e0',
-    borderRadius: '8px',
-    fontSize: '16px',
-    transition: 'border 0.2s',
-    outline: 'none'
-  },
-  button: {
-    padding: '14px',
-    background: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'transform 0.2s, opacity 0.2s'
-  },
-  error: {
-    color: '#e53e3e',
-    fontSize: '14px',
-    textAlign: 'center',
-    margin: '0'
   }
 };
