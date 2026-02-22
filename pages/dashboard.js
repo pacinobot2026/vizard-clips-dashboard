@@ -651,9 +651,8 @@ export default function Dashboard() {
                             <video 
                               src={clip.clip_url}
                               poster={clip.clip_url + '#t=0.5'}
-                              preload="metadata"
-                              playsInline
-                              style={{ width: '80px', height: '100px', objectFit: 'cover', borderRadius: '8px' }}
+                              preload="none"
+                              style={{ width: '80px', height: '100px', objectFit: 'cover', borderRadius: '8px', filter: 'grayscale(100%)' }}
                             />
                           ) : (
                             <video 
@@ -762,20 +761,6 @@ function StatCard({ icon, count, label, active, onClick, delay = 0, style }) {
 
 function ClipCard({ clip, onApprove, onReject, showActions, isMobile }) {
   const [isHovered, setIsHovered] = React.useState(false);
-  const [isPlaying, setIsPlaying] = React.useState(false);
-  const videoRef = React.useRef(null);
-
-  const handleVideoClick = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-        setIsPlaying(false);
-      } else {
-        videoRef.current.play();
-        setIsPlaying(true);
-      }
-    }
-  };
   
   return (
     <div 
@@ -800,26 +785,22 @@ function ClipCard({ clip, onApprove, onReject, showActions, isMobile }) {
       }}>
         {clip.clip_url ? (
           isMobile ? (
-            /* Mobile: Gray thumbnail, color + play on click */
+            /* Mobile: Static gray thumbnail, click controls to play */
             <video 
-              ref={videoRef}
               src={clip.clip_url}
               poster={clip.clip_url + '#t=0.5'}
-              preload="metadata"
+              preload="none"
+              controls
               playsInline
-              muted
-              onClick={handleVideoClick}
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              onEnded={() => setIsPlaying(false)}
               style={{
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-                filter: isPlaying ? 'grayscale(0%)' : 'grayscale(100%)',
-                transition: 'filter 0.3s ease',
-                cursor: 'pointer'
+                filter: 'grayscale(100%)'
               }}
+              onPlay={(e) => e.target.style.filter = 'grayscale(0%)'}
+              onPause={(e) => e.target.style.filter = 'grayscale(100%)'}
+              onEnded={(e) => e.target.style.filter = 'grayscale(100%)'}
             />
           ) : (
             /* Desktop: Animated video */
