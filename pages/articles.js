@@ -268,8 +268,7 @@ export default function Articles() {
               padding: '12px',
               color: '#fff',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-              display: 'none'
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
             }}
           >
             <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -503,10 +502,6 @@ export default function Articles() {
               h1 {
                 font-size: 24px !important;
               }
-              /* Show hamburger on mobile */
-              .hamburger-menu {
-                display: block !important;
-              }
               /* Stat cards - 2 columns on mobile */
               div[style*="gridTemplateColumns: 'repeat(4, 1fr)'"] {
                 grid-template-columns: repeat(2, 1fr) !important;
@@ -549,12 +544,6 @@ export default function Articles() {
               .status-time {
                 font-size: 16px !important;
                 color: #9ca3af !important;
-              }
-            }
-            @media (min-width: 769px) {
-              /* Hide hamburger on desktop */
-              .hamburger-menu {
-                display: none !important;
               }
             }
           `}</style>
