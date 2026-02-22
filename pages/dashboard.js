@@ -342,42 +342,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* View Toggle */}
-          <div className="view-toggle" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-            <button
-              onClick={() => setViewMode('list')}
-              style={{
-                padding: '6px 16px',
-                background: viewMode === 'list' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                border: `1px solid ${viewMode === 'list' ? '#8b5cf6' : 'rgba(75, 85, 99, 0.5)'}`,
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '13px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                transition: 'all 0.3s'
-              }}
-            >
-              📋 List
-            </button>
-            <button
-              onClick={() => setViewMode('gallery')}
-              style={{
-                padding: '6px 16px',
-                background: viewMode === 'gallery' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                border: `1px solid ${viewMode === 'gallery' ? '#8b5cf6' : 'rgba(75, 85, 99, 0.5)'}`,
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '13px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                transition: 'all 0.3s'
-              }}
-            >
-              🎨 Gallery
-            </button>
-          </div>
-
           {/* Stats Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
             <StatCard 
@@ -449,7 +413,11 @@ export default function Dashboard() {
             @media (max-width: 768px) {
               main {
                 padding: 16px !important;
-                padding-top: 80px !important;
+                padding-top: 64px !important;
+              }
+              /* Prevent video playback on mobile - show static thumbnails only */
+              video {
+                pointer-events: none !important;
               }
               h1 {
                 font-size: 24px !important;
@@ -458,13 +426,12 @@ export default function Dashboard() {
               .hamburger-menu {
                 display: block !important;
               }
-              /* Move view toggle to top on mobile */
-              .view-toggle {
-                position: fixed !important;
-                top: 12px !important;
-                left: 16px !important;
-                z-index: 1000 !important;
-                margin-bottom: 0 !important;
+              /* Mobile: Show category dropdown, hide buttons */
+              .category-dropdown-mobile {
+                display: block !important;
+              }
+              .category-buttons-desktop {
+                display: none !important;
               }
               /* Stat cards - 2 columns on mobile */
               div[style*="gridTemplateColumns: 'repeat(4, 1fr)'"] {
@@ -493,31 +460,42 @@ export default function Dashboard() {
             }
           `}</style>
 
-          {/* Categories */}
+          {/* Categories Dropdown + View Toggle */}
           {categories.length > 0 && (
-            <div style={{ marginBottom: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => setCategory('all')}
+            <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px', flexWrap: 'wrap' }}>
+              {/* Categories Dropdown (Mobile Only) */}
+              <select
+                className="category-dropdown-mobile"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
                 style={{
-                  padding: '8px 16px',
-                  background: category === 'all' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
+                  display: 'none',
+                  padding: '6px 16px',
+                  background: 'rgba(31, 41, 55, 0.5)',
                   border: '1px solid rgba(75, 85, 99, 0.5)',
                   borderRadius: '8px',
                   color: '#fff',
                   fontSize: '13px',
                   cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  outline: 'none',
+                  fontWeight: '600'
                 }}
               >
-                All Categories
-              </button>
-              {categories.map(cat => (
+                <option value="all">All Categories</option>
+                {categories.map(cat => (
+                  <option key={cat.name} value={cat.name}>
+                    {cat.emoji} {cat.name} ({cat.count})
+                  </option>
+                ))}
+              </select>
+
+              {/* Categories Buttons (Desktop Only) */}
+              <div className="category-buttons-desktop" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <button
-                  key={cat.name}
-                  onClick={() => setCategory(cat.name)}
+                  onClick={() => setCategory('all')}
                   style={{
                     padding: '8px 16px',
-                    background: category === cat.name ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
+                    background: category === 'all' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
                     border: '1px solid rgba(75, 85, 99, 0.5)',
                     borderRadius: '8px',
                     color: '#fff',
@@ -526,9 +504,63 @@ export default function Dashboard() {
                     transition: 'all 0.2s'
                   }}
                 >
-                  {cat.emoji} {cat.name} ({cat.count})
+                  All Categories
                 </button>
-              ))}
+                {categories.map(cat => (
+                  <button
+                    key={cat.name}
+                    onClick={() => setCategory(cat.name)}
+                    style={{
+                      padding: '8px 16px',
+                      background: category === cat.name ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
+                      border: '1px solid rgba(75, 85, 99, 0.5)',
+                      borderRadius: '8px',
+                      color: '#fff',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {cat.emoji} {cat.name} ({cat.count})
+                  </button>
+                ))}
+              </div>
+
+              {/* View Toggle */}
+              <div style={{ display: 'flex', gap: '4px', background: 'rgba(31, 41, 55, 0.5)', borderRadius: '8px', padding: '4px', border: '1px solid rgba(75, 85, 99, 0.5)' }}>
+                <button
+                  onClick={() => setViewMode('list')}
+                  style={{
+                    padding: '6px 16px',
+                    background: viewMode === 'list' ? '#8b5cf6' : 'transparent',
+                    border: 'none',
+                    borderRadius: '6px',
+                    color: '#fff',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  📋 List
+                </button>
+                <button
+                  onClick={() => setViewMode('gallery')}
+                  style={{
+                    padding: '6px 16px',
+                    background: viewMode === 'gallery' ? '#8b5cf6' : 'transparent',
+                    border: 'none',
+                    borderRadius: '6px',
+                    color: '#fff',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  🎨 Gallery
+                </button>
+              </div>
             </div>
           )}
 
