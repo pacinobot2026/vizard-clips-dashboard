@@ -14,16 +14,6 @@ export default function Dashboard() {
   const [nextCheckIn, setNextCheckIn] = useState(300); // 5 minutes in seconds
   const [nextPostIn, setNextPostIn] = useState(7200); // 2 hours in seconds (default)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [viewMode, setViewMode] = useState('gallery'); // 'list' or 'gallery'
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    // Detect mobile on mount
-    setIsMobile(window.innerWidth <= 768);
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     fetchClips();
@@ -351,42 +341,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* View Toggle */}
-          <div className="view-toggle" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-            <button
-              onClick={() => setViewMode('list')}
-              style={{
-                padding: '6px 16px',
-                background: viewMode === 'list' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                border: `1px solid ${viewMode === 'list' ? '#8b5cf6' : 'rgba(75, 85, 99, 0.5)'}`,
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '13px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                transition: 'all 0.3s'
-              }}
-            >
-              📋 List
-            </button>
-            <button
-              onClick={() => setViewMode('gallery')}
-              style={{
-                padding: '6px 16px',
-                background: viewMode === 'gallery' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                border: `1px solid ${viewMode === 'gallery' ? '#8b5cf6' : 'rgba(75, 85, 99, 0.5)'}`,
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '13px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                transition: 'all 0.3s'
-              }}
-            >
-              🎨 Gallery
-            </button>
-          </div>
-
           {/* Stats Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
             <StatCard 
@@ -458,7 +412,7 @@ export default function Dashboard() {
             @media (max-width: 768px) {
               main {
                 padding: 16px !important;
-                padding-top: 80px !important;
+                padding-top: 64px !important;
               }
               h1 {
                 font-size: 24px !important;
@@ -466,14 +420,6 @@ export default function Dashboard() {
               /* Show hamburger on mobile */
               .hamburger-menu {
                 display: block !important;
-              }
-              /* Move view toggle to top on mobile */
-              .view-toggle {
-                position: fixed !important;
-                top: 12px !important;
-                left: 16px !important;
-                z-index: 1000 !important;
-                margin-bottom: 0 !important;
               }
               /* Stat cards - 2 columns on mobile */
               div[style*="gridTemplateColumns: 'repeat(4, 1fr)'"] {
@@ -487,17 +433,6 @@ export default function Dashboard() {
               /* Card grids - 1 column */
               div[style*="repeat(auto-fill"] {
                 grid-template-columns: 1fr !important;
-              }
-              /* Gallery view - 2 columns on mobile */
-              .video-gallery {
-                grid-template-columns: repeat(2, 1fr) !important;
-              }
-            }
-            
-            /* Desktop - Gallery view 2 columns */
-            @media (min-width: 769px) {
-              .video-gallery {
-                grid-template-columns: repeat(2, 1fr) !important;
               }
             }
           `}</style>
@@ -602,75 +537,8 @@ export default function Dashboard() {
               <div style={{ textAlign: 'center', padding: '64px', color: '#6b7280' }}>
                 {searchTerm ? `No clips matching "${searchTerm}"` : `No ${filter} clips`}
               </div>
-            ) : viewMode === 'list' ? (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(75, 85, 99, 0.5)' }}>
-                      <th style={{ textAlign: 'left', padding: '12px', color: '#9ca3af', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Video</th>
-                      <th style={{ textAlign: 'left', padding: '12px', color: '#9ca3af', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Title</th>
-                      <th style={{ textAlign: 'left', padding: '12px', color: '#9ca3af', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Score</th>
-                      <th style={{ textAlign: 'left', padding: '12px', color: '#9ca3af', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Duration</th>
-                      {filter === 'pending' && <th style={{ textAlign: 'right', padding: '12px', color: '#9ca3af', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Actions</th>}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredClips.map((clip) => (
-                      <tr key={clip.clip_id} style={{ borderBottom: '1px solid rgba(75, 85, 99, 0.3)' }}>
-                        <td style={{ padding: '12px' }}>
-                          <video 
-                            src={clip.clip_url}
-                            poster={clip.clip_url + '#t=0.5'}
-                            style={{ width: '80px', height: '100px', objectFit: 'cover', borderRadius: '8px', pointerEvents: 'none' }}
-                            preload="none"
-                          />
-                        </td>
-                        <td style={{ padding: '12px', color: '#fff', fontSize: '14px' }}>{clip.title || 'Untitled'}</td>
-                        <td style={{ padding: '12px', color: '#9ca3af', fontSize: '14px' }}>{clip.viral_score || 0}/10</td>
-                        <td style={{ padding: '12px', color: '#9ca3af', fontSize: '14px' }}>{clip.duration || '0s'}</td>
-                        {filter === 'pending' && (
-                          <td style={{ padding: '12px', textAlign: 'right' }}>
-                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                              <button
-                                onClick={() => handleApprove(clip.clip_id)}
-                                style={{
-                                  padding: '6px 12px',
-                                  background: '#10b981',
-                                  border: 'none',
-                                  borderRadius: '6px',
-                                  color: 'white',
-                                  fontSize: '12px',
-                                  fontWeight: '600',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                ✓ Approve
-                              </button>
-                              <button
-                                onClick={() => handleReject(clip.clip_id)}
-                                style={{
-                                  padding: '6px 12px',
-                                  background: '#ef4444',
-                                  border: 'none',
-                                  borderRadius: '6px',
-                                  color: 'white',
-                                  fontSize: '12px',
-                                  fontWeight: '600',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                ✕ Reject
-                              </button>
-                            </div>
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
             ) : (
-              <div className="video-gallery" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
                 {filteredClips.map((clip) => (
                   <ClipCard 
                     key={clip.clip_id} 
@@ -678,7 +546,6 @@ export default function Dashboard() {
                     onApprove={() => handleApprove(clip.clip_id)}
                     onReject={() => handleReject(clip.clip_id)}
                     showActions={filter === 'pending'}
-                    isMobile={isMobile}
                   />
                 ))}
               </div>
@@ -721,7 +588,7 @@ function StatCard({ icon, count, label, active, onClick, delay = 0, style }) {
   );
 }
 
-function ClipCard({ clip, onApprove, onReject, showActions, isMobile }) {
+function ClipCard({ clip, onApprove, onReject, showActions }) {
   const [isHovered, setIsHovered] = React.useState(false);
   
   return (
@@ -748,21 +615,15 @@ function ClipCard({ clip, onApprove, onReject, showActions, isMobile }) {
         {clip.clip_url ? (
           <video 
             src={clip.clip_url}
-            poster={clip.clip_url + '#t=0.5'}
-            preload="none"
-            controls={isMobile}
-            playsInline
+            controls
+            preload="metadata"
             style={{
               width: '100%',
               height: '100%',
               objectFit: 'cover',
               filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
-              transition: 'filter 0.3s ease',
-              pointerEvents: isMobile ? 'auto' : 'none'
+              transition: 'filter 0.3s ease'
             }}
-            onPlay={(e) => { if (isMobile) e.target.style.filter = 'grayscale(0%)'; }}
-            onPause={(e) => { if (isMobile) e.target.style.filter = 'grayscale(100%)'; }}
-            onEnded={(e) => { if (isMobile) e.target.style.filter = 'grayscale(100%)'; }}
           />
         ) : (
           <div style={{
