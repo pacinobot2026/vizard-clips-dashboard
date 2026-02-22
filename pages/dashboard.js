@@ -416,9 +416,12 @@ export default function Dashboard() {
                 padding: 16px !important;
                 padding-top: 64px !important;
               }
-              /* Prevent video playback on mobile - show static thumbnails only */
-              video {
-                pointer-events: none !important;
+              /* Mobile: Show static poster, hide video */
+              .desktop-video {
+                display: none !important;
+              }
+              .mobile-poster {
+                display: block !important;
               }
               h1 {
                 font-size: 24px !important;
@@ -457,6 +460,13 @@ export default function Dashboard() {
             @media (min-width: 769px) {
               .video-gallery {
                 grid-template-columns: repeat(2, 1fr) !important;
+              }
+              /* Desktop: Show video, hide poster */
+              .desktop-video {
+                display: block !important;
+              }
+              .mobile-poster {
+                display: none !important;
               }
             }
           `}</style>
@@ -641,12 +651,27 @@ export default function Dashboard() {
                   <tbody>
                     {filteredClips.map((clip) => (
                       <tr key={clip.clip_id} style={{ borderBottom: '1px solid rgba(75, 85, 99, 0.3)' }}>
-                        <td style={{ padding: '12px' }}>
+                        <td style={{ padding: '12px', position: 'relative' }}>
+                          {/* Desktop: Animated video */}
                           <video 
+                            className="desktop-video"
                             src={clip.clip_url}
                             poster={clip.clip_url + '#t=0.5'}
                             style={{ width: '80px', height: '100px', objectFit: 'cover', borderRadius: '8px', pointerEvents: 'none' }}
                             preload="metadata"
+                          />
+                          {/* Mobile: Static poster image */}
+                          <div
+                            className="mobile-poster"
+                            style={{
+                              display: 'none',
+                              width: '80px',
+                              height: '100px',
+                              borderRadius: '8px',
+                              backgroundImage: `url(${clip.clip_url}#t=0.5)`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center'
+                            }}
                           />
                         </td>
                         <td style={{ padding: '12px', color: '#fff', fontSize: '14px' }}>{clip.title || 'Untitled'}</td>
@@ -769,19 +794,36 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
         overflow: 'hidden'
       }}>
         {clip.clip_url ? (
-          <video 
-            src={clip.clip_url}
-            poster={clip.clip_url + '#t=0.5'}
-            preload="metadata"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
-              transition: 'filter 0.3s ease',
-              pointerEvents: 'none'
-            }}
-          />
+          <>
+            {/* Desktop: Animated video */}
+            <video 
+              className="desktop-video"
+              src={clip.clip_url}
+              poster={clip.clip_url + '#t=0.5'}
+              preload="metadata"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
+                transition: 'filter 0.3s ease',
+                pointerEvents: 'none'
+              }}
+            />
+            {/* Mobile: Static poster image */}
+            <div
+              className="mobile-poster"
+              style={{
+                display: 'none',
+                width: '100%',
+                height: '100%',
+                backgroundImage: `url(${clip.clip_url}#t=0.5)`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                filter: 'grayscale(100%)'
+              }}
+            />
+          </>
         ) : (
           <div style={{
             width: '100%',
