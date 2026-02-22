@@ -310,8 +310,8 @@ export default function Articles() {
             </div>
           </div>
 
-          {/* Status Banner - Always visible */}
-          <div style={{
+          {/* Status Banner - Desktop only */}
+          <div className="status-banner" style={{
             background: 'rgba(75, 85, 99, 0.1)',
             border: '1px solid rgba(75, 85, 99, 0.3)',
             borderRadius: '12px',
@@ -328,10 +328,10 @@ export default function Articles() {
                 animation: 'spin 2s linear infinite'
               }}>🔍</div>
               <div>
-                <div style={{ color: '#a78bfa', fontSize: '13px', fontWeight: '600' }}>
+                <div style={{ color: '#a78bfa', fontSize: '16px', fontWeight: '600' }}>
                   Next article search
                 </div>
-                <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
+                <div style={{ color: '#9ca3af', fontSize: '14px', marginTop: '4px' }}>
                   In {formatTime(searchCountdown)} (automated)
                 </div>
               </div>
@@ -344,10 +344,10 @@ export default function Articles() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
               <div style={{ fontSize: '24px' }}>📰</div>
               <div>
-                <div style={{ color: '#60a5fa', fontSize: '13px', fontWeight: '600' }}>
+                <div style={{ color: '#60a5fa', fontSize: '16px', fontWeight: '600' }}>
                   Next Letterman post
                 </div>
-                <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
+                <div style={{ color: '#9ca3af', fontSize: '14px', marginTop: '4px' }}>
                   {stats.approved > 0 
                     ? `In ${formatTime(postCountdown)} (automated)`
                     : 'No approved articles ready'
@@ -426,6 +426,10 @@ export default function Articles() {
               }
               .mobile-categories {
                 display: block !important;
+              }
+              /* Status banner - hide on mobile */
+              .status-banner {
+                display: none !important;
               }
             }
           `}</style>
