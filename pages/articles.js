@@ -603,7 +603,7 @@ export default function Articles() {
                     <div style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
                       <img src={article.image_url} alt="" style={{ width: '60px', height: '60px', borderRadius: '6px', objectFit: 'cover', filter: 'grayscale(100%)' }} />
                       <div style={{ flex: 1 }}>
-                        <div style={{ color: '#fff', fontSize: '18px', fontWeight: '600', marginBottom: '6px', lineHeight: 1.4 }}>
+                        <div style={{ color: '#fff', fontSize: '22px', fontWeight: '600', marginBottom: '8px', lineHeight: 1.3 }}>
                           {article.title}
                         </div>
                         <div style={{ display: 'flex', gap: '8px', fontSize: '12px', color: '#9ca3af' }}>
