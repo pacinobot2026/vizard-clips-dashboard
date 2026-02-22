@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import NavigationSidebar from '../components/NavigationSidebar';
 
 export default function Shopping() {
-  const [Shopping, setShopping] = useState([]);
+  const [shopping, setShopping] = useState([]);
   const [stats, setStats] = useState({});
   const [categories, setCategories] = useState([]);
   const [filter, setFilter] = useState('to-buy');
@@ -681,7 +681,7 @@ export default function Shopping() {
     setLoading(false);
   };
 
-  const filteredShopping = Shopping.filter(bookmark => 
+  const filteredShopping = shopping.filter(bookmark => 
     searchTerm === '' || 
     (bookmark.title && bookmark.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (bookmark.description && bookmark.description.toLowerCase().includes(searchTerm.toLowerCase()))
