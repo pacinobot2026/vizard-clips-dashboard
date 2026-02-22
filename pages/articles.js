@@ -328,10 +328,10 @@ export default function Articles() {
                 animation: 'spin 2s linear infinite'
               }}>🔍</div>
               <div>
-                <div style={{ color: '#a78bfa', fontSize: '16px', fontWeight: '600' }}>
+                <div className="status-title" style={{ color: '#a78bfa', fontSize: '13px', fontWeight: '600' }}>
                   Next article search
                 </div>
-                <div style={{ color: '#9ca3af', fontSize: '14px', marginTop: '4px' }}>
+                <div className="status-time" style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
                   In {formatTime(searchCountdown)} (automated)
                 </div>
               </div>
@@ -344,10 +344,10 @@ export default function Articles() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
               <div style={{ fontSize: '24px' }}>📰</div>
               <div>
-                <div style={{ color: '#60a5fa', fontSize: '16px', fontWeight: '600' }}>
+                <div className="status-title" style={{ color: '#60a5fa', fontSize: '13px', fontWeight: '600' }}>
                   Next Letterman post
                 </div>
-                <div style={{ color: '#9ca3af', fontSize: '14px', marginTop: '4px' }}>
+                <div className="status-time" style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
                   {stats.approved > 0 
                     ? `In ${formatTime(postCountdown)} (automated)`
                     : 'No approved articles ready'
@@ -427,9 +427,13 @@ export default function Articles() {
               .mobile-categories {
                 display: block !important;
               }
-              /* Status banner - hide on mobile */
-              .status-banner {
-                display: none !important;
+              /* Status banner - BIGGER text on mobile */
+              .status-title {
+                font-size: 18px !important;
+              }
+              .status-time {
+                font-size: 16px !important;
+                color: #9ca3af !important;
               }
             }
           `}</style>
