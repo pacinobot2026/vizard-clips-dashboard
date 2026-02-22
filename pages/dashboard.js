@@ -661,7 +661,7 @@ export default function Dashboard() {
                 </table>
               </div>
             ) : (
-              <div className="video-gallery" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+              <div className="video-gallery" style={{ display: 'grid', gap: '16px' }}>
                 {filteredClips.map((clip) => (
                   <ClipCard 
                     key={clip.clip_id} 
