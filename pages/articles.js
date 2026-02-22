@@ -359,9 +359,17 @@ export default function Articles() {
                 grid-template-columns: repeat(2, 1fr) !important;
                 gap: 12px !important;
               }
-              /* Search/filter row - stack vertically */
-              div[style*="flexWrap: 'wrap'"] {
-                flex-direction: column !important;
+              /* Keep filters row horizontal on mobile */
+              .filters-row {
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+              }
+              .filters-row > input {
+                flex: 1 !important;
+                min-width: 120px !important;
+              }
+              .filters-row > select {
+                flex-shrink: 0 !important;
               }
               /* Card grids - 1 column */
               div[style*="repeat(auto-fill"] {
@@ -460,36 +468,38 @@ export default function Articles() {
                 ))}
               </div>
               
-              {/* Mobile Category Dropdown */}
-              <div className="mobile-categories" style={{ marginBottom: '16px', display: 'none' }}>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 16px',
-                    background: 'rgba(31, 41, 55, 0.5)',
-                    border: '1px solid rgba(75, 85, 99, 0.5)',
-                    borderRadius: '8px',
-                    color: '#fff',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    outline: 'none'
-                  }}
-                >
-                  <option value="all">All Publications</option>
-                  {categories.map(cat => (
-                    <option key={cat.name} value={cat.name}>
-                      {cat.emoji} {cat.name} ({cat.count})
-                    </option>
-                  ))}
-                </select>
-              </div>
             </>
           )}
 
           {/* Search, Filters, and View Toggle */}
-          <div style={{ marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <div className="filters-row" style={{ marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            {/* Mobile Category Dropdown */}
+            {categories.length > 0 && (
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="mobile-categories"
+                style={{
+                  display: 'none',
+                  padding: '10px 16px',
+                  background: 'rgba(31, 41, 55, 0.5)',
+                  border: '1px solid rgba(75, 85, 99, 0.5)',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                <option value="all">All Publications</option>
+                {categories.map(cat => (
+                  <option key={cat.name} value={cat.name}>
+                    {cat.emoji} {cat.name} ({cat.count})
+                  </option>
+                ))}
+              </select>
+            )}
+            
             <input
               type="text"
               placeholder="🔍 Search articles..."
