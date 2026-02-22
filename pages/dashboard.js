@@ -141,7 +141,7 @@ export default function Dashboard() {
     <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1423' }}>
       <NavigationSidebar />
       
-      <main style={{ flex: 1, padding: '32px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+      <main style={{ flex: 1, padding: '32px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', background: '#0D1423' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           
           {/* Header */}
