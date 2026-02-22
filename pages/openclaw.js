@@ -76,6 +76,18 @@ export default function OpenClaw() {
                   <span style={{ fontSize: '20px' }}>💡</span>
                   <span style={{ fontSize: '14px' }}>Idea Board</span>
                 </a>
+                <a href="/bookmarks" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>📑</span>
+                  <span style={{ fontSize: '14px' }}>Bookmarks</span>
+                </a>
+                <a href="/shopping" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>🛒</span>
+                  <span style={{ fontSize: '14px' }}>Shopping/Watch</span>
+                </a>
+                <a href="/projects" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>📂</span>
+                  <span style={{ fontSize: '14px' }}>Projects</span>
+                </a>
                 <div style={{ height: '1px', background: '#374151', margin: '8px 0' }} />
                 <a href="https://dashboard-gilt-one-zc4y5uu95v.vercel.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
                   <span style={{ fontSize: '20px' }}>🎛️</span>
