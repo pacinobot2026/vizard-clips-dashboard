@@ -612,7 +612,7 @@ export default function Dashboard() {
                           <video 
                             src={clip.clip_url}
                             poster={clip.clip_url + '#t=0.5'}
-                            style={{ width: '80px', height: '100px', objectFit: 'cover', borderRadius: '8px' }}
+                            style={{ width: '80px', height: '100px', objectFit: 'cover', borderRadius: '8px', pointerEvents: 'none' }}
                             preload="metadata"
                           />
                         </td>
@@ -739,14 +739,14 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
           <video 
             src={clip.clip_url}
             poster={clip.clip_url + '#t=0.5'}
-            controls
             preload="metadata"
             style={{
               width: '100%',
               height: '100%',
               objectFit: 'cover',
               filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
-              transition: 'filter 0.3s ease'
+              transition: 'filter 0.3s ease',
+              pointerEvents: 'none'
             }}
           />
         ) : (
