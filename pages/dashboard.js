@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import NavigationSidebar from '../components/NavigationSidebar';
 
 export default function Dashboard() {
@@ -276,15 +276,21 @@ function StatCard({ icon, count, label, active, onClick }) {
 }
 
 function ClipCard({ clip, onApprove, onReject, showActions }) {
+  const [isHovered, setIsHovered] = React.useState(false);
+  
   return (
-    <div style={{
-      background: 'rgba(31, 41, 55, 0.7)',
-      borderRadius: '12px',
-      border: '1px solid rgba(75, 85, 99, 0.5)',
-      overflow: 'hidden',
-      transition: 'all 0.3s',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-    }}>
+    <div 
+      style={{
+        background: 'rgba(31, 41, 55, 0.7)',
+        borderRadius: '12px',
+        border: '1px solid rgba(75, 85, 99, 0.5)',
+        overflow: 'hidden',
+        transition: 'all 0.3s',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* Video Player */}
       <div style={{ 
         aspectRatio: '4/5', 
@@ -301,11 +307,9 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              filter: 'grayscale(100%)',
+              filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
               transition: 'filter 0.3s ease'
             }}
-            onMouseEnter={(e) => e.target.style.filter = 'grayscale(0%)'}
-            onMouseLeave={(e) => e.target.style.filter = 'grayscale(100%)'}
           />
         ) : (
           <div style={{
@@ -350,7 +354,7 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
           </span>
         </div>
 
-        {showActions && (
+        {showActions && isHovered && (
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               onClick={onApprove}
