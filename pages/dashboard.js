@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import NavigationSidebar from '../components/NavigationSidebar';
 
+// v2.1 - Mobile improvements
 export default function Dashboard() {
   const [clips, setClips] = useState([]);
   const [stats, setStats] = useState({});
