@@ -443,45 +443,6 @@ export default function Dashboard() {
             }
           `}</style>
 
-          {/* Categories */}
-          {categories.length > 0 && (
-            <div style={{ marginBottom: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => setCategory('all')}
-                style={{
-                  padding: '8px 16px',
-                  background: category === 'all' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                  border: '1px solid rgba(75, 85, 99, 0.5)',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-              >
-                All Categories
-              </button>
-              {categories.map(cat => (
-                <button
-                  key={cat.name}
-                  onClick={() => setCategory(cat.name)}
-                  style={{
-                    padding: '8px 16px',
-                    background: category === cat.name ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                    border: '1px solid rgba(75, 85, 99, 0.5)',
-                    borderRadius: '8px',
-                    color: '#fff',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  {cat.emoji} {cat.name} ({cat.count})
-                </button>
-              ))}
-            </div>
-          )}
-
           {/* Publications Dropdown + Sort */}
           <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
             {/* Publications Dropdown */}
