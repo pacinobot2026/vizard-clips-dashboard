@@ -267,6 +267,13 @@ export default function Ideas() {
               div[style*="repeat(auto-fill"] {
                 grid-template-columns: 1fr !important;
               }
+              /* Categories - dropdown on mobile */
+              .desktop-categories {
+                display: none !important;
+              }
+              .mobile-categories {
+                display: block !important;
+              }
             }
           `}</style>
 
@@ -308,29 +315,14 @@ export default function Ideas() {
 
           {/* Categories */}
           {categories.length > 0 && (
-            <div style={{ marginBottom: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => setCategory('all')}
-                style={{
-                  padding: '8px 16px',
-                  background: category === 'all' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                  border: '1px solid rgba(75, 85, 99, 0.5)',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-              >
-                All Categories
-              </button>
-              {categories.map(cat => (
+            <>
+              {/* Desktop Category Buttons */}
+              <div className="desktop-categories" style={{ marginBottom: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <button
-                  key={cat.name}
-                  onClick={() => setCategory(cat.name)}
+                  onClick={() => setCategory('all')}
                   style={{
                     padding: '8px 16px',
-                    background: category === cat.name ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
+                    background: category === 'all' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
                     border: '1px solid rgba(75, 85, 99, 0.5)',
                     borderRadius: '8px',
                     color: '#fff',
@@ -339,10 +331,54 @@ export default function Ideas() {
                     transition: 'all 0.2s'
                   }}
                 >
-                  {cat.name} ({cat.count})
+                  All Categories
                 </button>
-              ))}
-            </div>
+                {categories.map(cat => (
+                  <button
+                    key={cat.name}
+                    onClick={() => setCategory(cat.name)}
+                    style={{
+                      padding: '8px 16px',
+                      background: category === cat.name ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
+                      border: '1px solid rgba(75, 85, 99, 0.5)',
+                      borderRadius: '8px',
+                      color: '#fff',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {cat.name} ({cat.count})
+                  </button>
+                ))}
+              </div>
+              
+              {/* Mobile Category Dropdown */}
+              <div className="mobile-categories" style={{ marginBottom: '16px', display: 'none' }}>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 16px',
+                    background: 'rgba(31, 41, 55, 0.5)',
+                    border: '1px solid rgba(75, 85, 99, 0.5)',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    outline: 'none'
+                  }}
+                >
+                  <option value="all">All Categories</option>
+                  {categories.map(cat => (
+                    <option key={cat.name} value={cat.name}>
+                      {cat.name} ({cat.count})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </>
           )}
 
           {/* Search, Filters, and View Toggle - IDENTICAL TO ARTICLE BOARD */}
