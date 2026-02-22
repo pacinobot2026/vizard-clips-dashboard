@@ -198,8 +198,9 @@ export default function Dashboard() {
     <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0a0a' }}>
       <NavigationSidebar />
       <div style={styles.container}>
-      <header style={styles.header}>
-        <h1 style={styles.title}>🎬 Video Cue Dashboard</h1>
+        <div style={styles.header}>
+          <h1 style={styles.title}>🎬 Video Cue Dashboard</h1>
+        </div>
         
         {/* Status Tabs */}
         <div style={styles.stats}>
@@ -302,7 +303,6 @@ export default function Dashboard() {
             {publishing ? 'Publishing...' : `🚀 Publish ${stats.approved} Approved Clips`}
           </button>
         )}
-      </header>
 
       <main style={styles.main}>
         {filteredClips.length === 0 ? (
@@ -563,9 +563,9 @@ const styles = {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif'
   },
   header: {
-    background: '#111827',
-    padding: '24px 32px',
-    borderBottom: '1px solid #1f2937',
+    background: 'transparent',
+    padding: '24px 32px 16px',
+    borderBottom: 'none',
     marginBottom: '0'
   },
   title: {
@@ -578,31 +578,29 @@ const styles = {
   },
   stats: {
     display: 'flex',
-    gap: '16px',
-    marginBottom: '16px'
+    gap: '12px',
+    marginBottom: '16px',
+    padding: '0 32px'
   },
   statBox: {
     flex: 1,
-    padding: '24px',
-    background: 'rgba(255, 255, 255, 0.05)',
-    backdropFilter: 'blur(10px)',
-    borderRadius: '16px',
+    padding: '16px 20px',
+    background: '#111827',
+    borderRadius: '8px',
     cursor: 'pointer',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
+    transition: 'all 0.2s',
+    border: '1px solid #1f2937'
   },
   statBoxActive: {
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    background: '#8b5cf6',
     color: 'white',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    transform: 'translateY(-2px)',
-    boxShadow: '0 12px 40px rgba(102, 126, 234, 0.4)'
+    border: '1px solid #8b5cf6'
   },
   statCount: {
-    fontSize: '32px',
-    fontWeight: '700',
-    marginBottom: '4px'
+    fontSize: '24px',
+    fontWeight: '600',
+    marginBottom: '4px',
+    color: '#fff'
   },
   statLabel: {
     fontSize: '14px',
