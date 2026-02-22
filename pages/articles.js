@@ -392,6 +392,44 @@ export default function Articles() {
             }
           `}</style>
 
+          {/* View Toggle */}
+          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: '4px', background: 'rgba(31, 41, 55, 0.5)', borderRadius: '8px', padding: '4px', border: '1px solid rgba(75, 85, 99, 0.5)' }}>
+              <button
+                onClick={() => setViewMode('list')}
+                style={{
+                  padding: '6px 16px',
+                  background: viewMode === 'list' ? '#8b5cf6' : 'transparent',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: '#fff',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  fontWeight: '600'
+                }}
+              >
+                📋 List
+              </button>
+              <button
+                onClick={() => setViewMode('cards')}
+                style={{
+                  padding: '6px 16px',
+                  background: viewMode === 'cards' ? '#8b5cf6' : 'transparent',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: '#fff',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  fontWeight: '600'
+                }}
+              >
+                🎴 Cards
+              </button>
+            </div>
+          </div>
+
           {/* Stats Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
             <StatCard 
@@ -535,42 +573,6 @@ export default function Articles() {
               <option value="date_asc">Oldest First</option>
               <option value="title">Title</option>
             </select>
-            
-            {/* View Toggle */}
-            <div style={{ display: 'flex', gap: '4px', background: 'rgba(31, 41, 55, 0.5)', borderRadius: '8px', padding: '4px', border: '1px solid rgba(75, 85, 99, 0.5)' }}>
-              <button
-                onClick={() => setViewMode('list')}
-                style={{
-                  padding: '6px 16px',
-                  background: viewMode === 'list' ? '#8b5cf6' : 'transparent',
-                  border: 'none',
-                  borderRadius: '6px',
-                  color: '#fff',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  fontWeight: '600'
-                }}
-              >
-                📋 List
-              </button>
-              <button
-                onClick={() => setViewMode('cards')}
-                style={{
-                  padding: '6px 16px',
-                  background: viewMode === 'cards' ? '#8b5cf6' : 'transparent',
-                  border: 'none',
-                  borderRadius: '6px',
-                  color: '#fff',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  fontWeight: '600'
-                }}
-              >
-                🎴 Cards
-              </button>
-            </div>
           </div>
 
           {/* Articles - List or Card View */}
