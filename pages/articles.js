@@ -12,22 +12,160 @@ export default function Articles() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchArticles();
+    loadMockArticles();
   }, [filter, category, sortBy]);
 
-  const fetchArticles = async () => {
-    try {
-      const params = new URLSearchParams({ filter, category, sortBy });
-      const res = await fetch(`/api/articles?${params}`);
-      const data = await res.json();
-      setArticles(data.articles || []);
-      setStats(data.stats || {});
-      setCategories(data.categories || []);
-      setLoading(false);
-    } catch (err) {
-      console.error('Error fetching articles:', err);
-      setLoading(false);
+  const loadMockArticles = () => {
+    // Mock article data
+    const mockArticles = [
+      {
+        id: 1,
+        title: "Local Business Spotlight: New Italian Restaurant Opens in Summerlin",
+        publication: "West Valley Shoutouts",
+        status: "draft",
+        image_url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=500&fit=crop",
+        created_at: "2026-02-20T10:30:00Z"
+      },
+      {
+        id: 2,
+        title: "Community Hero: Vegas Teacher Launches After-School STEM Program",
+        publication: "West Valley Shoutouts",
+        status: "draft",
+        image_url: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=500&fit=crop",
+        created_at: "2026-02-21T14:20:00Z"
+      },
+      {
+        id: 3,
+        title: "Rescue Dog Finds Forever Home After 2 Years at Shelter",
+        publication: "Save The Doggy",
+        status: "draft",
+        image_url: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&h=500&fit=crop",
+        created_at: "2026-02-21T09:15:00Z"
+      },
+      {
+        id: 4,
+        title: "Best Tacos in Vegas: Hidden Gem in Henderson Wins Hearts",
+        publication: "Vegas Fork",
+        status: "approved",
+        image_url: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&h=500&fit=crop",
+        created_at: "2026-02-19T16:45:00Z"
+      },
+      {
+        id: 5,
+        title: "Local Animal Shelter Hosts Adoption Event This Weekend",
+        publication: "Save The Doggy",
+        status: "draft",
+        image_url: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=500&fit=crop",
+        created_at: "2026-02-22T08:00:00Z"
+      },
+      {
+        id: 6,
+        title: "Downtown Las Vegas Adds New Food Truck Park",
+        publication: "Vegas Fork",
+        status: "published",
+        image_url: "https://images.unsplash.com/photo-1565123409695-7b5ef63a2efb?w=400&h=500&fit=crop",
+        created_at: "2026-02-18T12:30:00Z"
+      },
+      {
+        id: 7,
+        title: "Henderson Chamber of Commerce Announces Small Business Awards",
+        publication: "West Valley Shoutouts",
+        status: "approved",
+        image_url: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=500&fit=crop",
+        created_at: "2026-02-20T11:00:00Z"
+      },
+      {
+        id: 8,
+        title: "Senior Dog Adoption Drive: Finding Homes for Older Pups",
+        publication: "Save The Doggy",
+        status: "rejected",
+        image_url: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=500&fit=crop",
+        created_at: "2026-02-17T15:20:00Z"
+      },
+      {
+        id: 9,
+        title: "Top 10 Brunch Spots on the Strip You Need to Try",
+        publication: "Vegas Fork",
+        status: "draft",
+        image_url: "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=400&h=500&fit=crop",
+        created_at: "2026-02-21T07:45:00Z"
+      },
+      {
+        id: 10,
+        title: "Local Entrepreneur Opens Third Coffee Shop in Green Valley",
+        publication: "West Valley Shoutouts",
+        status: "published",
+        image_url: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&h=500&fit=crop",
+        created_at: "2026-02-16T13:10:00Z"
+      },
+      {
+        id: 11,
+        title: "Vegas Dog Park Renovation Complete: New Features Unveiled",
+        publication: "Save The Doggy",
+        status: "approved",
+        image_url: "https://images.unsplash.com/photo-1558788353-f76d92427f16?w=400&h=500&fit=crop",
+        created_at: "2026-02-19T10:30:00Z"
+      },
+      {
+        id: 12,
+        title: "Celebrity Chef Opens Farm-to-Table Restaurant in Summerlin",
+        publication: "Vegas Fork",
+        status: "draft",
+        image_url: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=500&fit=crop",
+        created_at: "2026-02-22T09:20:00Z"
+      }
+    ];
+
+    // Filter by status
+    let filtered = mockArticles.filter(a => a.status === filter);
+
+    // Filter by category
+    if (category !== 'all') {
+      filtered = filtered.filter(a => a.publication === category);
     }
+
+    // Sort
+    if (sortBy === 'date_desc') {
+      filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    } else if (sortBy === 'date_asc') {
+      filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    } else if (sortBy === 'title') {
+      filtered.sort((a, b) => a.title.localeCompare(b.title));
+    }
+
+    // Calculate stats
+    const statsCalc = {
+      draft: mockArticles.filter(a => a.status === 'draft').length,
+      approved: mockArticles.filter(a => a.status === 'approved').length,
+      published: mockArticles.filter(a => a.status === 'published').length,
+      rejected: mockArticles.filter(a => a.status === 'rejected').length
+    };
+
+    // Calculate categories
+    const categoryMap = {};
+    mockArticles.forEach(a => {
+      if (!categoryMap[a.publication]) {
+        categoryMap[a.publication] = 0;
+      }
+      categoryMap[a.publication]++;
+    });
+
+    const categoriesCalc = Object.keys(categoryMap).map(name => {
+      let emoji = '📍';
+      if (name === 'Save The Doggy') emoji = '🐕';
+      if (name === 'Vegas Fork') emoji = '🍴';
+      
+      return {
+        name,
+        emoji,
+        count: categoryMap[name]
+      };
+    });
+
+    setArticles(filtered);
+    setStats(statsCalc);
+    setCategories(categoriesCalc);
+    setLoading(false);
   };
 
   const filteredArticles = articles.filter(article => 
@@ -35,30 +173,16 @@ export default function Articles() {
     (article.title && article.title.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const handleApprove = async (articleId) => {
-    try {
-      await fetch('/api/articles/approve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ articleId })
-      });
-      fetchArticles();
-    } catch (err) {
-      console.error('Error approving article:', err);
-    }
+  const handleApprove = (articleId) => {
+    // Mock approve - just refresh (would update status in real app)
+    console.log('Approved article:', articleId);
+    loadMockArticles();
   };
 
-  const handleReject = async (articleId) => {
-    try {
-      await fetch('/api/articles/reject', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ articleId })
-      });
-      fetchArticles();
-    } catch (err) {
-      console.error('Error rejecting article:', err);
-    }
+  const handleReject = (articleId) => {
+    // Mock reject - just refresh (would update status in real app)
+    console.log('Rejected article:', articleId);
+    loadMockArticles();
   };
 
   if (loading) {
