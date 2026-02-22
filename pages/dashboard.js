@@ -488,9 +488,9 @@ export default function Dashboard() {
               div[style*="repeat(auto-fill"] {
                 grid-template-columns: 1fr !important;
               }
-              /* Gallery view - 1 column on mobile */
+              /* Gallery view - 2 columns on mobile */
               .video-gallery {
-                grid-template-columns: 1fr !important;
+                grid-template-columns: repeat(2, 1fr) !important;
               }
             }
             
@@ -622,7 +622,7 @@ export default function Dashboard() {
                             src={clip.clip_url}
                             poster={clip.clip_url + '#t=0.5'}
                             style={{ width: '80px', height: '100px', objectFit: 'cover', borderRadius: '8px', pointerEvents: 'none' }}
-                            preload="metadata"
+                            preload="none"
                           />
                         </td>
                         <td style={{ padding: '12px', color: '#fff', fontSize: '14px' }}>{clip.title || 'Untitled'}</td>
@@ -749,7 +749,7 @@ function ClipCard({ clip, onApprove, onReject, showActions, isMobile }) {
           <video 
             src={clip.clip_url}
             poster={clip.clip_url + '#t=0.5'}
-            preload="metadata"
+            preload="none"
             controls={isMobile}
             playsInline
             style={{
