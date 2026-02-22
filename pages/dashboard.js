@@ -616,18 +616,14 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
           <video 
             src={clip.clip_url}
             controls
-            preload="auto"
+            preload="metadata"
             playsInline
-            muted
             style={{
               width: '100%',
               height: '100%',
               objectFit: 'cover',
               filter: 'grayscale(100%)',
               transition: 'filter 0.3s ease'
-            }}
-            onLoadedMetadata={(e) => {
-              e.target.currentTime = 0.5;
             }}
             onPlay={(e) => e.target.style.filter = 'grayscale(0%)'}
             onPause={(e) => e.target.style.filter = 'grayscale(100%)'}
