@@ -136,32 +136,33 @@ export default function Dashboard() {
             <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '4px' }}>Video clip review and publishing</p>
           </div>
 
-          {/* Processing Status Banner */}
-          {processingCount > 0 && (
+          {/* Processing Status Banner - Always visible */}
+          <div style={{
+            background: processingCount > 0 ? 'rgba(139, 92, 246, 0.1)' : 'rgba(75, 85, 99, 0.1)',
+            border: processingCount > 0 ? '1px solid rgba(139, 92, 246, 0.3)' : '1px solid rgba(75, 85, 99, 0.3)',
+            borderRadius: '12px',
+            padding: '12px 20px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
             <div style={{
-              background: 'rgba(139, 92, 246, 0.1)',
-              border: '1px solid rgba(139, 92, 246, 0.3)',
-              borderRadius: '12px',
-              padding: '12px 20px',
-              marginBottom: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
-            }}>
-              <div style={{
-                fontSize: '24px',
-                animation: 'spin 2s linear infinite'
-              }}>⚙️</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ color: '#a78bfa', fontSize: '14px', fontWeight: '600' }}>
-                  {processingCount} video{processingCount > 1 ? 's' : ''} being edited in Vizard
-                </div>
-                <div style={{ color: '#9ca3af', fontSize: '12px', marginTop: '2px' }}>
-                  Next check in {formatTime(nextCheckIn)}
-                </div>
+              fontSize: '24px',
+              animation: processingCount > 0 ? 'spin 2s linear infinite' : 'none'
+            }}>⚙️</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ color: processingCount > 0 ? '#a78bfa' : '#9ca3af', fontSize: '14px', fontWeight: '600' }}>
+                {processingCount > 0 
+                  ? `${processingCount} video${processingCount > 1 ? 's' : ''} being edited in Vizard`
+                  : 'No videos currently processing in Vizard'
+                }
+              </div>
+              <div style={{ color: '#9ca3af', fontSize: '12px', marginTop: '2px' }}>
+                Next check in {formatTime(nextCheckIn)}
               </div>
             </div>
-          )}
+          </div>
 
           {/* Stats Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
