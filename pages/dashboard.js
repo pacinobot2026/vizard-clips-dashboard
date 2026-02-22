@@ -563,20 +563,16 @@ const styles = {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif'
   },
   header: {
-    background: 'rgba(26, 32, 44, 0.7)',
-    backdropFilter: 'blur(10px)',
-    padding: '32px',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-    marginBottom: '32px',
-    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)'
+    background: '#111827',
+    padding: '24px 32px',
+    borderBottom: '1px solid #1f2937',
+    marginBottom: '0'
   },
   title: {
-    fontSize: '36px',
-    fontWeight: '800',
-    marginBottom: '32px',
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
+    fontSize: '24px',
+    fontWeight: '600',
+    marginBottom: '24px',
+    color: '#fff',
     backgroundClip: 'text',
     letterSpacing: '-0.5px'
   },
