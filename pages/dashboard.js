@@ -430,9 +430,9 @@ export default function Dashboard() {
               div[style*="flexWrap: 'wrap'"] {
                 flex-direction: column !important;
               }
-              /* Card grids - 1 column */
+              /* Card grids - 2 columns on mobile */
               div[style*="repeat(auto-fill"] {
-                grid-template-columns: 1fr !important;
+                grid-template-columns: repeat(2, 1fr) !important;
               }
             }
           `}</style>
