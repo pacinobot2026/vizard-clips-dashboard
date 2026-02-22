@@ -7,6 +7,7 @@ export default function Ideas() {
   const [filter, setFilter] = useState('inbox');
   const [category, setCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('date_desc');
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newIdea, setNewIdea] = useState({ title: '', description: '', category: 'business', priority: 'medium' });
@@ -14,7 +15,7 @@ export default function Ideas() {
 
   useEffect(() => {
     loadMockIdeas();
-  }, [filter, category]);
+  }, [filter, category, sortBy]);
 
   const loadMockIdeas = () => {
     // Mock ideas data
@@ -107,6 +108,18 @@ export default function Ideas() {
     // Filter by category
     if (category !== 'all') {
       filtered = filtered.filter(i => i.category === category);
+    }
+
+    // Sort
+    if (sortBy === 'date_desc') {
+      filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    } else if (sortBy === 'date_asc') {
+      filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    } else if (sortBy === 'title') {
+      filtered.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortBy === 'priority') {
+      const priorityOrder = { high: 3, medium: 2, low: 1 };
+      filtered.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
     }
 
     // Calculate stats
@@ -263,8 +276,8 @@ export default function Ideas() {
             />
           </div>
 
-          {/* Search and View Toggle */}
-          <div style={{ marginBottom: '20px', display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* Search, Filters, and View Toggle - IDENTICAL TO ARTICLE BOARD */}
+          <div style={{ marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             <input
               type="text"
               placeholder="🔍 Search ideas..."
@@ -273,7 +286,6 @@ export default function Ideas() {
               style={{
                 flex: 1,
                 minWidth: '200px',
-                maxWidth: '400px',
                 padding: '10px 16px',
                 background: 'rgba(31, 41, 55, 0.5)',
                 border: '1px solid rgba(75, 85, 99, 0.5)',
@@ -283,21 +295,40 @@ export default function Ideas() {
                 outline: 'none'
               }}
             />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{
+                padding: '10px 16px',
+                background: 'rgba(31, 41, 55, 0.5)',
+                border: '1px solid rgba(75, 85, 99, 0.5)',
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '14px',
+                cursor: 'pointer',
+                outline: 'none'
+              }}
+            >
+              <option value="date_desc">Newest First</option>
+              <option value="date_asc">Oldest First</option>
+              <option value="title">Title</option>
+              <option value="priority">Priority</option>
+            </select>
             
-            {/* View Mode Toggle */}
-            <div style={{ display: 'flex', gap: '8px', background: 'rgba(31, 41, 55, 0.5)', borderRadius: '8px', padding: '4px', border: '1px solid rgba(75, 85, 99, 0.5)' }}>
+            {/* View Toggle */}
+            <div style={{ display: 'flex', gap: '4px', background: 'rgba(31, 41, 55, 0.5)', borderRadius: '8px', padding: '4px', border: '1px solid rgba(75, 85, 99, 0.5)' }}>
               <button
                 onClick={() => setViewMode('list')}
                 style={{
-                  padding: '8px 16px',
+                  padding: '6px 16px',
                   background: viewMode === 'list' ? '#8b5cf6' : 'transparent',
                   border: 'none',
                   borderRadius: '6px',
-                  color: viewMode === 'list' ? '#fff' : '#9ca3af',
-                  fontSize: '14px',
-                  fontWeight: '600',
+                  color: '#fff',
+                  fontSize: '13px',
                   cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  fontWeight: '600'
                 }}
               >
                 📋 List
@@ -305,15 +336,15 @@ export default function Ideas() {
               <button
                 onClick={() => setViewMode('cards')}
                 style={{
-                  padding: '8px 16px',
+                  padding: '6px 16px',
                   background: viewMode === 'cards' ? '#8b5cf6' : 'transparent',
                   border: 'none',
                   borderRadius: '6px',
-                  color: viewMode === 'cards' ? '#fff' : '#9ca3af',
-                  fontSize: '14px',
-                  fontWeight: '600',
+                  color: '#fff',
+                  fontSize: '13px',
                   cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  fontWeight: '600'
                 }}
               >
                 🎴 Cards
