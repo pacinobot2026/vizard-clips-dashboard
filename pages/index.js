@@ -12,8 +12,8 @@ export default function Login() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h1 style={styles.title}>🎬 Vizard Clips Dashboard</h1>
-        <p style={styles.subtitle}>Redirecting to dashboard...</p>
+        <h1 style={styles.title}>🎬 Video Cue Dashboard</h1>
+        <p style={styles.subtitle}>Redirecting...</p>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import NavigationSidebar from '../components/NavigationSidebar';
 
 export default function Dashboard() {
   const [clips, setClips] = useState([]);
@@ -194,9 +195,11 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={styles.container}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0a0a' }}>
+      <NavigationSidebar />
+      <div style={styles.container}>
       <header style={styles.header}>
-        <h1 style={styles.title}>🎬 Vizard Clips Dashboard</h1>
+        <h1 style={styles.title}>🎬 Video Cue Dashboard</h1>
         
         {/* Status Tabs */}
         <div style={styles.stats}>
@@ -379,6 +382,7 @@ export default function Dashboard() {
           </div>
         </Modal>
       )}
+      </div>
     </div>
   );
 }
@@ -553,9 +557,9 @@ function ClipCard({ clip, onApprove, onReject, showActions, selected, onSelect }
 
 const styles = {
   container: {
+    flex: 1,
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
-    backgroundAttachment: 'fixed',
+    background: '#0a0a0a',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif'
   },
   header: {
