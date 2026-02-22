@@ -18,8 +18,8 @@ export default function Shopping() {
 
   const loadMockShopping = () => {
     // Mock Shopping data
-    const mockShopping = // BUSY Shopping/Watch List - 50+ realistic items with real URLs
-const mockItems = [
+    // BUSY Shopping/Watch List - 50+ realistic items with real URLs
+    const mockItems = [
   // TECH PRODUCTS
   {
     id: 1,
