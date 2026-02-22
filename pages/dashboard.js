@@ -343,7 +343,7 @@ export default function Dashboard() {
           </div>
 
           {/* View Toggle */}
-          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+          <div className="view-toggle" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
             <button
               onClick={() => setViewMode('list')}
               style={{
@@ -449,7 +449,7 @@ export default function Dashboard() {
             @media (max-width: 768px) {
               main {
                 padding: 16px !important;
-                padding-top: 64px !important;
+                padding-top: 80px !important;
               }
               h1 {
                 font-size: 24px !important;
@@ -457,6 +457,14 @@ export default function Dashboard() {
               /* Show hamburger on mobile */
               .hamburger-menu {
                 display: block !important;
+              }
+              /* Move view toggle to top on mobile */
+              .view-toggle {
+                position: fixed !important;
+                top: 12px !important;
+                left: 16px !important;
+                z-index: 1000 !important;
+                margin-bottom: 0 !important;
               }
               /* Stat cards - 2 columns on mobile */
               div[style*="gridTemplateColumns: 'repeat(4, 1fr)'"] {
@@ -603,6 +611,7 @@ export default function Dashboard() {
                         <td style={{ padding: '12px' }}>
                           <video 
                             src={clip.clip_url}
+                            poster={clip.clip_url + '#t=0.5'}
                             style={{ width: '80px', height: '100px', objectFit: 'cover', borderRadius: '8px' }}
                             preload="metadata"
                           />
@@ -729,6 +738,7 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
         {clip.clip_url ? (
           <video 
             src={clip.clip_url}
+            poster={clip.clip_url + '#t=0.5'}
             controls
             preload="metadata"
             style={{
