@@ -808,8 +808,10 @@ function ClipCard({ clip, onApprove, onReject, showActions, isMobile }) {
               preload="metadata"
               playsInline
               muted
-              loop
               onClick={handleVideoClick}
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onEnded={() => setIsPlaying(false)}
               style={{
                 width: '100%',
                 height: '100%',
