@@ -12,10 +12,20 @@ export default function Articles() {
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'cards'
   const [loading, setLoading] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [searchCountdown, setSearchCountdown] = useState(3600); // 1 hour in seconds
+  const [postCountdown, setPostCountdown] = useState(7200); // 2 hours in seconds
 
   useEffect(() => {
     loadMockArticles();
   }, [filter, category, sortBy]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSearchCountdown(prev => (prev > 0 ? prev - 1 : 3600)); // Reset to 1 hour
+      setPostCountdown(prev => (prev > 0 ? prev - 1 : 7200)); // Reset to 2 hours
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const loadMockArticles = () => {
     // Mock article data
@@ -209,6 +219,15 @@ export default function Articles() {
     loadMockArticles();
   };
 
+  const formatTime = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) return `${h}h ${m}m`;
+    if (m > 0) return `${m}m ${s}s`;
+    return `${s}s`;
+  };
+
   if (loading) {
     return (
       <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1423' }}>
@@ -246,6 +265,44 @@ export default function Articles() {
               Article Cue Board
             </h1>
             <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '4px' }}>Article review and publishing</p>
+          </div>
+
+          {/* Cron Job Status Banner */}
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1))',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+            borderRadius: '12px',
+            padding: '16px 24px',
+            marginBottom: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '32px',
+            animation: 'slideUp 0.5s ease-out 0.2s both'
+          }}>
+            {/* Article Search */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+              <div style={{ fontSize: '20px' }}>🔍</div>
+              <div>
+                <div style={{ fontSize: '13px', color: '#9ca3af', marginBottom: '2px' }}>Next article search</div>
+                <div style={{ fontSize: '15px', color: '#fff', fontWeight: '600' }}>
+                  In {formatTime(searchCountdown)}
+                </div>
+              </div>
+            </div>
+
+            {/* Separator */}
+            <div style={{ width: '1px', height: '40px', background: 'rgba(139, 92, 246, 0.3)' }} />
+
+            {/* Letterman Post */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+              <div style={{ fontSize: '20px' }}>📰</div>
+              <div>
+                <div style={{ fontSize: '13px', color: '#9ca3af', marginBottom: '2px' }}>Next Letterman post</div>
+                <div style={{ fontSize: '15px', color: '#fff', fontWeight: '600' }}>
+                  In {formatTime(postCountdown)}
+                </div>
+              </div>
+            </div>
           </div>
           
           <style jsx>{`
