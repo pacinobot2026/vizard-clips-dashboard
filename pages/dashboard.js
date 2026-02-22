@@ -80,9 +80,9 @@ export default function Dashboard() {
               backgroundClip: 'text',
               marginBottom: '4px' 
             }}>
-              🎬 Video Cue Board
+              Video Cue Board
             </h1>
-            <p style={{ fontSize: '14px', color: '#9ca3af' }}>Video clip review and publishing</p>
+            <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '4px' }}>Video clip review and publishing</p>
           </div>
 
           {/* Stats Cards */}
