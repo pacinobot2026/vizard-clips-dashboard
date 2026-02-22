@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     for (const [pubName, pubId] of Object.entries(PUBLICATIONS)) {
       try {
         const response = await axios.get(
-          `https://api.letterman.ai/api/newsletters/get-by-publication/${pubId}`,
+          `https://api.letterman.ai/api/ai/newsletters-storage/${pubId}/newsletters?type=ARTICLE`,
           {
             headers: {
               'Authorization': `Bearer ${LETTERMAN_API_KEY}`
@@ -43,13 +43,13 @@ export default async function handler(req, res) {
           }
         );
 
-        if (response.data && response.data.data) {
-          const articles = response.data.data.map(article => ({
+        if (response.data && response.data.data && response.data.data.newsletters) {
+          const articles = response.data.data.newsletters.map(article => ({
             id: article._id,
             title: article.title || 'Untitled',
             publication: pubName,
             publication_emoji: PUBLICATION_EMOJIS[pubName],
-            status: article.status || 'draft',
+            status: article.state || 'draft',
             image_url: article.previewImageUrl || article.archiveThumbnailImageUrl || null,
             url_path: article.urlPath || null,
             created_at: article.createdAt || new Date().toISOString(),
