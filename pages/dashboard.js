@@ -762,6 +762,20 @@ function StatCard({ icon, count, label, active, onClick, delay = 0, style }) {
 
 function ClipCard({ clip, onApprove, onReject, showActions, isMobile }) {
   const [isHovered, setIsHovered] = React.useState(false);
+  const [isPlaying, setIsPlaying] = React.useState(false);
+  const videoRef = React.useRef(null);
+
+  const handleVideoClick = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        videoRef.current.play();
+        setIsPlaying(true);
+      }
+    }
+  };
   
   return (
     <div 
@@ -786,19 +800,23 @@ function ClipCard({ clip, onApprove, onReject, showActions, isMobile }) {
       }}>
         {clip.clip_url ? (
           isMobile ? (
-            /* Mobile: Playable video with thumbnail */
+            /* Mobile: Gray thumbnail, color + play on click */
             <video 
+              ref={videoRef}
               src={clip.clip_url}
               poster={clip.clip_url + '#t=0.5'}
-              controls
               preload="metadata"
               playsInline
+              muted
+              loop
+              onClick={handleVideoClick}
               style={{
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-                filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
-                transition: 'filter 0.3s ease'
+                filter: isPlaying ? 'grayscale(0%)' : 'grayscale(100%)',
+                transition: 'filter 0.3s ease',
+                cursor: 'pointer'
               }}
             />
           ) : (
