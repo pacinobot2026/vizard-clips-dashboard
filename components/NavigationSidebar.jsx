@@ -1,15 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const NAV_ITEMS = [
   { id: 'team', label: 'Team Board', icon: '👥', href: 'https://kanban-rho-ivory.vercel.app' },
   { id: 'openclaw', label: 'OpenClaw Board', icon: '🤖', href: '/openclaw' },
-  { id: 'video', label: 'Video Board', icon: '🎬', href: 'https://vizard-clips-app.vercel.app' },
+  { id: 'video', label: 'Video Board', icon: '🎬', href: '/dashboard' },
+  { id: 'articles', label: 'Article Board', icon: '📰', href: '/articles' },
   { id: 'control', label: 'Control Panel', icon: '🎛️', href: 'https://dashboard-gilt-one-zc4y5uu95v.vercel.app' },
 ];
 
 export default function NavigationSidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [hoveredItem, setHoveredItem] = useState(null);
+  const [currentPath, setCurrentPath] = useState('');
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentPath(window.location.pathname);
+    }
+  }, []);
 
   return (
     <div 
@@ -61,8 +69,8 @@ export default function NavigationSidebar() {
               color: '#d1d5db',
               textDecoration: 'none',
               transition: 'background 0.2s, color 0.2s',
-              background: item.id === 'video' ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
-              borderRight: item.id === 'video' ? '2px solid #8b5cf6' : 'none'
+              background: currentPath === item.href ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
+              borderRight: currentPath === item.href ? '2px solid #8b5cf6' : 'none'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = '#1f2937';
@@ -70,7 +78,7 @@ export default function NavigationSidebar() {
               setHoveredItem(item.id);
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = item.id === 'video' ? 'rgba(139, 92, 246, 0.1)' : 'transparent';
+              e.currentTarget.style.background = currentPath === item.href ? 'rgba(139, 92, 246, 0.1)' : 'transparent';
               e.currentTarget.style.color = '#d1d5db';
               setHoveredItem(null);
             }}
