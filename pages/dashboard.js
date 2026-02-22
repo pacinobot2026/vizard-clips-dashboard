@@ -285,22 +285,18 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
       transition: 'all 0.3s',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
     }}>
-      {/* Video Thumbnail */}
+      {/* Video Player */}
       <div style={{ 
         aspectRatio: '4/5', 
-        background: clip.thumbnail_url ? 'transparent' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '48px',
-        color: 'white',
+        background: '#000',
         position: 'relative',
         overflow: 'hidden'
       }}>
-        {clip.thumbnail_url ? (
-          <img 
-            src={clip.thumbnail_url} 
-            alt={clip.title || 'Video thumbnail'}
+        {clip.clip_url ? (
+          <video 
+            src={clip.clip_url}
+            controls
+            preload="metadata"
             style={{
               width: '100%',
               height: '100%',
@@ -308,7 +304,18 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
             }}
           />
         ) : (
-          <span>▶</span>
+          <div style={{
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '48px',
+            color: 'white'
+          }}>
+            ▶
+          </div>
         )}
       </div>
 
