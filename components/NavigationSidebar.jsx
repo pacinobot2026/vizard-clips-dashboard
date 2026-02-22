@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 const NAV_ITEMS = [
   { id: 'video', label: 'Video Board', icon: '🎬', href: '/dashboard' },
   { id: 'articles', label: 'Article Board', icon: '📰', href: '/articles' },
-  { id: 'ideas', label: '2nd Brain', icon: '💡', href: '/ideas' },
+  { id: 'ideas', label: 'Idea Board', icon: '💡', href: '/ideas' },
   { id: 'control', label: 'Command Center', icon: '🎛️', href: 'https://dashboard-gilt-one-zc4y5uu95v.vercel.app' },
   { id: 'team', label: 'Team Board', icon: '👥', href: 'https://kanban-rho-ivory.vercel.app' },
   { id: 'openclaw', label: 'OpenClaw Board', icon: '🤖', href: '/openclaw' },

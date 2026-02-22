@@ -173,7 +173,7 @@ export default function Ideas() {
                 marginBottom: '4px',
                 animation: 'gradientShift 3s ease infinite'
               }}>
-                💡 2nd Brain - Ideas
+                💡 Idea Board
               </h1>
               <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '4px' }}>Capture and organize your ideas</p>
             </div>
