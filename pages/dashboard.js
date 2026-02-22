@@ -615,8 +615,10 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
         {clip.clip_url ? (
           <video 
             src={clip.clip_url}
+            poster={clip.clip_url + '#t=0.5'}
             controls
-            preload="metadata"
+            preload="none"
+            playsInline
             style={{
               width: '100%',
               height: '100%',
