@@ -615,17 +615,19 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
         {clip.clip_url ? (
           <video 
             src={clip.clip_url}
-            poster={clip.clip_url + '#t=0.5'}
             controls
-            preload="none"
+            preload="metadata"
             playsInline
+            muted
             style={{
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
+              filter: 'grayscale(100%)',
               transition: 'filter 0.3s ease'
             }}
+            onPlay={(e) => e.target.style.filter = 'grayscale(0%)'}
+            onPause={(e) => e.target.style.filter = 'grayscale(100%)'}
           />
         ) : (
           <div style={{
