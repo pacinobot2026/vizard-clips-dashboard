@@ -9,7 +9,7 @@ export default function Ideas() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newIdea, setNewIdea] = useState({ title: '', description: '', category: 'business', priority: 'medium' });
+  const [newIdea, setNewIdea] = useState({ title: '', description: '', category: 'business', priority: 'medium', urgent: false });
 
   useEffect(() => {
     loadMockIdeas();
@@ -25,6 +25,7 @@ export default function Ideas() {
         category: "Product Idea",
         status: "inbox",
         priority: "high",
+        urgent: true,
         tags: ["AI", "Newsletter", "Local"],
         created_at: "2026-02-22T00:45:00Z"
       },
@@ -35,6 +36,7 @@ export default function Ideas() {
         category: "Content Strategy",
         status: "active",
         priority: "high",
+        urgent: false,
         tags: ["Video", "Automation", "Social Media"],
         created_at: "2026-02-21T10:30:00Z"
       },
@@ -45,6 +47,7 @@ export default function Ideas() {
         category: "Product Idea",
         status: "active",
         priority: "medium",
+        urgent: true,
         tags: ["Integration", "Course Sprout", "MintBird"],
         created_at: "2026-02-20T14:20:00Z"
       },
@@ -55,6 +58,7 @@ export default function Ideas() {
         category: "Community",
         status: "inbox",
         priority: "medium",
+        urgent: false,
         tags: ["Entourage", "Live", "Support"],
         created_at: "2026-02-22T09:15:00Z"
       },
@@ -65,6 +69,7 @@ export default function Ideas() {
         category: "Business Model",
         status: "someday",
         priority: "low",
+        urgent: false,
         tags: ["Pricing", "Bundle", "Strategy"],
         created_at: "2026-02-19T16:45:00Z"
       },
@@ -75,6 +80,7 @@ export default function Ideas() {
         category: "Product Idea",
         status: "active",
         priority: "high",
+        urgent: true,
         tags: ["Course", "Training", "Local Media"],
         created_at: "2026-02-18T12:30:00Z"
       },
@@ -85,6 +91,7 @@ export default function Ideas() {
         category: "Revenue",
         status: "inbox",
         priority: "medium",
+        urgent: false,
         tags: ["Sponsorship", "Revenue", "Local"],
         created_at: "2026-02-21T11:00:00Z"
       },
@@ -95,6 +102,7 @@ export default function Ideas() {
         category: "Product Feature",
         status: "completed",
         priority: "medium",
+        urgent: false,
         tags: ["PopLinks", "Templates", "UX"],
         created_at: "2026-02-15T15:20:00Z"
       }
@@ -130,7 +138,7 @@ export default function Ideas() {
   const handleAddIdea = () => {
     console.log('New idea:', newIdea);
     setShowAddModal(false);
-    setNewIdea({ title: '', description: '', category: 'business', priority: 'medium' });
+    setNewIdea({ title: '', description: '', category: 'business', priority: 'medium', urgent: false });
     loadMockIdeas();
   };
 
@@ -368,6 +376,23 @@ export default function Ideas() {
                 }}
               />
 
+              <label style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px',
+                color: '#9ca3af',
+                fontSize: '14px',
+                cursor: 'pointer'
+              }}>
+                <input
+                  type="checkbox"
+                  checked={newIdea.urgent}
+                  onChange={(e) => setNewIdea({...newIdea, urgent: e.target.checked})}
+                  style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                />
+                <span>🔥 Mark as urgent</span>
+              </label>
+
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button
                   onClick={handleAddIdea}
@@ -471,6 +496,9 @@ function IdeaCard({ idea }) {
     >
       {/* Single line with title and badges */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        {idea.urgent && (
+          <span style={{ fontSize: '14px' }} title="Urgent">🔥</span>
+        )}
         <h3 style={{ color: '#fff', fontSize: '14px', fontWeight: '500', flex: 1, minWidth: '200px' }}>
           {idea.title}
         </h3>
