@@ -16,7 +16,6 @@ export default function NavigationSidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [currentPath, setCurrentPath] = useState('');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -26,51 +25,10 @@ export default function NavigationSidebar() {
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        style={{
-          position: 'fixed',
-          top: '16px',
-          left: '16px',
-          zIndex: 1000,
-          background: '#1f2937',
-          border: '1px solid #374151',
-          borderRadius: '8px',
-          padding: '12px',
-          color: '#fff',
-          cursor: 'pointer',
-          display: 'none'
-        }}
-        className="mobile-menu-btn"
-      >
-        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-
-      {/* Mobile Overlay */}
-      {mobileMenuOpen && (
-        <div
-          onClick={() => setMobileMenuOpen(false)}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 999,
-            display: 'none'
-          }}
-          className="mobile-overlay"
-        />
-      )}
-
       <div 
         className={`min-h-screen h-full bg-gray-900 border-r border-gray-800 flex flex-col transition-all duration-300 ${
           isExpanded ? 'w-48' : 'w-14'
-        } ${mobileMenuOpen ? 'mobile-menu-open' : ''}`}
+        }`}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
         style={{ minHeight: '100vh', background: '#111827', borderRight: '1px solid #1f2937' }}
@@ -184,28 +142,6 @@ export default function NavigationSidebar() {
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @media (max-width: 768px) {
-          .mobile-menu-btn {
-            display: block !important;
-          }
-          .mobile-overlay {
-            display: block !important;
-          }
-          div:not(.mobile-menu-btn):not(.mobile-overlay) {
-            position: fixed;
-            left: -100%;
-            top: 0;
-            width: 240px !important;
-            transition: left 0.3s ease;
-            z-index: 1000;
-          }
-          .mobile-menu-open {
-            left: 0 !important;
-          }
-        }
-      `}</style>
     </>
   );
 }
