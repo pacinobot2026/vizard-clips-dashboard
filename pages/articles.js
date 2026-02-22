@@ -12,6 +12,7 @@ export default function Articles() {
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'cards'
   const [loading, setLoading] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [searchVisible, setSearchVisible] = useState(false);
   const [searchCountdown, setSearchCountdown] = useState(3600); // 1 hour in seconds
   const [postCountdown, setPostCountdown] = useState(7200); // 2 hours in seconds
 
@@ -272,8 +273,29 @@ export default function Articles() {
             <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '4px' }}>Article review and publishing</p>
           </div>
 
-          {/* View Toggle */}
-          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+          {/* Search + View Toggle */}
+          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            {/* Search Button */}
+            <div style={{ display: 'flex', gap: '4px', background: 'rgba(31, 41, 55, 0.5)', borderRadius: '8px', padding: '4px', border: '1px solid rgba(75, 85, 99, 0.5)' }}>
+              <button
+                onClick={() => setSearchVisible(!searchVisible)}
+                style={{
+                  padding: '6px 16px',
+                  background: searchVisible ? '#8b5cf6' : 'transparent',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: '#fff',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  fontWeight: '600'
+                }}
+              >
+                🔍 Search
+              </button>
+            </div>
+            
+            {/* View Toggle */}
             <div style={{ display: 'flex', gap: '4px', background: 'rgba(31, 41, 55, 0.5)', borderRadius: '8px', padding: '4px', border: '1px solid rgba(75, 85, 99, 0.5)' }}>
               <button
                 onClick={() => setViewMode('list')}
@@ -518,6 +540,7 @@ export default function Articles() {
           )}
 
           {/* Search, Filters, and View Toggle */}
+          {searchVisible && (
           <div className="filters-row" style={{ marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             {/* Mobile Category Dropdown */}
             {categories.length > 0 && (
@@ -582,6 +605,7 @@ export default function Articles() {
               <option value="title">Title</option>
             </select>
           </div>
+          )}
 
           {/* Articles - List or Card View */}
           {filteredArticles.length === 0 ? (
