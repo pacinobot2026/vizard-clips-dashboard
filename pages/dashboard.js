@@ -621,12 +621,8 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
             style={{
               width: '100%',
               height: '100%',
-              objectFit: 'cover',
-              filter: 'grayscale(100%)',
-              transition: 'filter 0.3s ease'
+              objectFit: 'cover'
             }}
-            onPlay={(e) => e.target.style.filter = 'grayscale(0%)'}
-            onPause={(e) => e.target.style.filter = 'grayscale(100%)'}
           />
         ) : (
           <div style={{
