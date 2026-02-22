@@ -235,11 +235,13 @@ export default function Articles() {
             <h1 style={{ 
               fontSize: '30px', 
               fontWeight: '700', 
-              background: 'linear-gradient(to right, #22d3ee, #60a5fa, #a78bfa)',
+              background: 'linear-gradient(90deg, #22d3ee, #60a5fa, #a78bfa, #22d3ee)',
+              backgroundSize: '200% 100%',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
-              marginBottom: '4px' 
+              marginBottom: '4px',
+              animation: 'gradientShift 3s ease infinite'
             }}>
               Article Cue Board
             </h1>
@@ -262,6 +264,11 @@ export default function Articles() {
             @keyframes pulse {
               0%, 100% { opacity: 1; }
               50% { opacity: 0.6; }
+            }
+            @keyframes gradientShift {
+              0% { background-position: 0% 50%; }
+              50% { background-position: 100% 50%; }
+              100% { background-position: 0% 50%; }
             }
           `}</style>
 
