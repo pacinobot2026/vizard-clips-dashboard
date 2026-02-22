@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import NavigationSidebar from '../components/NavigationSidebar';
 
 export default function Dashboard() {
@@ -10,10 +10,75 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date_desc');
   const [loading, setLoading] = useState(true);
+  const [processingCount, setProcessingCount] = useState(0);
+  const [nextCheckIn, setNextCheckIn] = useState(300); // 5 minutes in seconds
+  const [nextPostIn, setNextPostIn] = useState(7200); // 2 hours in seconds (default)
 
   useEffect(() => {
     fetchClips();
   }, [filter, category, sortBy]);
+  
+  useEffect(() => {
+    fetchProcessing();
+    
+    // Check processing every 5 minutes
+    const processingInterval = setInterval(fetchProcessing, 5 * 60 * 1000);
+    
+    // Countdown timers (updates every second)
+    const countdownInterval = setInterval(() => {
+      // Processing check countdown
+      setNextCheckIn(prev => {
+        if (prev <= 1) {
+          return 300; // Reset to 5 minutes
+        }
+        return prev - 1;
+      });
+      
+      // Social posting countdown
+      setNextPostIn(prev => {
+        if (prev <= 1) {
+          return 7200; // Reset to 2 hours
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => {
+      clearInterval(processingInterval);
+      clearInterval(countdownInterval);
+    };
+  }, []);
+
+  const fetchProcessing = async () => {
+    try {
+      const res = await fetch('/api/processing');
+      const data = await res.json();
+      setProcessingCount(data.processing || 0);
+      setNextCheckIn(300); // Reset countdown on fetch
+    } catch (err) {
+      console.error('Error fetching processing count:', err);
+    }
+  };
+  
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+  
+  const formatLongTime = (seconds) => {
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    if (hours > 0) {
+      return `${hours}h ${mins}m`;
+    } else if (mins > 0) {
+      return `${mins}m ${secs}s`;
+    } else {
+      return `${secs}s`;
+    }
+  };
 
   const fetchClips = async () => {
     try {
@@ -80,29 +145,127 @@ export default function Dashboard() {
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           
           {/* Header */}
-          <div style={{ marginBottom: '24px' }}>
+          <div style={{ 
+            marginBottom: '24px',
+            animation: 'fadeIn 0.6s ease-out'
+          }}>
             <h1 style={{ 
               fontSize: '30px', 
               fontWeight: '700', 
-              background: 'linear-gradient(to right, #22d3ee, #60a5fa, #a78bfa)',
+              background: 'linear-gradient(90deg, #22d3ee, #60a5fa, #a78bfa, #22d3ee)',
+              backgroundSize: '200% 100%',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
-              marginBottom: '4px' 
+              marginBottom: '4px',
+              animation: 'gradientShift 3s ease infinite'
             }}>
               Video Cue Board
             </h1>
             <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '4px' }}>Video clip review and publishing</p>
           </div>
 
+          {/* Status Banner - Always visible */}
+          <div style={{
+            background: 'rgba(75, 85, 99, 0.1)',
+            border: '1px solid rgba(75, 85, 99, 0.3)',
+            borderRadius: '12px',
+            padding: '12px 20px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            animation: 'slideUp 0.5s ease-out 0.2s both',
+            boxShadow: '0 4px 12px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* Processing Status */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              flex: 1,
+              padding: '8px 12px',
+              borderRadius: '8px',
+              background: processingCount > 0 ? 'rgba(167, 139, 250, 0.1)' : 'transparent',
+              transition: 'all 0.3s ease'
+            }}>
+              <div style={{
+                fontSize: '24px',
+                animation: processingCount > 0 ? 'spin 2s linear infinite' : 'pulse 2s ease-in-out infinite',
+                filter: processingCount > 0 ? 'drop-shadow(0 0 8px rgba(167, 139, 250, 0.6))' : 'none'
+              }}>⚙️</div>
+              <div>
+                <div style={{ 
+                  color: processingCount > 0 ? '#a78bfa' : '#9ca3af', 
+                  fontSize: '13px', 
+                  fontWeight: '600',
+                  animation: processingCount > 0 ? 'pulse 2s ease-in-out infinite' : 'none'
+                }}>
+                  {processingCount > 0 
+                    ? `${processingCount} video${processingCount > 1 ? 's' : ''} being edited`
+                    : 'No videos processing'
+                  }
+                </div>
+                <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
+                  Next check: {formatTime(nextCheckIn)}
+                </div>
+              </div>
+            </div>
+            
+            {/* Separator */}
+            <div style={{ 
+              width: '1px', 
+              height: '40px', 
+              background: 'linear-gradient(180deg, rgba(139, 92, 246, 0) 0%, rgba(139, 92, 246, 0.5) 50%, rgba(139, 92, 246, 0) 100%)',
+              animation: 'pulse 3s ease-in-out infinite'
+            }}></div>
+            
+            {/* Social Posting Timer */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              flex: 1,
+              padding: '8px 12px',
+              borderRadius: '8px',
+              background: stats.approved > 0 ? 'rgba(96, 165, 250, 0.1)' : 'transparent',
+              transition: 'all 0.3s ease'
+            }}>
+              <div style={{ 
+                fontSize: '24px',
+                animation: stats.approved > 0 ? 'pulse 2s ease-in-out infinite' : 'none',
+                filter: stats.approved > 0 ? 'drop-shadow(0 0 8px rgba(96, 165, 250, 0.6))' : 'none'
+              }}>🚀</div>
+              <div>
+                <div style={{ 
+                  color: '#60a5fa', 
+                  fontSize: '13px', 
+                  fontWeight: '600',
+                  animation: stats.approved > 0 ? 'pulse 2s ease-in-out infinite' : 'none'
+                }}>
+                  Next social post
+                </div>
+                <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
+                  {stats.approved > 0 
+                    ? `In ${formatLongTime(nextPostIn)} (automated)`
+                    : 'No approved clips ready'
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Stats Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
             <StatCard 
               icon="⏳" 
               count={stats.pending || 0} 
               label="Pending"
               active={filter === 'pending'}
               onClick={() => setFilter('pending')}
+              delay={0}
             />
             <StatCard 
               icon="✅" 
@@ -110,6 +273,7 @@ export default function Dashboard() {
               label="Approved"
               active={filter === 'approved'}
               onClick={() => setFilter('approved')}
+              delay={0.1}
             />
             <StatCard 
               icon="🚀" 
@@ -117,6 +281,7 @@ export default function Dashboard() {
               label="Published"
               active={filter === 'published'}
               onClick={() => setFilter('published')}
+              delay={0.2}
             />
             <StatCard 
               icon="❌" 
@@ -124,8 +289,41 @@ export default function Dashboard() {
               label="Rejected"
               active={filter === 'rejected'}
               onClick={() => setFilter('rejected')}
+              delay={0.3}
             />
           </div>
+          
+          <style jsx>{`
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(-10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes slideUp {
+              from { opacity: 0; transform: translateY(20px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes scaleIn {
+              from { opacity: 0; transform: scale(0.95); }
+              to { opacity: 1; transform: scale(1); }
+            }
+            @keyframes gradientShift {
+              0% { background-position: 0% 50%; }
+              50% { background-position: 100% 50%; }
+              100% { background-position: 0% 50%; }
+            }
+            @keyframes spin {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+            @keyframes pulse {
+              0%, 100% { opacity: 1; }
+              50% { opacity: 0.7; }
+            }
+            @keyframes glow {
+              0%, 100% { filter: brightness(1); }
+              50% { filter: brightness(1.3); }
+            }
+          `}</style>
 
           {/* Categories */}
           {categories.length > 0 && (
@@ -211,7 +409,8 @@ export default function Dashboard() {
             background: 'rgba(17, 24, 39, 0.5)',
             borderRadius: '16px',
             padding: '24px',
-            border: '1px solid rgba(75, 85, 99, 0.5)'
+            border: '1px solid rgba(75, 85, 99, 0.5)',
+            animation: 'scaleIn 0.4s ease-out 0.4s both'
           }}>
             <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#fff' }}>
@@ -227,7 +426,7 @@ export default function Dashboard() {
                 {searchTerm ? `No clips matching "${searchTerm}"` : `No ${filter} clips`}
               </div>
             ) : (
-              <div className="video-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
                 {filteredClips.map((clip) => (
                   <ClipCard 
                     key={clip.clip_id} 
@@ -242,27 +441,11 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
-      
-      <style jsx>{`
-        /* Mobile - 2 columns */
-        @media (max-width: 768px) {
-          .video-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
-        }
-        
-        /* Desktop - 3 columns */
-        @media (min-width: 769px) {
-          .video-grid {
-            grid-template-columns: repeat(3, 1fr) !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }
 
-function StatCard({ icon, count, label, active, onClick }) {
+function StatCard({ icon, count, label, active, onClick, delay = 0, style }) {
   return (
     <div 
       onClick={onClick}
@@ -273,7 +456,9 @@ function StatCard({ icon, count, label, active, onClick }) {
         cursor: 'pointer',
         transition: 'all 0.3s',
         border: `1px solid ${active ? '#8b5cf6' : 'rgba(75, 85, 99, 0.5)'}`,
-        transform: active ? 'scale(1.05)' : 'none'
+        transform: active ? 'scale(1.05)' : 'none',
+        animation: `slideUp 0.5s ease-out ${delay}s both`,
+        ...style
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -292,26 +477,56 @@ function StatCard({ icon, count, label, active, onClick }) {
 }
 
 function ClipCard({ clip, onApprove, onReject, showActions }) {
+  const [isHovered, setIsHovered] = React.useState(false);
+  
   return (
-    <div style={{
-      background: 'rgba(31, 41, 55, 0.7)',
-      borderRadius: '12px',
-      border: '1px solid rgba(75, 85, 99, 0.5)',
-      overflow: 'hidden',
-      transition: 'all 0.3s',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-    }}>
-      {/* Video Thumbnail */}
+    <div 
+      style={{
+        background: 'rgba(31, 41, 55, 0.7)',
+        borderRadius: '12px',
+        border: `1px solid ${isHovered ? 'rgba(139, 92, 246, 0.5)' : 'rgba(75, 85, 99, 0.5)'}`,
+        overflow: 'hidden',
+        transition: 'all 0.3s ease',
+        boxShadow: isHovered ? '0 8px 16px rgba(139, 92, 246, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
+        transform: isHovered ? 'translateY(-4px)' : 'none'
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Video Player */}
       <div style={{ 
-        aspectRatio: '16/9', 
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '48px',
-        color: 'white'
+        aspectRatio: '4/5', 
+        background: '#000',
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        ▶
+        {clip.clip_url ? (
+          <video 
+            src={clip.clip_url}
+            controls
+            preload="metadata"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
+              transition: 'filter 0.3s ease'
+            }}
+          />
+        ) : (
+          <div style={{
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '48px',
+            color: 'white'
+          }}>
+            ▶
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -341,7 +556,7 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
           </span>
         </div>
 
-        {showActions && (
+        {showActions && isHovered && (
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               onClick={onApprove}
