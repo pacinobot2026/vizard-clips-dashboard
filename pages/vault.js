@@ -102,26 +102,37 @@ export default function Vault() {
   const totalItems = items.length;
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div style={{ minHeight: '100vh', background: '#0D1423' }}>
       <Head>
         <title>Operator Vault | Training Library</title>
       </Head>
 
-      <div className="flex">
+      <div style={{ display: 'flex' }}>
         <NavigationSidebar />
 
-        <div className="flex-1">
-          <div className="p-8">
+        <div style={{ flex: 1, background: '#0D1423' }}>
+          <div style={{ padding: '32px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
             {/* Header */}
-            <div className="mb-8">
-              <div className="flex justify-between items-center flex-wrap gap-4">
+            <div style={{ marginBottom: '32px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                 <div>
-                  <h1 className="text-3xl font-bold text-white mb-2">🔐 Operator Vault</h1>
-                  <p className="text-gray-400">Training library for sales pages, guides, templates & more</p>
+                  <h1 style={{ fontSize: '30px', fontWeight: '700', color: '#fff', marginBottom: '8px' }}>🔐 Operator Vault</h1>
+                  <p style={{ color: '#9ca3af' }}>Training library for sales pages, guides, templates & more</p>
                 </div>
                 <button
                   onClick={() => setShowUploadModal(true)}
-                  className="px-6 py-3 bg-yellow-500 text-black font-semibold rounded-lg hover:bg-yellow-400 transition"
+                  style={{
+                    padding: '12px 24px',
+                    background: '#eab308',
+                    color: '#000',
+                    fontWeight: 600,
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.target.style.background = '#fbbf24'}
+                  onMouseLeave={(e) => e.target.style.background = '#eab308'}
                 >
                   + Add Resource
                 </button>
@@ -129,50 +140,64 @@ export default function Vault() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-              <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-                <div className="text-3xl font-bold text-white mb-1">{totalItems}</div>
-                <div className="text-sm text-gray-400">Total</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+              <div style={{ background: '#111827', border: '1px solid #1f2937', borderRadius: '8px', padding: '16px' }}>
+                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#fff', marginBottom: '4px' }}>{totalItems}</div>
+                <div style={{ fontSize: '14px', color: '#9ca3af' }}>Total</div>
               </div>
-              <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-                <div className="text-3xl font-bold text-yellow-500 mb-1">{getStatCount('Sales Pages')}</div>
-                <div className="text-sm text-gray-400">Sales</div>
+              <div style={{ background: '#111827', border: '1px solid #1f2937', borderRadius: '8px', padding: '16px' }}>
+                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#eab308', marginBottom: '4px' }}>{getStatCount('Sales Pages')}</div>
+                <div style={{ fontSize: '14px', color: '#9ca3af' }}>Sales</div>
               </div>
-              <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-                <div className="text-3xl font-bold text-blue-500 mb-1">{getStatCount('Guides')}</div>
-                <div className="text-sm text-gray-400">Guides</div>
+              <div style={{ background: '#111827', border: '1px solid #1f2937', borderRadius: '8px', padding: '16px' }}>
+                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#3b82f6', marginBottom: '4px' }}>{getStatCount('Guides')}</div>
+                <div style={{ fontSize: '14px', color: '#9ca3af' }}>Guides</div>
               </div>
-              <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-                <div className="text-3xl font-bold text-green-500 mb-1">{getStatCount('Emails')}</div>
-                <div className="text-sm text-gray-400">Emails</div>
+              <div style={{ background: '#111827', border: '1px solid #1f2937', borderRadius: '8px', padding: '16px' }}>
+                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#22c55e', marginBottom: '4px' }}>{getStatCount('Emails')}</div>
+                <div style={{ fontSize: '14px', color: '#9ca3af' }}>Emails</div>
               </div>
-              <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-                <div className="text-3xl font-bold text-purple-500 mb-1">{getStatCount('Product Templates')}</div>
-                <div className="text-sm text-gray-400">Templates</div>
+              <div style={{ background: '#111827', border: '1px solid #1f2937', borderRadius: '8px', padding: '16px' }}>
+                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#a855f7', marginBottom: '4px' }}>{getStatCount('Product Templates')}</div>
+                <div style={{ fontSize: '14px', color: '#9ca3af' }}>Templates</div>
               </div>
             </div>
 
             {/* Filters */}
-            <div className="mb-6">
-              <div className="mb-4">
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ marginBottom: '16px' }}>
                 <input
                   type="text"
                   placeholder="Search..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg text-white focus:outline-none focus:border-yellow-500"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: '#111827',
+                    border: '1px solid #1f2937',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
                 />
               </div>
 
               {/* Category Filter */}
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
                 <button
                   onClick={() => setSelectedCategory('all')}
-                  className={`px-4 py-2 rounded-lg font-medium transition ${
-                    selectedCategory === 'all'
-                      ? 'bg-yellow-500 text-black'
-                      : 'bg-gray-900 text-gray-400 hover:bg-gray-800'
-                  }`}
+                  style={{
+                    padding: '8px 16px',
+                    background: selectedCategory === 'all' ? '#eab308' : '#111827',
+                    color: selectedCategory === 'all' ? '#000' : '#9ca3af',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
+                  }}
                 >
                   All
                 </button>
@@ -180,11 +205,16 @@ export default function Vault() {
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-4 py-2 rounded-lg font-medium transition ${
-                      selectedCategory === cat
-                        ? 'bg-yellow-500 text-black'
-                        : 'bg-gray-900 text-gray-400 hover:bg-gray-800'
-                    }`}
+                    style={{
+                      padding: '8px 16px',
+                      background: selectedCategory === cat ? '#eab308' : '#111827',
+                      color: selectedCategory === cat ? '#000' : '#9ca3af',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      transition: 'background 0.2s'
+                    }}
                   >
                     {cat} ({getStatCount(cat)})
                   </button>
@@ -192,14 +222,19 @@ export default function Vault() {
               </div>
 
               {/* Type Filter */}
-              <div className="flex flex-wrap gap-2">
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 <button
                   onClick={() => setSelectedType('all')}
-                  className={`px-3 py-1 rounded-lg text-sm transition ${
-                    selectedType === 'all'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-900 text-gray-500 hover:bg-gray-800'
-                  }`}
+                  style={{
+                    padding: '6px 12px',
+                    background: selectedType === 'all' ? '#2563eb' : '#111827',
+                    color: selectedType === 'all' ? '#fff' : '#6b7280',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
+                  }}
                 >
                   All Types
                 </button>
@@ -207,11 +242,16 @@ export default function Vault() {
                   <button
                     key={type}
                     onClick={() => setSelectedType(type)}
-                    className={`px-3 py-1 rounded-lg text-sm transition ${
-                      selectedType === type
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-900 text-gray-500 hover:bg-gray-800'
-                    }`}
+                    style={{
+                      padding: '6px 12px',
+                      background: selectedType === type ? '#2563eb' : '#111827',
+                      color: selectedType === type ? '#fff' : '#6b7280',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      transition: 'background 0.2s'
+                    }}
                   >
                     {type}
                   </button>

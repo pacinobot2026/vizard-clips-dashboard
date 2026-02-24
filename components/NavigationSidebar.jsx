@@ -63,13 +63,15 @@ export default function NavigationSidebar() {
       >
         {/* Hamburger Toggle (Desktop only) */}
         {!isMobile && (
-          <div className="p-3 border-b border-gray-800 flex justify-center">
+          <div style={{ padding: '12px', borderBottom: '1px solid #1f2937', display: 'flex', justifyContent: 'center' }}>
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-gray-400 hover:text-white transition"
+              style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px' }}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'stroke 0.2s' }}>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
               </svg>
             </button>
           </div>
