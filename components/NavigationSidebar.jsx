@@ -47,14 +47,19 @@ export default function NavigationSidebar() {
 
       {/* Sidebar */}
       <div 
-        className={`fixed md:relative min-h-screen h-full bg-gray-900 border-r md:border-r border-gray-800 flex flex-col transition-all duration-300 z-50 ${
-          isMobileMenuOpen ? 'right-0' : '-right-full md:right-auto md:left-0'
-        } md:w-14 ${
-          isExpanded ? 'w-64' : 'w-64 md:w-14'
+        className={`fixed top-0 md:relative min-h-screen h-full bg-gray-900 border-l md:border-l-0 md:border-r border-gray-800 flex flex-col transition-all duration-300 ease-in-out z-50 w-64 md:w-14 ${
+          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        } md:translate-x-0 ${
+          isExpanded ? 'md:w-48' : ''
         }`}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
-        style={{ minHeight: '100vh', background: '#111827', borderRight: '1px solid #1f2937' }}
+        style={{ 
+          minHeight: '100vh', 
+          background: '#111827', 
+          right: 0,
+          left: 'auto'
+        }}
       >
       {/* Header with Close Button (Mobile) */}
       <div className="flex items-center justify-between p-4 border-b border-gray-800 md:border-none">
