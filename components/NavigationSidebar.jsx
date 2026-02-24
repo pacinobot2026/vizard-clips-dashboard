@@ -17,6 +17,7 @@ export default function NavigationSidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [currentPath, setCurrentPath] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -26,37 +27,50 @@ export default function NavigationSidebar() {
 
   return (
     <>
+      {/* Mobile Hamburger Button - Top Right */}
+      <button
+        onClick={() => setIsMobileMenuOpen(true)}
+        className="md:hidden fixed top-4 right-4 z-40 p-2 bg-gray-900 border border-gray-800 rounded-lg"
+      >
+        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
       <div 
-        className={`min-h-screen h-full bg-gray-900 border-r border-gray-800 flex flex-col transition-all duration-300 ${
-          isExpanded ? 'w-48' : 'w-14'
+        className={`fixed md:relative min-h-screen h-full bg-gray-900 border-r md:border-r border-gray-800 flex flex-col transition-all duration-300 z-50 ${
+          isMobileMenuOpen ? 'right-0' : '-right-full md:right-auto md:left-0'
+        } md:w-14 ${
+          isExpanded ? 'w-64' : 'w-64 md:w-14'
         }`}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
         style={{ minHeight: '100vh', background: '#111827', borderRight: '1px solid #1f2937' }}
       >
-      {/* Toggle Button */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        style={{
-          padding: '12px',
-          color: '#9ca3af',
-          background: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-          transition: 'color 0.2s'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
-        onMouseLeave={(e) => e.currentTarget.style.color = '#9ca3af'}
-      >
-        <svg 
-          style={{ width: '20px', height: '20px', transform: isExpanded ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.3s' }}
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
+      {/* Header with Close Button (Mobile) */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-800 md:border-none">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">🎬</span>
+          <span className="text-white font-bold md:hidden">Menu</span>
+        </div>
+        <button
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="md:hidden text-gray-400 hover:text-white"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-        </svg>
-      </button>
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
       {/* Nav Items */}
       <nav style={{ flex: 1, paddingTop: '16px', paddingBottom: '16px' }}>
@@ -66,6 +80,7 @@ export default function NavigationSidebar() {
             href={item.href}
             target={item.href.startsWith('http') ? '_blank' : undefined}
             rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+            onClick={() => setIsMobileMenuOpen(false)}
             style={{
               position: 'relative',
               display: 'flex',
@@ -92,16 +107,19 @@ export default function NavigationSidebar() {
             {/* Icon */}
             <span style={{ fontSize: '20px', flexShrink: 0 }}>{item.icon}</span>
             
-            {/* Label - shown when expanded */}
+            {/* Label - always shown on mobile, shown when expanded on desktop */}
+            <span className="md:hidden" style={{ fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden' }}>
+              {item.label}
+            </span>
             {isExpanded && (
-              <span style={{ fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden' }}>
+              <span className="hidden md:block" style={{ fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden' }}>
                 {item.label}
               </span>
             )}
 
-            {/* Tooltip - shown when collapsed and hovered */}
+            {/* Tooltip - shown when collapsed and hovered on desktop only */}
             {!isExpanded && hoveredItem === item.id && (
-              <div style={{
+              <div className="hidden md:block" style={{
                 position: 'absolute',
                 left: '100%',
                 marginLeft: '8px',
@@ -137,8 +155,9 @@ export default function NavigationSidebar() {
         <div style={{ padding: '12px', borderTop: '1px solid #1f2937' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '20px', flexShrink: 0 }}>🎬</span>
+            <span className="md:hidden" style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden' }}>Pacino</span>
             {isExpanded && (
-              <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden' }}>Pacino</span>
+              <span className="hidden md:block" style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden' }}>Pacino</span>
             )}
           </div>
         </div>
