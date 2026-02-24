@@ -47,7 +47,9 @@ export default function NavigationSidebar() {
 
       {/* Sidebar */}
       <div 
-        className={`sidebar-container fixed md:relative top-0 md:top-auto min-h-screen h-full bg-gray-900 border-l md:border-l-0 md:border-r border-gray-800 flex flex-col transition-all duration-300 ease-in-out z-50 w-64 md:w-14 ${
+        className={`fixed md:static min-h-screen bg-gray-900 border-l md:border-l-0 md:border-r border-gray-800 flex flex-col z-50 transition-all duration-300 ${
+          isMobileMenuOpen ? 'right-0' : '-right-64'
+        } md:right-auto w-64 md:w-14 ${
           isExpanded ? 'md:w-48' : ''
         }`}
         onMouseEnter={() => setIsExpanded(true)}
@@ -57,20 +59,6 @@ export default function NavigationSidebar() {
           background: '#111827'
         }}
       >
-      <style jsx>{`
-        @media (max-width: 768px) {
-          .sidebar-container {
-            right: ${isMobileMenuOpen ? '0' : '-256px'} !important;
-            transition: right 0.3s ease-in-out;
-          }
-        }
-        @media (min-width: 769px) {
-          .sidebar-container {
-            right: auto !important;
-            left: 0 !important;
-          }
-        }
-      `}</style>
       {/* Header with Close Button (Mobile) */}
       <div className="flex items-center justify-between p-4 border-b border-gray-800 md:border-none">
         <div className="flex items-center gap-2">
@@ -122,17 +110,17 @@ export default function NavigationSidebar() {
             {/* Icon */}
             <span style={{ fontSize: '20px', flexShrink: 0 }}>{item.icon}</span>
             
-            {/* Label - always shown on mobile, shown when expanded on desktop */}
+            {/* Label - always shown on mobile, only when expanded on desktop */}
             <span className="md:hidden" style={{ fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden' }}>
               {item.label}
             </span>
             {isExpanded && (
-              <span className="hidden md:block" style={{ fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden' }}>
+              <span className="hidden md:inline" style={{ fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden' }}>
                 {item.label}
               </span>
             )}
 
-            {/* Tooltip - shown when collapsed and hovered on desktop only */}
+            {/* Tooltip - ONLY shown when collapsed and hovered on desktop */}
             {!isExpanded && hoveredItem === item.id && (
               <div className="hidden md:block" style={{
                 position: 'absolute',
@@ -172,7 +160,7 @@ export default function NavigationSidebar() {
             <span style={{ fontSize: '20px', flexShrink: 0 }}>🎬</span>
             <span className="md:hidden" style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden' }}>Pacino</span>
             {isExpanded && (
-              <span className="hidden md:block" style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden' }}>Pacino</span>
+              <span className="hidden md:inline" style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden' }}>Pacino</span>
             )}
           </div>
         </div>
