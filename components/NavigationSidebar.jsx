@@ -14,7 +14,7 @@ const NAV_ITEMS = [
 ];
 
 export default function NavigationSidebar() {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false); // Controlled by hamburger, NOT by hover
   const [hoveredItem, setHoveredItem] = useState(null);
   const [currentPath, setCurrentPath] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -29,8 +29,6 @@ export default function NavigationSidebar() {
       return () => window.removeEventListener('resize', checkMobile);
     }
   }, []);
-
-  const showLabel = isMobile || isExpanded;
 
   return (
     <>
@@ -60,11 +58,23 @@ export default function NavigationSidebar() {
         style={{ 
           minHeight: '100vh', 
           background: '#111827',
-          width: isMobile ? '256px' : (isExpanded ? '192px' : '56px')
+          width: isMobile || isExpanded ? '192px' : '56px'
         }}
-        onMouseEnter={() => !isMobile && setIsExpanded(true)}
-        onMouseLeave={() => !isMobile && setIsExpanded(false)}
       >
+        {/* Hamburger Toggle (Desktop only) */}
+        {!isMobile && (
+          <div className="p-3 border-b border-gray-800 flex justify-center">
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-gray-400 hover:text-white transition"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        )}
+
         {/* Header with Close Button (Mobile only) */}
         {isMobile && (
           <div className="flex items-center justify-between p-4 border-b border-gray-800">
@@ -107,7 +117,7 @@ export default function NavigationSidebar() {
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = '#1f2937';
                 e.currentTarget.style.color = '#fff';
-                setHoveredItem(item.id);
+                !isMobile && !isExpanded && setHoveredItem(item.id);
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = currentPath === item.href ? 'rgba(139, 92, 246, 0.1)' : 'transparent';
@@ -118,8 +128,8 @@ export default function NavigationSidebar() {
               {/* Icon */}
               <span style={{ fontSize: '20px', flexShrink: 0 }}>{item.icon}</span>
               
-              {/* Label - show when mobile OR expanded on desktop */}
-              {showLabel && (
+              {/* Label - show only when mobile OR expanded */}
+              {(isMobile || isExpanded) && (
                 <span style={{ fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden' }}>
                   {item.label}
                 </span>
@@ -163,7 +173,7 @@ export default function NavigationSidebar() {
         <div style={{ padding: '12px', borderTop: '1px solid #1f2937' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '20px', flexShrink: 0 }}>🎬</span>
-            {showLabel && (
+            {(isMobile || isExpanded) && (
               <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden' }}>Pacino</span>
             )}
           </div>
