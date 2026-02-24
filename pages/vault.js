@@ -110,7 +110,7 @@ export default function Vault() {
       <div className="flex">
         <NavigationSidebar />
 
-        <div className="flex-1 md:ml-14">
+        <div className="flex-1">
           <div className="p-4 md:p-8">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6 md:mb-8">
