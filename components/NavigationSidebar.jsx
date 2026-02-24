@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 const NAV_ITEMS = [
   { id: 'video', label: 'Video Board', icon: '🎬', href: '/dashboard' },
   { id: 'articles', label: 'Article Board', icon: '📰', href: '/articles' },
+  { id: 'vault', label: 'Operator Vault', icon: '🔐', href: '/vault' },
   { id: 'ideas', label: 'Idea Board', icon: '💡', href: '/ideas' },
   { id: 'bookmarks', label: 'Bookmarks', icon: '📑', href: '/bookmarks' },
   { id: 'shopping', label: 'Shopping/Watch', icon: '🛒', href: '/shopping' },
