@@ -47,18 +47,16 @@ export default function NavigationSidebar() {
 
       {/* Sidebar */}
       <div 
-        className={`fixed top-0 md:relative min-h-screen h-full bg-gray-900 border-l md:border-l-0 md:border-r border-gray-800 flex flex-col transition-all duration-300 ease-in-out z-50 w-64 md:w-14 ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        } md:translate-x-0 ${
+        className={`fixed md:relative top-0 min-h-screen h-full bg-gray-900 border-l md:border-l-0 md:border-r border-gray-800 flex flex-col transition-all duration-300 ease-in-out z-50 w-64 md:w-14 ${
           isExpanded ? 'md:w-48' : ''
         }`}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
         style={{ 
           minHeight: '100vh', 
-          background: '#111827', 
-          right: 0,
-          left: 'auto'
+          background: '#111827',
+          right: isMobileMenuOpen ? '0' : '-256px',
+          transition: 'right 0.3s ease-in-out'
         }}
       >
       {/* Header with Close Button (Mobile) */}
