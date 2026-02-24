@@ -47,18 +47,30 @@ export default function NavigationSidebar() {
 
       {/* Sidebar */}
       <div 
-        className={`fixed md:relative top-0 min-h-screen h-full bg-gray-900 border-l md:border-l-0 md:border-r border-gray-800 flex flex-col transition-all duration-300 ease-in-out z-50 w-64 md:w-14 ${
+        className={`sidebar-container fixed md:relative top-0 md:top-auto min-h-screen h-full bg-gray-900 border-l md:border-l-0 md:border-r border-gray-800 flex flex-col transition-all duration-300 ease-in-out z-50 w-64 md:w-14 ${
           isExpanded ? 'md:w-48' : ''
         }`}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
         style={{ 
           minHeight: '100vh', 
-          background: '#111827',
-          right: isMobileMenuOpen ? '0' : '-256px',
-          transition: 'right 0.3s ease-in-out'
+          background: '#111827'
         }}
       >
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .sidebar-container {
+            right: ${isMobileMenuOpen ? '0' : '-256px'} !important;
+            transition: right 0.3s ease-in-out;
+          }
+        }
+        @media (min-width: 769px) {
+          .sidebar-container {
+            right: auto !important;
+            left: 0 !important;
+          }
+        }
+      `}</style>
       {/* Header with Close Button (Mobile) */}
       <div className="flex items-center justify-between p-4 border-b border-gray-800 md:border-none">
         <div className="flex items-center gap-2">
