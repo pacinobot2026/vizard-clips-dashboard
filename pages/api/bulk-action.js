@@ -1,4 +1,4 @@
-import { bulkUpdate } from '../../lib/github-storage';
+import { bulkUpdate } from '../../lib/storage';
 
 export default async function handler(req, res) {
   // Password protection removed - public access

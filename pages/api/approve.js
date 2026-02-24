@@ -1,4 +1,4 @@
-import { updateClip } from '../../lib/github-storage';
+import { updateClip } from '../../lib/storage';
 
 export default async function handler(req, res) {
   // Password protection removed - public access

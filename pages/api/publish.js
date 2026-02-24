@@ -1,4 +1,4 @@
-import { getApprovedClips, updateClip } from '../../lib/github-storage';
+import { getApprovedClips, updateClip } from '../../lib/storage';
 import axios from 'axios';
 
 const POSTBRIDGE_API_KEY = process.env.POSTBRIDGE_API_KEY;

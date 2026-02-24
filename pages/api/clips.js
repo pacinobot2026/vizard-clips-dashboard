@@ -1,4 +1,4 @@
-import { getPendingClips, getApprovedClips, getPublishedClips, getRejectedClips, getStats, getCategories, getAllClips } from '../../lib/github-storage';
+import { getPendingClips, getApprovedClips, getPublishedClips, getRejectedClips, getStats, getCategories, getAllClips } from '../../lib/storage';
 
 export default async function handler(req, res) {
   // Password protection removed - public access

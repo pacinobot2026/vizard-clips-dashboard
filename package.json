@@ -9,6 +9,7 @@
     "monitor": "node scripts/vimeo-monitor.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.97.0",
     "@vercel/kv": "^3.0.0",
     "axios": "^1.6.5",
     "bcryptjs": "^2.4.3",
