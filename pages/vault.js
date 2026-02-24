@@ -314,8 +314,8 @@ export default function Vault() {
             </div>
 
             {filteredItems.length === 0 && (
-              <div className="text-center py-8 md:py-12">
-                <p className="text-gray-500 text-sm md:text-lg">No resources found. Add your first one!</p>
+              <div style={{ textAlign: 'center', padding: '48px 0' }}>
+                <p style={{ color: '#9ca3af', fontSize: '18px' }}>No resources found. Add your first one!</p>
               </div>
             )}
           </div>
@@ -324,29 +324,29 @@ export default function Vault() {
 
       {/* Upload Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl md:text-2xl font-bold text-white mb-4 md:mb-6">Add Resource</h2>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '16px' }}>
+          <div style={{ background: '#111827', border: '1px solid #1f2937', borderRadius: '8px', padding: '32px', maxWidth: '672px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#fff', marginBottom: '24px' }}>Add Resource</h2>
             
-            <form onSubmit={handleUpload} className="space-y-3 md:space-y-4">
+            <form onSubmit={handleUpload} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <label className="block text-xs md:text-sm text-gray-400 mb-1 md:mb-2">Title *</label>
+                <label style={{ display: 'block', fontSize: '14px', color: '#9ca3af', marginBottom: '8px' }}>Title *</label>
                 <input
                   type="text"
                   required
                   value={uploadForm.title}
                   onChange={(e) => setUploadForm({...uploadForm, title: e.target.value})}
-                  className="w-full px-3 md:px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm md:text-base focus:outline-none focus:border-yellow-500"
+                  style={{ width: '100%', padding: '10px 12px', background: '#1f2937', border: '1px solid #374151', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none' }}
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
-                  <label className="block text-xs md:text-sm text-gray-400 mb-1 md:mb-2">Category *</label>
+                  <label style={{ display: 'block', fontSize: '14px', color: '#9ca3af', marginBottom: '8px' }}>Category *</label>
                   <select
                     value={uploadForm.category}
                     onChange={(e) => setUploadForm({...uploadForm, category: e.target.value})}
-                    className="w-full px-3 md:px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm md:text-base focus:outline-none focus:border-yellow-500"
+                    style={{ width: '100%', padding: '10px 12px', background: '#1f2937', border: '1px solid #374151', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none' }}
                   >
                     {categories.map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
@@ -355,11 +355,11 @@ export default function Vault() {
                 </div>
 
                 <div>
-                  <label className="block text-xs md:text-sm text-gray-400 mb-1 md:mb-2">Type *</label>
+                  <label style={{ display: 'block', fontSize: '14px', color: '#9ca3af', marginBottom: '8px' }}>Type *</label>
                   <select
                     value={uploadForm.type}
                     onChange={(e) => setUploadForm({...uploadForm, type: e.target.value})}
-                    className="w-full px-3 md:px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm md:text-base focus:outline-none focus:border-yellow-500"
+                    style={{ width: '100%', padding: '10px 12px', background: '#1f2937', border: '1px solid #374151', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none' }}
                   >
                     {types.map(type => (
                       <option key={type} value={type}>{type}</option>
@@ -369,50 +369,69 @@ export default function Vault() {
               </div>
 
               <div>
-                <label className="block text-xs md:text-sm text-gray-400 mb-1 md:mb-2">URL / File Path *</label>
+                <label style={{ display: 'block', fontSize: '14px', color: '#9ca3af', marginBottom: '8px' }}>URL / File Path *</label>
                 <input
                   type="text"
                   required
                   value={uploadForm.url}
                   onChange={(e) => setUploadForm({...uploadForm, url: e.target.value})}
                   placeholder="https://... or /training/filename.png"
-                  className="w-full px-3 md:px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm md:text-base focus:outline-none focus:border-yellow-500"
+                  style={{ width: '100%', padding: '10px 12px', background: '#1f2937', border: '1px solid #374151', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none' }}
                 />
               </div>
 
               <div>
-                <label className="block text-xs md:text-sm text-gray-400 mb-1 md:mb-2">Notes (Why this works)</label>
+                <label style={{ display: 'block', fontSize: '14px', color: '#9ca3af', marginBottom: '8px' }}>Notes (Why this works)</label>
                 <textarea
                   value={uploadForm.notes}
                   onChange={(e) => setUploadForm({...uploadForm, notes: e.target.value})}
                   rows={3}
-                  className="w-full px-3 md:px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm md:text-base focus:outline-none focus:border-yellow-500"
                   placeholder="What makes this example effective? Key elements to notice..."
+                  style={{ width: '100%', padding: '10px 12px', background: '#1f2937', border: '1px solid #374151', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none', fontFamily: 'inherit', resize: 'vertical' }}
                 />
               </div>
 
               <div>
-                <label className="block text-xs md:text-sm text-gray-400 mb-1 md:mb-2">Tags (comma-separated)</label>
+                <label style={{ display: 'block', fontSize: '14px', color: '#9ca3af', marginBottom: '8px' }}>Tags (comma-separated)</label>
                 <input
                   type="text"
                   value={uploadForm.tags}
                   onChange={(e) => setUploadForm({...uploadForm, tags: e.target.value})}
                   placeholder="high-converting, template, swipe-file"
-                  className="w-full px-3 md:px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm md:text-base focus:outline-none focus:border-yellow-500"
+                  style={{ width: '100%', padding: '10px 12px', background: '#1f2937', border: '1px solid #374151', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none' }}
                 />
               </div>
 
-              <div className="flex flex-col md:flex-row gap-3 md:gap-4 pt-2 md:pt-4">
+              <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
                 <button
                   type="submit"
-                  className="flex-1 px-4 md:px-6 py-2 md:py-3 bg-yellow-500 text-gray-900 font-semibold rounded-lg hover:bg-yellow-400 transition text-sm md:text-base"
+                  style={{
+                    flex: 1,
+                    padding: '12px 24px',
+                    background: '#eab308',
+                    color: '#000',
+                    fontWeight: 600,
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
                 >
                   Add Resource
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowUploadModal(false)}
-                  className="px-4 md:px-6 py-2 md:py-3 bg-gray-800 text-gray-300 font-semibold rounded-lg hover:bg-gray-700 transition text-sm md:text-base"
+                  style={{
+                    padding: '12px 24px',
+                    background: '#1f2937',
+                    color: '#9ca3af',
+                    fontWeight: 600,
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
                 >
                   Cancel
                 </button>
