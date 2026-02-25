@@ -50,7 +50,7 @@ export default async function handler(req, res) {
     }
 
     // Step 2: Fetch articles for each publication
-    const allArticles = [];
+    var allArticles = [];
 
     for (const pub of publications) {
       const pubId = pub._id;
@@ -61,8 +61,11 @@ export default async function handler(req, res) {
           { headers, signal: AbortSignal.timeout(10000) }
         );
         const data = await response.json();
-        console.log(`[pub:${pubName}] response keys:`, Object.keys(data || {}), '| type samples:', (data?.data?.newsletters || data?.newsletters || []).slice(0, 2).map(n => n?.type || n?.state));
-        const newsletters = data?.data?.newsletters || data?.newsletters || data?.data || [];
+        console.log("data",data)
+        // console.log(`[pub:${pubName}] response keys:`, Object.keys(data || {}), '| type samples:', (data?.data?.newsletters || data?.newsletters || []).slice(0, 2).map(n => n?.type || n?.state));
+        const newsletters = data || [];
+        console.log("newsletter",newsletters)
+
         allArticles.push(...(Array.isArray(newsletters) ? newsletters : []).map(article => ({
           id: article._id,
           title: article.title || 'Untitled',
@@ -74,6 +77,7 @@ export default async function handler(req, res) {
           created_at: article.createdAt || new Date().toISOString(),
           updated_at: article.updatedAt || null,
         })));
+
       } catch (err) {
         console.error(`Error fetching articles for publication "${pubName}":`, err.message);
       }

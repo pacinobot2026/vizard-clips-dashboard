@@ -45,6 +45,7 @@ function Articles() {
       const res = await fetch('/api/settings', {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
+       console.log(session.access_token)
       const data = await res.json();
       if (data.settings?.letterman_api_key) {
         setKeyInput(''); // key exists, keep input blank (password masked anyway)
@@ -67,6 +68,7 @@ function Articles() {
         },
         body: JSON.stringify({ key: 'letterman_api_key', value: keyInput.trim() }),
       });
+     
       if (!res.ok) throw new Error('Failed to save');
       setHasKey(true);
       setShowKeyInput(false);
