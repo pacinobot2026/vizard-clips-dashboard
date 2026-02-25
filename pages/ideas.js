@@ -16,6 +16,8 @@ function Ideas() {
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newIdea, setNewIdea] = useState({ title: '', description: '', category: 'business', priority: 'medium' });
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingIdea, setEditingIdea] = useState(null);
   const [viewMode, setViewMode] = useState('cards');
 
   useEffect(() => {
@@ -77,6 +79,44 @@ function Ideas() {
     idea.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  async function handleUpdateIdea() {
+    if (!editingIdea.title.trim()) return;
+    try {
+      const res = await fetch('/api/ideas', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(editingIdea),
+      });
+      if (res.ok) {
+        setShowEditModal(false);
+        setEditingIdea(null);
+        await loadIdeas();
+      }
+    } catch (err) {
+      console.error('Failed to update idea:', err);
+    }
+  }
+
+  async function handleDeleteIdea(id) {
+    if (!confirm('Delete this idea?')) return;
+    try {
+      const res = await fetch('/api/ideas', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) await loadIdeas();
+    } catch (err) {
+      console.error('Failed to delete idea:', err);
+    }
+  }
+
   async function handleAddIdea() {
     if (!newIdea.title.trim()) return;
     try {
@@ -110,25 +150,25 @@ function Ideas() {
   return (
     <div className="flex min-h-screen">
       <NavigationSidebar />
-      <main className="flex-1 p-8 pt-16 md:pt-8">
+      <main className="flex-1 p-4 md:p-8 pt-16 md:pt-8">
         <div className="max-w-7xl mx-auto">
 
           {/* Header */}
-          <div className="mb-6 flex justify-between items-center">
+          <div className="mb-6 flex justify-between items-center gap-3">
             <div>
-              <h1 className="text-3xl font-bold gradient-text mb-1">💡 Idea Board</h1>
+              <h1 className="text-2xl md:text-3xl font-bold gradient-text mb-1">💡 Idea Board</h1>
               <p className="text-sm text-gray-400">Capture and organize your ideas</p>
             </div>
             <button
               onClick={() => setShowAddModal(true)}
-              className="px-6 py-3 bg-purple-600 rounded-lg text-white text-sm font-semibold cursor-pointer hover:scale-105 transition-transform border-none"
+              className="px-4 md:px-6 py-3 bg-purple-600 rounded-lg text-white text-sm font-semibold cursor-pointer hover:scale-105 transition-transform border-none whitespace-nowrap flex-shrink-0"
             >
               + New Idea
             </button>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-4 gap-4 mb-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4">
             {[
               { icon: '🔥', label: 'Urgent', key: 'urgent' },
               { icon: '⚡', label: 'Active', key: 'active' },
@@ -138,7 +178,7 @@ function Ideas() {
               <button
                 key={key}
                 onClick={() => setFilter(key)}
-                className={`p-4 rounded-xl border cursor-pointer transition-all text-left ${filter === key ? 'bg-purple-600 border-purple-600 scale-105' : 'bg-gray-800/50 border-gray-600/50 hover:bg-gray-800'}`}
+                className={`p-3 md:p-4 rounded-xl border cursor-pointer transition-all text-left ${filter === key ? 'bg-purple-600 border-purple-600 scale-105' : 'bg-gray-800/50 border-gray-600/50 hover:bg-gray-800'}`}
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{icon}</span>
@@ -167,42 +207,44 @@ function Ideas() {
           )}
 
           {/* Search + Sort + View Toggle */}
-          <div className="flex gap-3 flex-wrap mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <input
               type="text"
               placeholder="🔍 Search ideas..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="flex-1 min-w-48 bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500"
+              className="flex-1 bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500"
             />
-            <select
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value)}
-              className="bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm cursor-pointer outline-none"
-            >
-              <option value="date_desc">Newest First</option>
-              <option value="date_asc">Oldest First</option>
-              <option value="title">Title</option>
-              <option value="priority">Priority</option>
-            </select>
-            <div className="flex gap-1 bg-gray-800/50 border border-gray-600/50 rounded-lg p-1">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`px-4 py-1.5 rounded-md text-sm font-semibold text-white cursor-pointer border-none transition-colors ${viewMode === 'list' ? 'bg-purple-600' : 'bg-transparent'}`}
+            <div className="flex gap-3">
+              <select
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value)}
+                className="flex-1 sm:flex-none bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm cursor-pointer outline-none"
               >
-                📋 List
-              </button>
-              <button
-                onClick={() => setViewMode('cards')}
-                className={`px-4 py-1.5 rounded-md text-sm font-semibold text-white cursor-pointer border-none transition-colors ${viewMode === 'cards' ? 'bg-purple-600' : 'bg-transparent'}`}
-              >
-                🎴 Cards
-              </button>
+                <option value="date_desc">Newest First</option>
+                <option value="date_asc">Oldest First</option>
+                <option value="title">Title</option>
+                <option value="priority">Priority</option>
+              </select>
+              <div className="flex gap-1 bg-gray-800/50 border border-gray-600/50 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-4 py-1.5 rounded-md text-sm font-semibold text-white cursor-pointer border-none transition-colors ${viewMode === 'list' ? 'bg-purple-600' : 'bg-transparent'}`}
+                >
+                  📋 List
+                </button>
+                <button
+                  onClick={() => setViewMode('cards')}
+                  className={`px-4 py-1.5 rounded-md text-sm font-semibold text-white cursor-pointer border-none transition-colors ${viewMode === 'cards' ? 'bg-purple-600' : 'bg-transparent'}`}
+                >
+                  🎴 Cards
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Ideas Grid/List */}
-          <div className="glass-card rounded-2xl p-6">
+          <div className="glass-card rounded-2xl p-4 md:p-6">
             <div className="flex justify-between items-center mb-5">
               <h2 className="text-lg font-semibold text-white">💡 Ideas</h2>
               <span className="text-sm text-gray-400">
@@ -216,11 +258,25 @@ function Ideas() {
               </div>
             ) : viewMode === 'list' ? (
               <div className="flex flex-col gap-3">
-                {filteredIdeas.map(idea => <IdeaCardList key={idea.id} idea={idea} />)}
+                {filteredIdeas.map(idea => (
+                  <IdeaCardList
+                    key={idea.id}
+                    idea={idea}
+                    onEdit={() => { setEditingIdea({ ...idea }); setShowEditModal(true); }}
+                    onDelete={() => handleDeleteIdea(idea.id)}
+                  />
+                ))}
               </div>
             ) : (
-              <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
-                {filteredIdeas.map(idea => <IdeaCardGrid key={idea.id} idea={idea} />)}
+              <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
+                {filteredIdeas.map(idea => (
+                  <IdeaCardGrid
+                    key={idea.id}
+                    idea={idea}
+                    onEdit={() => { setEditingIdea({ ...idea }); setShowEditModal(true); }}
+                    onDelete={() => handleDeleteIdea(idea.id)}
+                  />
+                ))}
               </div>
             )}
           </div>
@@ -228,14 +284,80 @@ function Ideas() {
         </div>
       </main>
 
+      {/* Edit Idea Modal */}
+      {showEditModal && editingIdea && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-end sm:items-center justify-center z-50 p-0 sm:p-5"
+          onClick={() => { setShowEditModal(false); setEditingIdea(null); }}
+        >
+          <div
+            className="bg-gray-800 rounded-t-2xl sm:rounded-2xl border border-gray-600/50 max-w-xl w-full p-5 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <h2 className="text-2xl font-bold text-white mb-6">✏️ Edit Idea</h2>
+            <div className="flex flex-col gap-4">
+              <input
+                type="text"
+                placeholder="Idea title..."
+                value={editingIdea.title}
+                onChange={e => setEditingIdea({ ...editingIdea, title: e.target.value })}
+                className="bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500"
+              />
+              <textarea
+                placeholder="Description..."
+                value={editingIdea.description || ''}
+                onChange={e => setEditingIdea({ ...editingIdea, description: e.target.value })}
+                rows={4}
+                className="bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-3 text-white text-sm outline-none resize-y focus:border-purple-500"
+              />
+              <div className="flex gap-3">
+                <select
+                  value={editingIdea.priority}
+                  onChange={e => setEditingIdea({ ...editingIdea, priority: e.target.value })}
+                  className="flex-1 bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-3 text-white text-sm outline-none cursor-pointer"
+                >
+                  <option value="high">High Priority</option>
+                  <option value="medium">Medium Priority</option>
+                  <option value="low">Low Priority</option>
+                </select>
+                <select
+                  value={editingIdea.status}
+                  onChange={e => setEditingIdea({ ...editingIdea, status: e.target.value })}
+                  className="flex-1 bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-3 text-white text-sm outline-none cursor-pointer"
+                >
+                  <option value="urgent">Urgent</option>
+                  <option value="active">Active</option>
+                  <option value="someday">Someday</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleUpdateIdea}
+                  className="flex-1 py-3 bg-purple-600 border-none rounded-lg text-white text-sm font-semibold cursor-pointer hover:bg-purple-500 transition-colors"
+                >
+                  Save Changes
+                </button>
+                <button
+                  onClick={() => { setShowEditModal(false); setEditingIdea(null); }}
+                  className="flex-1 py-3 bg-gray-700/70 border border-gray-600/50 rounded-lg text-gray-400 text-sm font-semibold cursor-pointer hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add Idea Modal */}
       {showAddModal && (
         <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-5"
+          className="fixed inset-0 bg-black/80 flex items-end sm:items-center justify-center z-50 p-0 sm:p-5"
           onClick={() => setShowAddModal(false)}
         >
           <div
-            className="bg-gray-800 rounded-2xl border border-gray-600/50 max-w-xl w-full p-8 shadow-2xl"
+            className="bg-gray-800 rounded-t-2xl sm:rounded-2xl border border-gray-600/50 max-w-xl w-full p-5 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
             <h2 className="text-2xl font-bold text-white mb-6">💡 New Idea</h2>
@@ -294,7 +416,7 @@ const priorityIcon = {
   low: '💭',
 };
 
-function IdeaCardList({ idea }) {
+function IdeaCardList({ idea, onEdit, onDelete }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -303,7 +425,7 @@ function IdeaCardList({ idea }) {
       onClick={() => setIsExpanded(!isExpanded)}
     >
       <div className="flex items-center gap-3 flex-wrap">
-        <h3 className="text-white text-sm font-medium flex-1 min-w-48">{idea.title}</h3>
+        <h3 className="text-white text-sm font-medium flex-1 min-w-0">{idea.title}</h3>
         <div className="flex gap-2 items-center">
           <span className={`px-2 py-0.5 rounded text-xs font-semibold ${priorityBadgeClass[idea.priority]}`}>
             {idea.priority}
@@ -311,6 +433,16 @@ function IdeaCardList({ idea }) {
           <span className="text-xs text-gray-500">
             {new Date(idea.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
           </span>
+          <button
+            onClick={e => { e.stopPropagation(); onEdit(); }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: '#9ca3af', fontSize: '13px' }}
+            title="Edit"
+          >✏️</button>
+          <button
+            onClick={e => { e.stopPropagation(); onDelete(); }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: '#9ca3af', fontSize: '13px' }}
+            title="Delete"
+          >🗑</button>
         </div>
       </div>
 
@@ -332,14 +464,28 @@ function IdeaCardList({ idea }) {
   );
 }
 
-function IdeaCardGrid({ idea }) {
+function IdeaCardGrid({ idea, onEdit, onDelete }) {
   return (
     <div className="bg-gray-800/70 rounded-xl border border-gray-600/50 overflow-hidden transition-all hover:border-purple-500/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-900/20">
       <div className={`flex items-center justify-center min-h-20 ${priorityHeaderClass[idea.priority] || 'bg-gray-700'}`}>
         <span className="text-5xl">{priorityIcon[idea.priority] || '💡'}</span>
       </div>
       <div className="p-4">
-        <h3 className="text-white text-sm font-semibold mb-2 leading-snug min-h-10">{idea.title}</h3>
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h3 className="text-white text-sm font-semibold leading-snug">{idea.title}</h3>
+          <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
+            <button
+              onClick={onEdit}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: '#9ca3af', fontSize: '13px' }}
+              title="Edit"
+            >✏️</button>
+            <button
+              onClick={onDelete}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: '#9ca3af', fontSize: '13px' }}
+              title="Delete"
+            >🗑</button>
+          </div>
+        </div>
         <p className="text-gray-400 text-xs mb-3 leading-relaxed line-clamp-2">{idea.description}</p>
         <div className="flex gap-2 flex-wrap mb-3">
           {idea.category && (

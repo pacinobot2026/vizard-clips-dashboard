@@ -2,6 +2,18 @@ import { useState, useEffect } from 'react';
 import NavigationSidebar from '../components/NavigationSidebar';
 import withAuth from '../lib/withAuth';
 
+function getVideoEmbed(url) {
+  if (!url) return { type: 'none' };
+  // YouTube
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  if (ytMatch) return { type: 'iframe', src: `https://www.youtube.com/embed/${ytMatch[1]}` };
+  // Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) return { type: 'iframe', src: `https://player.vimeo.com/video/${vimeoMatch[1]}` };
+  // Direct video
+  return { type: 'video', src: url };
+}
+
 function Dashboard() {
   const [clips, setClips] = useState([]);
   const [stats, setStats] = useState({});
@@ -14,6 +26,10 @@ function Dashboard() {
   const [processingCount, setProcessingCount] = useState(0);
   const [nextCheckIn, setNextCheckIn] = useState(300);
   const [nextPostIn, setNextPostIn] = useState(7200);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newClip, setNewClip] = useState({ title: '', clip_url: '', category: '' });
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingClip, setEditingClip] = useState(null);
 
   useEffect(() => {
     fetchClips();
@@ -78,6 +94,52 @@ function Dashboard() {
     (clip.title && clip.title.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  const handleAddClip = async () => {
+    if (!newClip.title.trim() || !newClip.clip_url.trim()) return;
+    try {
+      await fetch('/api/clips', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newClip),
+      });
+      setShowAddModal(false);
+      setNewClip({ title: '', clip_url: '', category: '' });
+      fetchClips();
+    } catch (err) {
+      console.error('Error adding clip:', err);
+    }
+  };
+
+  const handleUpdateClip = async () => {
+    if (!editingClip.title.trim() || !editingClip.clip_url.trim()) return;
+    try {
+      await fetch('/api/clips', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clip_id: editingClip.clip_id, title: editingClip.title, clip_url: editingClip.clip_url, category: editingClip.category }),
+      });
+      setShowEditModal(false);
+      setEditingClip(null);
+      fetchClips();
+    } catch (err) {
+      console.error('Error updating clip:', err);
+    }
+  };
+
+  const handleDeleteClip = async (clipId) => {
+    if (!confirm('Delete this clip?')) return;
+    try {
+      await fetch('/api/clips', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clip_id: clipId }),
+      });
+      fetchClips();
+    } catch (err) {
+      console.error('Error deleting clip:', err);
+    }
+  };
+
   const handleApprove = async (clipId) => {
     try {
       await fetch('/api/approve', {
@@ -116,17 +178,25 @@ function Dashboard() {
   return (
     <div className="flex min-h-screen">
       <NavigationSidebar />
-      <main className="flex-1 p-8 pt-16 md:pt-8">
+      <main className="flex-1 p-4 md:p-8 pt-16 md:pt-8">
         <div className="max-w-7xl mx-auto">
 
           {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold gradient-text mb-1">🎬 Video Cue Board</h1>
-            <p className="text-sm text-gray-400">Video clip review and publishing</p>
+          <div className="mb-6 flex justify-between items-center gap-3">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold gradient-text mb-1">🎬 Video Cue Board</h1>
+              <p className="text-sm text-gray-400">Video clip review and publishing</p>
+            </div>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="px-4 md:px-6 py-3 bg-purple-600 rounded-lg text-white text-sm font-semibold cursor-pointer hover:scale-105 transition-transform border-none whitespace-nowrap flex-shrink-0"
+            >
+              + Add Video
+            </button>
           </div>
 
           {/* Status Banner */}
-          <div className="bg-gray-600/10 border border-gray-600/30 rounded-xl px-5 py-3 mb-4 flex items-center gap-4">
+          <div className="bg-gray-600/10 border border-gray-600/30 rounded-xl px-4 py-3 mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
             {/* Processing Status */}
             <div className={`flex items-center gap-3 flex-1 px-3 py-2 rounded-lg transition-colors ${processingCount > 0 ? 'bg-purple-400/10' : ''}`}>
               <span className="text-2xl">⚙️</span>
@@ -141,7 +211,7 @@ function Dashboard() {
               </div>
             </div>
 
-            <div className="w-px h-10 bg-purple-500/50" />
+            <div className="hidden sm:block w-px h-10 bg-purple-500/50" />
 
             {/* Social Posting Timer */}
             <div className={`flex items-center gap-3 flex-1 px-3 py-2 rounded-lg transition-colors ${stats.approved > 0 ? 'bg-blue-400/10' : ''}`}>
@@ -159,7 +229,7 @@ function Dashboard() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-4 gap-4 mb-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4">
             {[
               { icon: '⏳', label: 'Pending', key: 'pending' },
               { icon: '✅', label: 'Approved', key: 'approved' },
@@ -169,7 +239,7 @@ function Dashboard() {
               <button
                 key={key}
                 onClick={() => setFilter(key)}
-                className={`p-4 rounded-xl border cursor-pointer transition-all text-left ${filter === key ? 'bg-purple-600 border-purple-600 scale-105' : 'bg-gray-800/50 border-gray-600/50 hover:bg-gray-800'}`}
+                className={`p-3 md:p-4 rounded-xl border cursor-pointer transition-all text-left ${filter === key ? 'bg-purple-600 border-purple-600 scale-105' : 'bg-gray-800/50 border-gray-600/50 hover:bg-gray-800'}`}
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{icon}</span>
@@ -198,18 +268,18 @@ function Dashboard() {
           )}
 
           {/* Search + Sort */}
-          <div className="flex gap-3 flex-wrap mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <input
               type="text"
               placeholder="🔍 Search clips..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="flex-1 min-w-48 bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500"
+              className="flex-1 bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500"
             />
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value)}
-              className="bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm cursor-pointer outline-none"
+              className="w-full sm:w-auto bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm cursor-pointer outline-none"
             >
               <option value="date_desc">Newest First</option>
               <option value="date_asc">Oldest First</option>
@@ -219,7 +289,7 @@ function Dashboard() {
           </div>
 
           {/* Clips Grid */}
-          <div className="glass-card rounded-2xl p-6">
+          <div className="glass-card rounded-2xl p-4 md:p-6">
             <div className="flex justify-between items-center mb-5">
               <h2 className="text-lg font-semibold text-white">📹 Video Clips</h2>
               <span className="text-sm text-gray-400">{filteredClips.length} clips</span>
@@ -237,6 +307,8 @@ function Dashboard() {
                     clip={clip}
                     onApprove={() => handleApprove(clip.clip_id)}
                     onReject={() => handleReject(clip.clip_id)}
+                    onEdit={() => { setEditingClip({ ...clip }); setShowEditModal(true); }}
+                    onDelete={() => handleDeleteClip(clip.clip_id)}
                     showActions={filter === 'pending'}
                   />
                 ))}
@@ -245,12 +317,119 @@ function Dashboard() {
           </div>
         </div>
       </main>
+
+      {/* Add Video Modal */}
+      {showAddModal && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-end sm:items-center justify-center z-50 p-0 sm:p-5"
+          onClick={() => setShowAddModal(false)}
+        >
+          <div
+            className="bg-gray-800 rounded-t-2xl sm:rounded-2xl border border-gray-600/50 max-w-xl w-full p-5 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <h2 className="text-2xl font-bold text-white mb-2">🎬 Add Video</h2>
+            <p className="text-xs text-yellow-400 mb-6">⚠️ The video URL must be publicly accessible (no login required to view).</p>
+            <div className="flex flex-col gap-4">
+              <input
+                type="text"
+                placeholder="Video title..."
+                value={newClip.title}
+                onChange={e => setNewClip({ ...newClip, title: e.target.value })}
+                className="bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500"
+              />
+              <input
+                type="url"
+                placeholder="Public video URL (YouTube, Vimeo, or direct link)..."
+                value={newClip.clip_url}
+                onChange={e => setNewClip({ ...newClip, clip_url: e.target.value })}
+                className="bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500"
+              />
+              <input
+                type="text"
+                placeholder="Category (optional)..."
+                value={newClip.category}
+                onChange={e => setNewClip({ ...newClip, category: e.target.value })}
+                className="bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500"
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={handleAddClip}
+                  className="flex-1 py-3 bg-purple-600 border-none rounded-lg text-white text-sm font-semibold cursor-pointer hover:bg-purple-500 transition-colors"
+                >
+                  Add Clip
+                </button>
+                <button
+                  onClick={() => setShowAddModal(false)}
+                  className="flex-1 py-3 bg-gray-700/70 border border-gray-600/50 rounded-lg text-gray-400 text-sm font-semibold cursor-pointer hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Video Modal */}
+      {showEditModal && editingClip && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-end sm:items-center justify-center z-50 p-0 sm:p-5"
+          onClick={() => { setShowEditModal(false); setEditingClip(null); }}
+        >
+          <div
+            className="bg-gray-800 rounded-t-2xl sm:rounded-2xl border border-gray-600/50 max-w-xl w-full p-5 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <h2 className="text-2xl font-bold text-white mb-2">✏️ Edit Clip</h2>
+            <p className="text-xs text-yellow-400 mb-6">⚠️ The video URL must be publicly accessible (no login required to view).</p>
+            <div className="flex flex-col gap-4">
+              <input
+                type="text"
+                placeholder="Video title..."
+                value={editingClip.title}
+                onChange={e => setEditingClip({ ...editingClip, title: e.target.value })}
+                className="bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500"
+              />
+              <input
+                type="url"
+                placeholder="Public video URL..."
+                value={editingClip.clip_url || ''}
+                onChange={e => setEditingClip({ ...editingClip, clip_url: e.target.value })}
+                className="bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500"
+              />
+              <input
+                type="text"
+                placeholder="Category (optional)..."
+                value={editingClip.category || ''}
+                onChange={e => setEditingClip({ ...editingClip, category: e.target.value })}
+                className="bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500"
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={handleUpdateClip}
+                  className="flex-1 py-3 bg-purple-600 border-none rounded-lg text-white text-sm font-semibold cursor-pointer hover:bg-purple-500 transition-colors"
+                >
+                  Save Changes
+                </button>
+                <button
+                  onClick={() => { setShowEditModal(false); setEditingClip(null); }}
+                  className="flex-1 py-3 bg-gray-700/70 border border-gray-600/50 rounded-lg text-gray-400 text-sm font-semibold cursor-pointer hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function ClipCard({ clip, onApprove, onReject, showActions }) {
+function ClipCard({ clip, onApprove, onReject, onEdit, onDelete, showActions }) {
   const [isHovered, setIsHovered] = useState(false);
+  const embed = getVideoEmbed(clip.clip_url);
 
   return (
     <div
@@ -260,9 +439,16 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
     >
       {/* Video */}
       <div className="aspect-[4/5] bg-black relative overflow-hidden">
-        {clip.clip_url ? (
+        {embed.type === 'iframe' ? (
+          <iframe
+            src={embed.src}
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen
+            style={{ width: '100%', height: '100%', border: 'none' }}
+          />
+        ) : embed.type === 'video' ? (
           <video
-            src={clip.clip_url}
+            src={embed.src}
             controls
             preload="metadata"
             playsInline
@@ -277,15 +463,29 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="text-white text-sm font-semibold mb-2 leading-snug">
-          {clip.title || 'Untitled Clip'}
-        </h3>
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h3 className="text-white text-sm font-semibold leading-snug">
+            {clip.title || 'Untitled Clip'}
+          </h3>
+          <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
+            <button
+              onClick={onEdit}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: '#9ca3af', fontSize: '13px' }}
+              title="Edit"
+            >✏️</button>
+            <button
+              onClick={onDelete}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: '#9ca3af', fontSize: '13px' }}
+              title="Delete"
+            >🗑</button>
+          </div>
+        </div>
         <div className="flex gap-2 mb-3 flex-wrap">
           <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">{clip.viral_score || 0}/10</span>
           <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">{clip.duration || '0s'}</span>
         </div>
 
-        {showActions && isHovered && (
+        {showActions && (
           <div className="flex gap-2">
             <button
               onClick={onApprove}
