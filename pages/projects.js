@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import NavigationSidebar from '../components/NavigationSidebar';
+import withAuth from '../lib/withAuth';
+import { useAuth } from '../lib/authContext';
 
-export default function Projects() {
-  const [Projects, setProjects] = useState([]);
+const EMPTY_FORM = { title: '', description: '', category: '', status: 'active', tags: '' };
+
+function Projects() {
+  const { session } = useAuth();
+  const [allProjects, setAllProjects] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [stats, setStats] = useState({});
   const [categories, setCategories] = useState([]);
   const [filter, setFilter] = useState('active');
@@ -10,528 +16,237 @@ export default function Projects() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date_desc');
   const [loading, setLoading] = useState(true);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [modal, setModal] = useState(null); // null | { mode: 'add' } | { mode: 'edit', item }
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
-  useEffect(() => {
-    loadMockProjects();
-  }, [filter, category, sortBy]);
+  useEffect(() => { if (session) loadProjects(); }, [session]);
+  useEffect(() => { applyFilters(allProjects); }, [allProjects, filter, category, sortBy]);
 
-  const loadMockProjects = () => {
-    // Mock Projects data
-    const mockProjects = [
-      {
-        id: 1,
-        title: "How to Scale Local News Sites with AI",
-        url: "https://example.com/scale-local-news",
-        description: "Complete guide on using AI to generate local content and scale to multiple cities",
-        category: "Articles",
-        status: "active",
-        tags: ["AI", "Local Media", "Scaling"],
-        created_at: "2026-02-22T10:30:00Z"
-      },
-      {
-        id: 2,
-        title: "Vizard AI Video Clipping Tutorial",
-        url: "https://vizard.ai/docs",
-        description: "Official documentation for automating short-form video creation",
-        category: "Resources",
-        status: "active",
-        tags: ["Video", "Automation", "Tutorial"],
-        created_at: "2026-02-21T14:20:00Z"
-      },
-      {
-        id: 3,
-        title: "Best Practices for Email Marketing Automation",
-        url: "https://example.com/email-automation",
-        description: "Strategies for re-engagement campaigns and workflow automation",
-        category: "Articles",
-        status: "Planning",
-        tags: ["Email", "Marketing", "Automation"],
-        created_at: "2026-02-20T09:15:00Z"
-      },
-      {
-        id: 4,
-        title: "OpenClaw Documentation",
-        url: "https://docs.openclaw.ai",
-        description: "Full documentation for OpenClaw AI agent platform",
-        category: "Tools",
-        status: "Planning",
-        tags: ["OpenClaw", "Documentation", "AI"],
-        created_at: "2026-02-19T16:45:00Z"
-      },
-      {
-        id: 5,
-        title: "Local SEO Masterclass",
-        url: "https://example.com/local-seo",
-        description: "Advanced techniques for ranking local content in Google",
-        category: "Videos",
-        status: "active",
-        tags: ["SEO", "Local", "Training"],
-        created_at: "2026-02-18T12:30:00Z"
-      },
-      {
-        id: 6,
-        title: "Airtable API Integration Guide",
-        url: "https://airtable.com/developers",
-        description: "How to automate workflows with Airtable's REST API",
-        category: "Resources",
-        status: "Completed",
-        tags: ["Airtable", "API", "Integration"],
-        created_at: "2026-02-15T11:00:00Z"
-      }
-    ];
-
-    // Filter by status
-    let filtered = mockProjects.filter(b => b.status === filter);
-
-    // Filter by category
-    if (category !== 'all') {
-      filtered = filtered.filter(b => b.category === category);
+  async function loadProjects() {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/projects', { headers: { Authorization: `Bearer ${session.access_token}` } });
+      const data = await res.json();
+      setAllProjects(data.projects || []);
+    } catch (err) {
+      console.error('Failed to load projects:', err);
+    } finally {
+      setLoading(false);
     }
+  }
 
-    // Sort
-    if (sortBy === 'date_desc') {
-      filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    } else if (sortBy === 'date_asc') {
-      filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-    } else if (sortBy === 'title') {
-      filtered.sort((a, b) => a.title.localeCompare(b.title));
-    }
+  function applyFilters(source) {
+    let filtered = source.filter(p => p.status === filter);
+    if (category !== 'all') filtered = filtered.filter(p => p.category === category);
+    if (sortBy === 'date_desc') filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    else if (sortBy === 'date_asc') filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    else if (sortBy === 'title') filtered.sort((a, b) => a.title.localeCompare(b.title));
 
-    // Calculate stats
     const statsCalc = {
-      'active': mockProjects.filter(b => b.status === 'active').length,
-      Planning: mockProjects.filter(b => b.status === 'Planning').length,
-      Completed: mockProjects.filter(b => b.status === 'Completed').length,
+      active: source.filter(p => p.status === 'active').length,
+      planning: source.filter(p => p.status === 'planning').length,
+      completed: source.filter(p => p.status === 'completed').length,
     };
-
-    // Calculate categories
     const categoryMap = {};
-    mockProjects.forEach(b => {
-      if (!categoryMap[b.category]) {
-        categoryMap[b.category] = 0;
-      }
-      categoryMap[b.category]++;
-    });
-
-    const categoriesCalc = Object.keys(categoryMap).map(name => ({
-      name,
-      count: categoryMap[name]
-    }));
+    source.forEach(p => { if (p.category) { categoryMap[p.category] = (categoryMap[p.category] || 0) + 1; } });
 
     setProjects(filtered);
     setStats(statsCalc);
-    setCategories(categoriesCalc);
+    setCategories(Object.keys(categoryMap).map(name => ({ name, count: categoryMap[name] })));
     setLoading(false);
-  };
+  }
 
-  const filteredProjects = Projects.filter(bookmark => 
-    searchTerm === '' || 
-    (bookmark.title && bookmark.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (bookmark.description && bookmark.description.toLowerCase().includes(searchTerm.toLowerCase()))
+  function openAdd() {
+    setForm(EMPTY_FORM);
+    setModal({ mode: 'add' });
+  }
+
+  function openEdit(item) {
+    setForm({ title: item.title, description: item.description || '', category: item.category || '', status: item.status, tags: (item.tags || []).join(', ') });
+    setModal({ mode: 'edit', item });
+  }
+
+  async function saveItem() {
+    if (!form.title.trim()) return;
+    setSaving(true);
+    try {
+      const payload = { ...form, tags: form.tags.split(',').map(t => t.trim()).filter(Boolean) };
+      const isEdit = modal.mode === 'edit';
+      const res = await fetch('/api/projects', {
+        method: isEdit ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify(isEdit ? { id: modal.item.id, ...payload } : payload),
+      });
+      if (res.ok) {
+        setModal(null);
+        loadProjects();
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deleteItem(id) {
+    await fetch('/api/projects', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ id }),
+    });
+    setDeleteId(null);
+    loadProjects();
+  }
+
+  const filteredProjects = projects.filter(p =>
+    searchTerm === '' || p.title?.toLowerCase().includes(searchTerm.toLowerCase()) || p.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1423' }}>
+      <div className="flex min-h-screen">
         <NavigationSidebar />
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
-          Loading Projects...
-        </div>
+        <div className="flex-1 flex items-center justify-center text-gray-400">Loading projects…</div>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1423' }}>
+    <div className="flex min-h-screen">
       <NavigationSidebar />
-      
-      <main style={{ flex: 1, padding: '32px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', background: '#0D1423', position: 'relative' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          
-          {/* Hamburger Menu - Top Right */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            style={{
-              position: 'fixed',
-              top: '16px',
-              right: '16px',
-              zIndex: 1001,
-              background: '#1f2937',
-              border: '1px solid #374151',
-              borderRadius: '8px',
-              padding: '12px',
-              color: '#fff',
-              cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-            }}
-          >
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-
-          {/* Publications Menu Dropdown */}
-          {mobileMenuOpen && (
-            <>
-              <div
-                onClick={() => setMobileMenuOpen(false)}
-                style={{
-                  position: 'fixed',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'rgba(0, 0, 0, 0.5)',
-                  zIndex: 999
-                }}
-              />
-              <div style={{
-                position: 'fixed',
-                top: '72px',
-                right: '16px',
-                background: '#1f2937',
-                border: '1px solid #374151',
-                borderRadius: '12px',
-                padding: '8px',
-                zIndex: 1000,
-                minWidth: '200px',
-                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)'
-              }}>
-                <div style={{ padding: '8px 12px', color: '#9ca3af', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
-                  Boards
-                </div>
-                <a href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '20px' }}>🎬</span>
-                  <span style={{ fontSize: '14px' }}>Video Board</span>
-                </a>
-                <a href="/articles" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '20px' }}>📰</span>
-                  <span style={{ fontSize: '14px' }}>Article Board</span>
-                </a>
-                <a href="/ideas" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '20px' }}>💡</span>
-                  <span style={{ fontSize: '14px' }}>Idea Board</span>
-                </a>
-                <a href="/Projects" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px', background: 'rgba(139, 92, 246, 0.2)' }}>
-                  <span style={{ fontSize: '20px' }}>📑</span>
-                  <span style={{ fontSize: '14px' }}>Projects</span>
-                </a>
-                <a href="/shopping" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '20px' }}>🛒</span>
-                  <span style={{ fontSize: '14px' }}>Shopping/Watch</span>
-                </a>
-                <a href="/projects" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '20px' }}>📂</span>
-                  <span style={{ fontSize: '14px' }}>Projects</span>
-                </a>
-                <div style={{ height: '1px', background: '#374151', margin: '8px 0' }} />
-                <a href="https://dashboard-gilt-one-zc4y5uu95v.vercel.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '20px' }}>🎛️</span>
-                  <span style={{ fontSize: '14px' }}>Command Center</span>
-                </a>
-                <a href="https://kanban-rho-ivory.vercel.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '20px' }}>👥</span>
-                  <span style={{ fontSize: '14px' }}>Team Board</span>
-                </a>
-                <a href="/openclaw" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '20px' }}>🤖</span>
-                  <span style={{ fontSize: '14px' }}>OpenClaw Board</span>
-                </a>
-              </div>
-            </>
-          )}
-          
+      <main className="flex-1 p-8 pt-16 md:pt-8">
+        <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div style={{ marginBottom: '24px', animation: 'fadeIn 0.6s ease-out' }}>
-            <h1 style={{ 
-              fontSize: '30px', 
-              fontWeight: '700', 
-              background: 'linear-gradient(90deg, #22d3ee, #60a5fa, #a78bfa, #22d3ee)',
-              backgroundSize: '200% 100%',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              marginBottom: '4px',
-              animation: 'gradientShift 3s ease infinite'
-            }}>
-              📑 Projects
-            </h1>
-            <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '4px' }}>Track active business projects</p>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold gradient-text mb-1">📂 Projects</h1>
+              <p className="text-sm text-gray-400">Track active business projects</p>
+            </div>
+            <button onClick={openAdd} className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors">
+              + Add Project
+            </button>
           </div>
-          
-          <style jsx>{`
-            @keyframes fadeIn {
-              from { opacity: 0; transform: translateY(-10px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes slideUp {
-              from { opacity: 0; transform: translateY(20px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes scaleIn {
-              from { opacity: 0; transform: scale(0.95); }
-              to { opacity: 1; transform: scale(1); }
-            }
-            @keyframes gradientShift {
-              0% { background-position: 0% 50%; }
-              50% { background-position: 100% 50%; }
-              100% { background-position: 0% 50%; }
-            }
-            @media (max-width: 768px) {
-              main {
-                padding: 16px !important;
-                padding-top: 64px !important;
-              }
-              h1 {
-                font-size: 24px !important;
-              }
-            }
-          `}</style>
 
-          {/* Stats Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
-            <StatCard 
-              icon="📖" 
-              count={stats['active'] || 0} 
-              label="Active"
-              active={filter === 'active'}
-              onClick={() => setFilter('active')}
-              delay={0}
-            />
-            <StatCard 
-              icon="⭐" 
-              count={stats.Planning || 0} 
-              label="Planning"
-              active={filter === 'Planning'}
-              onClick={() => setFilter('Planning')}
-              delay={0.1}
-            />
-            <StatCard 
-              icon="📦" 
-              count={stats.Completed || 0} 
-              label="Completed"
-              active={filter === 'Completed'}
-              onClick={() => setFilter('Completed')}
-              delay={0.2}
-            />
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            {[{ icon: '⚡', label: 'Active', key: 'active' }, { icon: '📋', label: 'Planning', key: 'planning' }, { icon: '✅', label: 'Completed', key: 'completed' }].map(({ icon, label, key }) => (
+              <button key={key} onClick={() => setFilter(key)} className={`p-4 rounded-xl border cursor-pointer transition-all text-left ${filter === key ? 'bg-purple-600 border-purple-600 scale-105' : 'bg-gray-800/50 border-gray-600/50 hover:bg-gray-800'}`}>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{icon}</span>
+                  <div>
+                    <div className={`text-2xl font-bold leading-none mb-1 ${filter === key ? 'text-white' : 'text-cyan-400'}`}>{stats[key] || 0}</div>
+                    <div className={`text-xs ${filter === key ? 'text-white/70' : 'text-gray-500'}`}>{label}</div>
+                  </div>
+                </div>
+              </button>
+            ))}
           </div>
 
           {/* Categories */}
           {categories.length > 0 && (
-            <div style={{ marginBottom: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => setCategory('all')}
-                style={{
-                  padding: '8px 16px',
-                  background: category === 'all' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                  border: '1px solid rgba(75, 85, 99, 0.5)',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-              >
-                All Categories
-              </button>
-              {categories.map(cat => (
-                <button
-                  key={cat.name}
-                  onClick={() => setCategory(cat.name)}
-                  style={{
-                    padding: '8px 16px',
-                    background: category === cat.name ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                    border: '1px solid rgba(75, 85, 99, 0.5)',
-                    borderRadius: '8px',
-                    color: '#fff',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  {cat.name} ({cat.count})
+            <div className="flex gap-2 flex-wrap mb-4">
+              {['all', ...categories.map(c => c.name)].map(cat => (
+                <button key={cat} onClick={() => setCategory(cat)} className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${category === cat ? 'bg-purple-600 border-purple-600 text-white' : 'bg-gray-800/50 border-gray-600/50 text-white hover:bg-gray-800'}`}>
+                  {cat === 'all' ? 'All Categories' : `${cat} (${categories.find(c => c.name === cat)?.count})`}
                 </button>
               ))}
             </div>
           )}
 
-          {/* Search and Sort */}
-          <div style={{ marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <input
-              type="text"
-              placeholder="🔍 Search Projects..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                flex: 1,
-                minWidth: '200px',
-                padding: '10px 16px',
-                background: 'rgba(31, 41, 55, 0.5)',
-                border: '1px solid rgba(75, 85, 99, 0.5)',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '14px',
-                outline: 'none'
-              }}
-            />
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              style={{
-                padding: '10px 16px',
-                background: 'rgba(31, 41, 55, 0.5)',
-                border: '1px solid rgba(75, 85, 99, 0.5)',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '14px',
-                cursor: 'pointer',
-                outline: 'none'
-              }}
-            >
+          {/* Search + Sort */}
+          <div className="flex gap-3 flex-wrap mb-6">
+            <input type="text" placeholder="🔍 Search projects..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="flex-1 min-w-48 bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500" />
+            <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm cursor-pointer outline-none">
               <option value="date_desc">Newest First</option>
               <option value="date_asc">Oldest First</option>
               <option value="title">Title</option>
             </select>
           </div>
 
-          {/* Projects Section */}
-          <div style={{
-            background: 'rgba(17, 24, 39, 0.5)',
-            borderRadius: '16px',
-            padding: '24px',
-            border: '1px solid rgba(75, 85, 99, 0.5)',
-            animation: 'scaleIn 0.4s ease-out 0.4s both'
-          }}>
+          {/* Grid */}
+          <div className="glass-card rounded-2xl p-6">
             {filteredProjects.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '64px', color: '#6b7280' }}>
-                {searchTerm ? `No Projects matching "${searchTerm}"` : `No ${filter} Projects`}
+              <div className="text-center py-16 text-gray-500">
+                {searchTerm ? `No projects matching "${searchTerm}"` : `No ${filter} projects`}
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
-                {filteredProjects.map((bookmark) => (
-                  <BookmarkCard key={bookmark.id} bookmark={bookmark} />
-                ))}
+              <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+                {filteredProjects.map(p => <ProjectCard key={p.id} project={p} onEdit={() => openEdit(p)} onDelete={() => setDeleteId(p.id)} />)}
               </div>
             )}
           </div>
 
-          <div style={{ marginTop: '16px', textAlign: 'right', color: '#9ca3af', fontSize: '14px' }}>
-            {filteredProjects.length} {filteredProjects.length === 1 ? 'bookmark' : 'Projects'}
+          <div className="mt-4 text-right text-sm text-gray-400">
+            {filteredProjects.length} {filteredProjects.length === 1 ? 'project' : 'projects'}
           </div>
         </div>
       </main>
-    </div>
-  );
-}
 
-function StatCard({ icon, count, label, active, onClick, delay = 0 }) {
-  return (
-    <div 
-      onClick={onClick}
-      style={{
-        padding: '16px',
-        background: active ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-        borderRadius: '12px',
-        cursor: 'pointer',
-        transition: 'all 0.3s',
-        border: `1px solid ${active ? '#8b5cf6' : 'rgba(75, 85, 99, 0.5)'}`,
-        transform: active ? 'scale(1.05)' : 'none',
-        animation: `slideUp 0.5s ease-out ${delay}s both`
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ fontSize: '28px' }}>{icon}</div>
-        <div>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: active ? '#fff' : '#06b6d4', lineHeight: 1, marginBottom: '4px' }}>
-            {count}
-          </div>
-          <div style={{ fontSize: '12px', color: active ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>
-            {label}
+      {/* Add/Edit Modal */}
+      {modal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-lg">
+            <h2 className="text-xl font-bold text-white mb-4">{modal.mode === 'add' ? 'Add Project' : 'Edit Project'}</h2>
+            <div className="flex flex-col gap-3">
+              <input placeholder="Title *" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500" />
+              <textarea placeholder="Description" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500 resize-none" />
+              <input placeholder="Category" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500" />
+              <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500">
+                <option value="active">Active</option>
+                <option value="planning">Planning</option>
+                <option value="completed">Completed</option>
+              </select>
+              <input placeholder="Tags (comma separated)" value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500" />
+            </div>
+            <div className="flex justify-end gap-3 mt-5">
+              <button onClick={() => setModal(null)} className="px-4 py-2 text-gray-400 hover:text-white text-sm transition-colors">Cancel</button>
+              <button onClick={saveItem} disabled={saving || !form.title.trim()} className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
+                {saving ? 'Saving…' : 'Save'}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Delete Confirm */}
+      {deleteId && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-sm">
+            <h2 className="text-lg font-bold text-white mb-2">Delete Project?</h2>
+            <p className="text-gray-400 text-sm mb-5">This cannot be undone.</p>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setDeleteId(null)} className="px-4 py-2 text-gray-400 hover:text-white text-sm transition-colors">Cancel</button>
+              <button onClick={() => deleteItem(deleteId)} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function BookmarkCard({ bookmark }) {
-  const [isHovered, setIsHovered] = React.useState(false);
-  
+function ProjectCard({ project, onEdit, onDelete }) {
   return (
-    <div 
-      style={{
-        background: 'rgba(31, 41, 55, 0.7)',
-        borderRadius: '12px',
-        border: `1px solid ${isHovered ? 'rgba(139, 92, 246, 0.5)' : 'rgba(75, 85, 99, 0.5)'}`,
-        padding: '16px',
-        transition: 'all 0.3s ease',
-        boxShadow: isHovered ? '0 8px 16px rgba(139, 92, 246, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
-        transform: isHovered ? 'translateY(-4px)' : 'none'
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <a 
-        href={bookmark.url} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        style={{ 
-          color: isHovered ? '#60a5fa' : '#fff', 
-          fontSize: '16px', 
-          fontWeight: '600', 
-          marginBottom: '8px', 
-          display: 'block',
-          textDecoration: 'none',
-          lineHeight: 1.4,
-          transition: 'color 0.2s'
-        }}
-      >
-        {bookmark.title}
-      </a>
-      
-      <p style={{ color: '#9ca3af', fontSize: '14px', marginBottom: '12px', lineHeight: 1.5 }}>
-        {bookmark.description}
-      </p>
-
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-        <span style={{ 
-          padding: '4px 8px', 
-          background: '#1f2937', 
-          borderRadius: '6px', 
-          fontSize: '11px',
-          color: '#9ca3af'
-        }}>
-          {bookmark.category}
-        </span>
-        <span style={{ 
-          padding: '4px 8px', 
-          background: '#1f2937', 
-          borderRadius: '6px', 
-          fontSize: '11px',
-          color: '#9ca3af'
-        }}>
-          {new Date(bookmark.created_at).toLocaleDateString()}
-        </span>
+    <div className="group bg-gray-800/70 rounded-xl border border-gray-600/50 p-4 transition-all hover:border-purple-500/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-900/20">
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <h3 className="text-white font-semibold text-base leading-snug">{project.title}</h3>
+        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          <button onClick={onEdit} className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded transition-colors text-xs">✏️</button>
+          <button onClick={onDelete} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded transition-colors text-xs">🗑️</button>
+        </div>
       </div>
-
-      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-        {bookmark.tags.map(tag => (
-          <span 
-            key={tag}
-            style={{
-              padding: '2px 8px',
-              background: 'rgba(139, 92, 246, 0.2)',
-              border: '1px solid rgba(139, 92, 246, 0.3)',
-              borderRadius: '4px',
-              fontSize: '11px',
-              color: '#a78bfa'
-            }}
-          >
-            {tag}
-          </span>
+      <p className="text-gray-400 text-sm mb-3 leading-relaxed">{project.description}</p>
+      <div className="flex gap-2 flex-wrap mb-3">
+        {project.category && <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">{project.category}</span>}
+        <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">{new Date(project.created_at).toLocaleDateString()}</span>
+      </div>
+      <div className="flex gap-1.5 flex-wrap">
+        {(project.tags || []).map(tag => (
+          <span key={tag} className="px-2 py-0.5 bg-purple-900/30 border border-purple-700/40 rounded text-xs text-purple-300">{tag}</span>
         ))}
       </div>
     </div>
   );
 }
+
+export default withAuth(Projects);
