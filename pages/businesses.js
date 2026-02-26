@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import NavigationSidebar from '../components/NavigationSidebar';
-import withAuth from '../lib/withAuth';
 
 const DEFAULT_COLUMNS = ['Marketing', 'Follow-up', 'Research', 'Delivery'];
 const LABEL_COLORS = {
@@ -12,7 +11,7 @@ const LABEL_COLORS = {
   blocked: { bg: '#ef4444', text: '#fff' },
 };
 
-function BusinessBoard() {
+export default function BusinessBoard() {
   const [businesses, setBusinesses] = useState([]);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -795,5 +794,3 @@ function BusinessBoard() {
     </div>
   );
 }
-
-export default withAuth(BusinessBoard);
