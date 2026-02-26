@@ -124,7 +124,7 @@ function Dashboard() {
   const [scheduleTimezone, setScheduleTimezone] = useState(() => Intl.DateTimeFormat().resolvedOptions().timeZone);
   const [schedulingLoading, setSchedulingLoading] = useState(false);
 
-  useEffect(() => { fetchClips(); }, [filter, category, sortBy]);
+  useEffect(() => { if (session) fetchClips(); }, [filter, category, sortBy, session]);
 
   useEffect(() => {
     fetchProcessing();
@@ -214,7 +214,9 @@ function Dashboard() {
     setRefreshing(true);
     try {
       const params = new URLSearchParams({ filter, category, sortBy });
-      const res = await fetch(`/api/clips?${params}`);
+      const res = await fetch(`/api/clips?${params}`, {
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+      });
       const data = await res.json();
       let clipsData = data.clips || [];
 
@@ -238,7 +240,7 @@ function Dashboard() {
       }
 
       setClips(clipsData);
-      setStats(data.stats);
+      setStats(data.stats || {});
       setNextScheduledAt(data.stats?.next_scheduled_at || null);
       setCategories(data.categories || []);
       setLoading(false);
@@ -453,12 +455,14 @@ function Dashboard() {
               <h1 className="text-2xl md:text-3xl font-bold gradient-text mb-1">🎬 Video Cue Board</h1>
               <p className="text-sm text-gray-400">Create and schedule social posts</p>
             </div>
-            <button
-              onClick={hasPBKey ? openCreateModal : () => setShowPBKeyInput(true)}
-              className="px-4 md:px-6 py-3 bg-purple-600 rounded-lg text-white text-sm font-semibold cursor-pointer hover:scale-105 transition-transform border-none whitespace-nowrap flex-shrink-0"
-            >
-              + Create Post
-            </button>
+            {hasPBKey && (
+              <button
+                onClick={openCreateModal}
+                className="px-4 md:px-6 py-3 bg-purple-600 rounded-lg text-white text-sm font-semibold cursor-pointer hover:scale-105 transition-transform border-none whitespace-nowrap flex-shrink-0"
+              >
+                + Create Post
+              </button>
+            )}
           </div>
 
           {/* PostBridge connection */}

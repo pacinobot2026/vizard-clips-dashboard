@@ -1,5 +1,12 @@
 import { supabase } from '../../../lib/supabase';
 
+async function getUser(req) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return null;
+  const { data: { user } } = await supabase.auth.getUser(token);
+  return user || null;
+}
+
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     return handleCreate(req, res);
@@ -13,6 +20,9 @@ export default async function handler(req, res) {
 }
 
 async function handleCreate(req, res) {
+  const user = await getUser(req);
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
   try {
     const { title, category, type, url, notes, tags } = req.body;
 
@@ -26,7 +36,8 @@ async function handleCreate(req, res) {
       type,
       resource_url: url,
       notes: notes || '',
-      tags: tags || []
+      tags: tags || [],
+      user_id: user.id,
     };
 
     const { data, error } = await supabase
@@ -57,6 +68,9 @@ async function handleCreate(req, res) {
 }
 
 async function handleUpdate(req, res) {
+  const user = await getUser(req);
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
   try {
     const { id, title, category, type, url, notes, tags } = req.body;
 
@@ -79,6 +93,7 @@ async function handleUpdate(req, res) {
       .from('vault_items')
       .update(updates)
       .eq('id', parseInt(id))
+      .eq('user_id', user.id)
       .select()
       .single();
 
@@ -104,6 +119,9 @@ async function handleUpdate(req, res) {
 }
 
 async function handleDelete(req, res) {
+  const user = await getUser(req);
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
   try {
     const { id } = req.body;
 
@@ -114,7 +132,8 @@ async function handleDelete(req, res) {
     const { error } = await supabase
       .from('vault_items')
       .delete()
-      .eq('id', parseInt(id));
+      .eq('id', parseInt(id))
+      .eq('user_id', user.id);
 
     if (error) throw error;
 

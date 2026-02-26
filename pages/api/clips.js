@@ -46,6 +46,7 @@ export default async function handler(req, res) {
         status: 'pending_review',
         post_status: 'not_posted',
         postbridge_post_id: postbridgePostId,
+        user_id: user.id,
       });
       return res.status(201).json({ clip });
     } catch (error) {
@@ -131,29 +132,36 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Require auth so clips are scoped per user
+  const getToken = req.headers.authorization?.replace('Bearer ', '');
+  if (!getToken) return res.status(401).json({ error: 'Unauthorized' });
+  const { data: { user: getUser } } = await supabase.auth.getUser(getToken);
+  if (!getUser) return res.status(401).json({ error: 'Unauthorized' });
+  const userId = getUser.id;
+
   const { filter, category, sortBy } = req.query;
 
   try {
     let clips;
-    
+
     switch (filter) {
       case 'pending':
-        clips = await getPendingClips();
+        clips = await getPendingClips(userId);
         break;
       case 'approved':
-        clips = await getApprovedClips();
+        clips = await getApprovedClips(userId);
         break;
       case 'published':
-        clips = await getPublishedClips();
+        clips = await getPublishedClips(userId);
         break;
       case 'rejected':
-        clips = await getRejectedClips();
+        clips = await getRejectedClips(userId);
         break;
       case 'all':
-        clips = await getAllClips();
+        clips = await getAllClips(userId);
         break;
       default:
-        clips = await getPendingClips();
+        clips = await getPendingClips(userId);
     }
 
     // Filter by category if specified
@@ -181,8 +189,8 @@ export default async function handler(req, res) {
       }
     }
 
-    const stats = await getStats();
-    const categories = await getCategories();
+    const stats = await getStats(userId);
+    const categories = await getCategories(userId);
 
     return res.status(200).json({
       clips,

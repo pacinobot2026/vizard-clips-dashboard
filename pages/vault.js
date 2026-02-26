@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import NavigationSidebar from '../components/NavigationSidebar';
 import withAuth from '../lib/withAuth';
+import { useAuth } from '../lib/authContext';
 
 function Vault() {
+  const { session } = useAuth();
   const [items, setItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
@@ -27,12 +29,14 @@ function Vault() {
   const types = ['Image', 'File', 'Screenshot', 'PPT', 'URL', 'Video', 'Text', 'Design Link'];
 
   useEffect(() => {
-    fetchItems();
-  }, []);
+    if (session) fetchItems();
+  }, [session]);
 
   const fetchItems = async () => {
     try {
-      const res = await fetch('/api/vault/items');
+      const res = await fetch('/api/vault/items', {
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+      });
       const data = await res.json();
       setItems(data.items || []);
     } catch (err) {
@@ -45,7 +49,10 @@ function Vault() {
     try {
       const res = await fetch('/api/vault/upload', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify({
           ...uploadForm,
           tags: uploadForm.tags.split(',').map(t => t.trim()).filter(t => t)
