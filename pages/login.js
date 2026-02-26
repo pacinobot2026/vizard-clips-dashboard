@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { supabaseClient } from '../lib/supabase-client';
@@ -27,6 +28,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
+      <Head><title>Sign In</title></Head>
       <div className="glass-card rounded-2xl p-8 w-full max-w-md">
         <h1 className="text-2xl font-bold text-white mb-2">Sign In</h1>
         <p className="text-gray-400 text-sm mb-6">Welcome back to the dashboard.</p>

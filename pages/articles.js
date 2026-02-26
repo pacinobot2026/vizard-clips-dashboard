@@ -1,16 +1,17 @@
-import { useState, useEffect } from 'react';
-import NavigationSidebar from '../components/NavigationSidebar';
-import withAuth from '../lib/withAuth';
-import { useAuth } from '../lib/authContext';
+import { useState, useEffect } from "react";
+import Head from "next/head";
+import NavigationSidebar from "../components/NavigationSidebar";
+import withAuth from "../lib/withAuth";
+import { useAuth } from "../lib/authContext";
 
 function Articles() {
   const { session } = useAuth();
   const [allArticles, setAllArticles] = useState([]);
   const [publications, setPublications] = useState([]);
-  const [publication, setPublication] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('date_desc');
-  const [viewMode, setViewMode] = useState('list');
+  const [publication, setPublication] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("date_desc");
+  const [viewMode, setViewMode] = useState("list");
   const [loading, setLoading] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [searchCountdown, setSearchCountdown] = useState(3600);
@@ -18,23 +19,23 @@ function Articles() {
 
   // Letterman API key management
   const [hasKey, setHasKey] = useState(false);
-  const [keyInput, setKeyInput] = useState('');
+  const [keyInput, setKeyInput] = useState("");
   const [showKeyInput, setShowKeyInput] = useState(false);
   const [savingKey, setSavingKey] = useState(false);
-  const [keyError, setKeyError] = useState('');
-  const [apiError, setApiError] = useState('');
+  const [keyError, setKeyError] = useState("");
+  const [apiError, setApiError] = useState("");
 
   useEffect(() => {
     if (session) {
-      loadArticles();      // loadArticles is the sole authority on hasKey
-      loadSettings();      // only pre-fills keyInput panel, does NOT affect hasKey
+      loadArticles(); // loadArticles is the sole authority on hasKey
+      loadSettings(); // only pre-fills keyInput panel, does NOT affect hasKey
     }
   }, [session]);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setSearchCountdown(prev => (prev > 0 ? prev - 1 : 3600));
-      setPostCountdown(prev => (prev > 0 ? prev - 1 : 7200));
+      setSearchCountdown((prev) => (prev > 0 ? prev - 1 : 3600));
+      setPostCountdown((prev) => (prev > 0 ? prev - 1 : 7200));
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -42,13 +43,13 @@ function Articles() {
   async function loadSettings() {
     // Only used to pre-fill the key input panel — does NOT control hasKey
     try {
-      const res = await fetch('/api/settings', {
+      const res = await fetch("/api/settings", {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
-       console.log(session.access_token)
+      console.log(session.access_token);
       const data = await res.json();
       if (data.settings?.letterman_api_key) {
-        setKeyInput(''); // key exists, keep input blank (password masked anyway)
+        setKeyInput(""); // key exists, keep input blank (password masked anyway)
       }
     } catch {
       // ignore
@@ -58,24 +59,27 @@ function Articles() {
   async function saveKey() {
     if (!keyInput.trim()) return;
     setSavingKey(true);
-    setKeyError('');
+    setKeyError("");
     try {
-      const res = await fetch('/api/settings', {
-        method: 'POST',
+      const res = await fetch("/api/settings", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ key: 'letterman_api_key', value: keyInput.trim() }),
+        body: JSON.stringify({
+          key: "letterman_api_key",
+          value: keyInput.trim(),
+        }),
       });
-     
-      if (!res.ok) throw new Error('Failed to save');
+
+      if (!res.ok) throw new Error("Failed to save");
       setHasKey(true);
       setShowKeyInput(false);
-      setKeyInput('');
+      setKeyInput("");
       loadArticles();
     } catch {
-      setKeyError('Failed to save key. Please try again.');
+      setKeyError("Failed to save key. Please try again.");
     } finally {
       setSavingKey(false);
     }
@@ -83,9 +87,9 @@ function Articles() {
 
   async function loadArticles() {
     setLoading(true);
-    setApiError('');
+    setApiError("");
     try {
-      const res = await fetch('/api/articles', {
+      const res = await fetch("/api/articles", {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       const data = await res.json();
@@ -107,27 +111,44 @@ function Articles() {
       setAllArticles(fetched);
 
       const pubMap = {};
-      fetched.forEach(a => {
+      fetched.forEach((a) => {
         if (a.publication) {
           if (!pubMap[a.publication]) pubMap[a.publication] = 0;
           pubMap[a.publication]++;
         }
       });
-      setPublications(Object.keys(pubMap).map(name => ({ name, count: pubMap[name] })));
+      setPublications(
+        Object.keys(pubMap).map((name) => ({ name, count: pubMap[name] })),
+      );
     } catch (err) {
-      console.error('Failed to load articles:', err);
-      setApiError('Network error — could not reach the server.');
+      console.error("Failed to load articles:", err);
+      setApiError("Network error — could not reach the server.");
     } finally {
       setLoading(false);
     }
   }
 
   // Compute filtered articles directly — no intermediate state or useEffect needed
-  let filteredArticles = publication === 'all' ? allArticles : allArticles.filter(a => a.publication === publication);
-  if (sortBy === 'date_desc') filteredArticles = [...filteredArticles].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-  else if (sortBy === 'date_asc') filteredArticles = [...filteredArticles].sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
-  else if (sortBy === 'title') filteredArticles = [...filteredArticles].sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-  if (searchTerm) filteredArticles = filteredArticles.filter(a => a.title?.toLowerCase().includes(searchTerm.toLowerCase()));
+  let filteredArticles =
+    publication === "all"
+      ? allArticles
+      : allArticles.filter((a) => a.publication === publication);
+  if (sortBy === "date_desc")
+    filteredArticles = [...filteredArticles].sort(
+      (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0),
+    );
+  else if (sortBy === "date_asc")
+    filteredArticles = [...filteredArticles].sort(
+      (a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0),
+    );
+  else if (sortBy === "title")
+    filteredArticles = [...filteredArticles].sort((a, b) =>
+      (a.title || "").localeCompare(b.title || ""),
+    );
+  if (searchTerm)
+    filteredArticles = filteredArticles.filter((a) =>
+      a.title?.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
 
   const formatTime = (seconds) => {
     const hours = Math.floor(seconds / 3600);
@@ -141,23 +162,34 @@ function Articles() {
   if (loading) {
     return (
       <div className="flex min-h-screen">
+        <Head>
+          <title>Article Cue</title>
+        </Head>
         <NavigationSidebar />
-        <div className="flex-1 flex items-center justify-center text-gray-400">Loading articles...</div>
+        <div className="flex-1 flex items-center justify-center text-gray-400">
+          Loading articles...
+        </div>
       </div>
     );
   }
 
   return (
     <div className="flex min-h-screen">
+      <Head>
+        <title>Article Cue</title>
+      </Head>
       <NavigationSidebar />
       <main className="flex-1 p-8 pt-16 md:pt-8">
         <div className="max-w-7xl mx-auto">
-
           {/* Header */}
           <div className="mb-6 flex justify-between items-start flex-wrap gap-3">
             <div>
-              <h1 className="text-3xl font-bold gradient-text mb-1">📰 Article Cue Board</h1>
-              <p className="text-sm text-gray-400">Article review and publishing</p>
+              <h1 className="text-3xl font-bold gradient-text mb-1">
+                📰 Article Cue Board
+              </h1>
+              <p className="text-sm text-gray-400">
+                Article review and publishing
+              </p>
             </div>
             {/* API key status */}
             <div className="flex items-center gap-2">
@@ -188,17 +220,20 @@ function Articles() {
           {/* Letterman API key input panel */}
           {showKeyInput && (
             <div className="mb-6 bg-gray-800 border border-gray-600/50 rounded-xl p-5">
-              <h3 className="text-white font-semibold mb-1">Letterman API Key</h3>
+              <h3 className="text-white font-semibold mb-1">
+                Letterman API Key
+              </h3>
               <p className="text-gray-400 text-sm mb-4">
-                Paste your Letterman API key below. It will be saved securely and used to fetch your articles.
+                Paste your Letterman API key below. It will be saved securely
+                and used to fetch your articles.
               </p>
               <div className="flex gap-3 flex-wrap">
                 <input
                   type="password"
                   placeholder="Paste your Letterman API key..."
                   value={keyInput}
-                  onChange={e => setKeyInput(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && saveKey()}
+                  onChange={(e) => setKeyInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && saveKey()}
                   className="flex-1 min-w-64 bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-yellow-500"
                 />
                 <button
@@ -206,16 +241,22 @@ function Articles() {
                   disabled={savingKey || !keyInput.trim()}
                   className="px-5 py-2.5 bg-yellow-500 text-black font-semibold rounded-lg border-none cursor-pointer hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
                 >
-                  {savingKey ? 'Saving...' : 'Save Key'}
+                  {savingKey ? "Saving..." : "Save Key"}
                 </button>
                 <button
-                  onClick={() => { setShowKeyInput(false); setKeyInput(''); setKeyError(''); }}
+                  onClick={() => {
+                    setShowKeyInput(false);
+                    setKeyInput("");
+                    setKeyError("");
+                  }}
                   className="px-5 py-2.5 bg-gray-700 text-gray-400 font-semibold rounded-lg border-none cursor-pointer hover:text-white transition-colors text-sm"
                 >
                   Cancel
                 </button>
               </div>
-              {keyError && <p className="mt-2 text-sm text-red-400">{keyError}</p>}
+              {keyError && (
+                <p className="mt-2 text-sm text-red-400">{keyError}</p>
+              )}
             </div>
           )}
 
@@ -223,8 +264,12 @@ function Articles() {
           {!hasKey && !showKeyInput && (
             <div className="glass-card rounded-2xl p-16 text-center">
               <div className="text-5xl mb-4">🔑</div>
-              <h2 className="text-xl font-semibold text-white mb-2">Letterman API Key Required</h2>
-              <p className="text-gray-400 mb-6 text-sm">Connect your Letterman account to start fetching articles.</p>
+              <h2 className="text-xl font-semibold text-white mb-2">
+                Letterman API Key Required
+              </h2>
+              <p className="text-gray-400 mb-6 text-sm">
+                Connect your Letterman account to start fetching articles.
+              </p>
               <button
                 onClick={() => setShowKeyInput(true)}
                 className="px-6 py-3 bg-yellow-500 text-black font-semibold rounded-lg border-none cursor-pointer hover:bg-yellow-400 transition-colors"
@@ -248,16 +293,24 @@ function Articles() {
                 <div className="flex items-center gap-3 flex-1">
                   <span className="text-2xl">🔍</span>
                   <div>
-                    <div className="text-sm font-semibold text-purple-400">Next article search</div>
-                    <div className="text-xs text-gray-500 mt-0.5">In {formatTime(searchCountdown)} (automated)</div>
+                    <div className="text-sm font-semibold text-purple-400">
+                      Next article search
+                    </div>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      In {formatTime(searchCountdown)} (automated)
+                    </div>
                   </div>
                 </div>
                 <div className="w-px h-10 bg-gray-600/30" />
                 <div className="flex items-center gap-3 flex-1">
                   <span className="text-2xl">📰</span>
                   <div>
-                    <div className="text-sm font-semibold text-blue-400">Next Letterman post</div>
-                    <div className="text-xs text-gray-500 mt-0.5">In {formatTime(postCountdown)} (automated)</div>
+                    <div className="text-sm font-semibold text-blue-400">
+                      Next Letterman post
+                    </div>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      In {formatTime(postCountdown)} (automated)
+                    </div>
                   </div>
                 </div>
               </div>
@@ -266,16 +319,16 @@ function Articles() {
               <div className="flex justify-between items-center flex-wrap gap-3 mb-4">
                 <div className="flex gap-2 flex-wrap">
                   <button
-                    onClick={() => setPublication('all')}
-                    className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${publication === 'all' ? 'bg-purple-600 border-purple-600 text-white' : 'bg-gray-800/50 border-gray-600/50 text-white hover:bg-gray-800'}`}
+                    onClick={() => setPublication("all")}
+                    className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${publication === "all" ? "bg-purple-600 border-purple-600 text-white" : "bg-gray-800/50 border-gray-600/50 text-white hover:bg-gray-800"}`}
                   >
                     All Publications
                   </button>
-                  {publications.map(pub => (
+                  {publications.map((pub) => (
                     <button
                       key={pub.name}
                       onClick={() => setPublication(pub.name)}
-                      className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${publication === pub.name ? 'bg-purple-600 border-purple-600 text-white' : 'bg-gray-800/50 border-gray-600/50 text-white hover:bg-gray-800'}`}
+                      className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${publication === pub.name ? "bg-purple-600 border-purple-600 text-white" : "bg-gray-800/50 border-gray-600/50 text-white hover:bg-gray-800"}`}
                     >
                       {pub.name} ({pub.count})
                     </button>
@@ -283,14 +336,14 @@ function Articles() {
                 </div>
                 <div className="flex gap-1 bg-gray-800/50 border border-gray-600/50 rounded-lg p-1">
                   <button
-                    onClick={() => setViewMode('list')}
-                    className={`px-4 py-1.5 rounded-md text-sm font-semibold text-white cursor-pointer border-none transition-colors ${viewMode === 'list' ? 'bg-purple-600' : 'bg-transparent'}`}
+                    onClick={() => setViewMode("list")}
+                    className={`px-4 py-1.5 rounded-md text-sm font-semibold text-white cursor-pointer border-none transition-colors ${viewMode === "list" ? "bg-purple-600" : "bg-transparent"}`}
                   >
                     📋 List
                   </button>
                   <button
-                    onClick={() => setViewMode('cards')}
-                    className={`px-4 py-1.5 rounded-md text-sm font-semibold text-white cursor-pointer border-none transition-colors ${viewMode === 'cards' ? 'bg-purple-600' : 'bg-transparent'}`}
+                    onClick={() => setViewMode("cards")}
+                    className={`px-4 py-1.5 rounded-md text-sm font-semibold text-white cursor-pointer border-none transition-colors ${viewMode === "cards" ? "bg-purple-600" : "bg-transparent"}`}
                   >
                     🎴 Cards
                   </button>
@@ -303,12 +356,12 @@ function Articles() {
                   type="text"
                   placeholder="🔍 Search articles..."
                   value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="flex-1 min-w-48 bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500"
                 />
                 <select
                   value={sortBy}
-                  onChange={e => setSortBy(e.target.value)}
+                  onChange={(e) => setSortBy(e.target.value)}
                   className="bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm cursor-pointer outline-none"
                 >
                   <option value="date_desc">Newest First</option>
@@ -320,17 +373,25 @@ function Articles() {
               {/* Articles */}
               {filteredArticles.length === 0 ? (
                 <div className="glass-card rounded-2xl p-16 text-center text-gray-500">
-                  {searchTerm ? `No articles matching "${searchTerm}"` : 'No articles found'}
+                  {searchTerm
+                    ? `No articles matching "${searchTerm}"`
+                    : "No articles found"}
                 </div>
-              ) : viewMode === 'list' ? (
+              ) : viewMode === "list" ? (
                 <div className="glass-card rounded-2xl overflow-hidden">
                   <table className="w-full border-collapse">
                     <thead>
                       <tr className="bg-gray-800/70 border-b border-gray-600/50">
                         <th className="px-5 py-4 text-left text-xs font-semibold text-gray-400 w-16" />
-                        <th className="px-5 py-4 text-left text-xs font-semibold text-gray-400">TITLE</th>
-                        <th className="px-5 py-4 text-left text-xs font-semibold text-gray-400 w-48">PUBLICATION</th>
-                        <th className="px-5 py-4 text-left text-xs font-semibold text-gray-400 w-36">DATE</th>
+                        <th className="px-5 py-4 text-left text-xs font-semibold text-gray-400">
+                          TITLE
+                        </th>
+                        <th className="px-5 py-4 text-left text-xs font-semibold text-gray-400 w-48">
+                          PUBLICATION
+                        </th>
+                        <th className="px-5 py-4 text-left text-xs font-semibold text-gray-400 w-36">
+                          DATE
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -347,7 +408,13 @@ function Articles() {
                 </div>
               ) : (
                 <div className="glass-card rounded-2xl p-6">
-                  <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))' }}>
+                  <div
+                    className="grid gap-4"
+                    style={{
+                      gridTemplateColumns:
+                        "repeat(auto-fill, minmax(220px, 1fr))",
+                    }}
+                  >
                     {filteredArticles.map((article, index) => (
                       <ArticleCard
                         key={article._id || article.id || index}
@@ -360,17 +427,20 @@ function Articles() {
               )}
 
               <div className="mt-4 text-right text-sm text-gray-400">
-                {filteredArticles.length} {filteredArticles.length === 1 ? 'article' : 'articles'}
+                {filteredArticles.length}{" "}
+                {filteredArticles.length === 1 ? "article" : "articles"}
               </div>
             </>
           )}
-
         </div>
       </main>
 
       {/* Article Modal */}
       {selectedArticle && (
-        <ArticleModal article={selectedArticle} onClose={() => setSelectedArticle(null)} />
+        <ArticleModal
+          article={selectedArticle}
+          onClose={() => setSelectedArticle(null)}
+        />
       )}
     </div>
   );
@@ -382,7 +452,7 @@ function ArticleRow({ article, index, onClick }) {
 
   return (
     <tr
-      className={`border-b border-gray-600/30 hover:bg-purple-900/10 transition-colors cursor-pointer ${index % 2 === 0 ? 'bg-gray-800/30' : ''}`}
+      className={`border-b border-gray-600/30 hover:bg-purple-900/10 transition-colors cursor-pointer ${index % 2 === 0 ? "bg-gray-800/30" : ""}`}
       onClick={onClick}
     >
       <td className="px-5 py-3">
@@ -390,13 +460,15 @@ function ArticleRow({ article, index, onClick }) {
           {imageUrl ? (
             <img src={imageUrl} alt="" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-xl">📰</div>
+            <div className="w-full h-full flex items-center justify-center text-xl">
+              📰
+            </div>
           )}
         </div>
       </td>
       <td className="px-5 py-3">
         <div className="text-white text-sm font-medium leading-snug hover:text-blue-400 transition-colors">
-          {article.title || 'Untitled'}
+          {article.title || "Untitled"}
         </div>
       </td>
       <td className="px-5 py-3">
@@ -407,7 +479,13 @@ function ArticleRow({ article, index, onClick }) {
         )}
       </td>
       <td className="px-5 py-3 text-gray-400 text-sm">
-        {date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
+        {date
+          ? new Date(date).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })
+          : "—"}
       </td>
     </tr>
   );
@@ -424,16 +502,26 @@ function ArticleCard({ article, onClick }) {
     >
       <div className="aspect-[4/5] bg-gradient-to-br from-indigo-500 to-purple-600 relative overflow-hidden grayscale hover:grayscale-0 transition-all">
         {imageUrl ? (
-          <img src={imageUrl} alt={article.title} className="w-full h-full object-cover" />
+          <img
+            src={imageUrl}
+            alt={article.title}
+            className="w-full h-full object-cover"
+          />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-5xl text-white">📰</div>
+          <div className="w-full h-full flex items-center justify-center text-5xl text-white">
+            📰
+          </div>
         )}
       </div>
       <div className="p-4">
-        <h3 className="text-white text-sm font-semibold mb-2 leading-snug">{article.title || 'Untitled'}</h3>
+        <h3 className="text-white text-sm font-semibold mb-2 leading-snug">
+          {article.title || "Untitled"}
+        </h3>
         <div className="flex gap-2 flex-wrap">
           {article.publication && (
-            <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">{article.publication}</span>
+            <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">
+              {article.publication}
+            </span>
           )}
           {date && (
             <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">
@@ -457,18 +545,26 @@ function ArticleModal({ article, onClose }) {
     >
       <div
         className="bg-gray-800 rounded-2xl border border-gray-600/50 max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 border-b border-gray-600/50 flex justify-between items-start gap-4">
           <div className="flex-1">
-            <h2 className="text-2xl font-bold text-white mb-3 leading-snug">{article.title}</h2>
+            <h2 className="text-2xl font-bold text-white mb-3 leading-snug">
+              {article.title}
+            </h2>
             <div className="flex gap-3 flex-wrap items-center">
               {article.publication && (
-                <span className="px-3 py-1 bg-purple-600 rounded text-xs font-semibold text-white">{article.publication}</span>
+                <span className="px-3 py-1 bg-purple-600 rounded text-xs font-semibold text-white">
+                  {article.publication}
+                </span>
               )}
               {date && (
                 <span className="text-sm text-gray-400">
-                  {new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  {new Date(date).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </span>
               )}
             </div>
@@ -480,14 +576,24 @@ function ArticleModal({ article, onClose }) {
             ×
           </button>
         </div>
-        <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 160px)' }}>
+        <div
+          className="p-6 overflow-y-auto"
+          style={{ maxHeight: "calc(90vh - 160px)" }}
+        >
           {imageUrl && (
             <div className="mb-6 rounded-xl overflow-hidden">
-              <img src={imageUrl} alt={article.title} className="w-full h-auto block" />
+              <img
+                src={imageUrl}
+                alt={article.title}
+                className="w-full h-auto block"
+              />
             </div>
           )}
           <div className="text-base leading-relaxed text-gray-200">
-            {article.content || article.body || article.description || 'No content available.'}
+            {article.content ||
+              article.body ||
+              article.description ||
+              "No content available."}
           </div>
         </div>
       </div>

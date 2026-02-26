@@ -1,9 +1,11 @@
+import Head from 'next/head';
 import NavigationSidebar from '../components/NavigationSidebar';
 import withAuth from '../lib/withAuth';
 
 function OpenClaw() {
   return (
     <div className="flex min-h-screen">
+      <Head><title>OpenClaw</title></Head>
       <NavigationSidebar />
       <main className="flex-1 p-8 md:p-8 pt-16 md:pt-8">
         <div className="max-w-7xl mx-auto">

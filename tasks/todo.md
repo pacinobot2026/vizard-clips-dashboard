@@ -1,21 +1,30 @@
-# Video Board — PostBridge-First Redesign
+# Fixes - Feb 27, 2026
 
-## Goal
-Replace the manual URL add flow with a PostBridge media picker. Users pick a video from their PostBridge library, add a caption + social accounts → creates a PostBridge draft. Approve = pick schedule time → schedules via PostBridge.
+## Tasks
 
-## Todos
+- [x] **1. Add `initial-scale=1` to viewport meta tag**
+  - No viewport meta tag exists anywhere in the project
+  - Add `<meta name="viewport" content="width=device-width, initial-scale=1" />` in `_app.js` using `next/head`
+  - (Can't go in `_document.js` Head — Next.js doesn't support viewport there properly)
 
-- [ ] `migrations/004_add_postbridge_post_id.sql` — add `postbridge_post_id TEXT` column to clips
-- [ ] `pages/api/postbridge/media.js` — proxy GET /v1/media?type=video from PostBridge
-- [ ] `pages/api/postbridge/accounts.js` — proxy GET /v1/social-accounts from PostBridge
-- [ ] `pages/api/clips.js` — update POST handler: accept PostBridge fields, create draft via POST /v1/posts (is_draft: true), save to clips table with postbridge_post_id
-- [ ] `pages/api/approve.js` — accept scheduledAt, PATCH /v1/posts/{postbridge_post_id} (is_draft: false, scheduled_at), then update clip status
-- [ ] `pages/dashboard.js` — replace Add Video modal with Create Post modal (media picker + caption + account picker + category); Approve button opens schedule modal
+- [x] **2. Add `<title>` to all pages**
+  - Only 2 of 13 pages have titles (vault.js, api-docs.js) — the rest show the URL in the browser tab
+  - Add a default title in `_app.js` via `next/head` so every page gets a title immediately (even while loading)
+  - Individual pages that already have titles will override via Next.js head deduplication
 
-## Notes
-- Media endpoint returns: id, mime_type, object.url, object.name, object.size_bytes
-- Accounts endpoint returns: id (number), platform, username
-- Create draft body: { caption, social_accounts: [ids], media: [media_id], is_draft: true }
-- PATCH to schedule: { is_draft: false, scheduled_at: ISO8601 | null for immediate }
-- Old Vizard clips (no postbridge_post_id) → approve directly without PostBridge call
-- Keep all category/filter/sort/search/edit/delete/reject functionality
+- [x] **3. Fix `overflow-x` not working on Business Board**
+  - The `<main>` element is a flex child with `flex: 1` but no `min-width: 0`
+  - Flex items default to `min-width: auto`, which prevents them from shrinking below content size — this breaks `overflow-x`
+  - Fix: add `minWidth: 0` and `overflowX: 'auto'` to the `<main>` element in `businesses.js`
+
+## Review
+
+### Changes made:
+
+**[_app.js](pages/_app.js)** — 2 lines added:
+- `<meta name="viewport" content="width=device-width, initial-scale=1" />` — fixes mobile scaling
+- `<title>Nicely Media Dashboard</title>` — default title for all pages; pages with their own `<title>` (vault, api-docs) override it automatically
+
+**[businesses.js:219](pages/businesses.js#L219)** — 2 CSS properties added to `<main>`:
+- `minWidth: 0` — allows the flex child to shrink below content size (flex items default to `min-width: auto`)
+- `overflowX: 'auto'` — enables horizontal scrolling when content overflows
