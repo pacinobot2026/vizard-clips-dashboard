@@ -1,1251 +1,498 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import NavigationSidebar from '../components/NavigationSidebar';
+import withAuth from '../lib/withAuth';
+import { useAuth } from '../lib/authContext';
 
-export default function Articles() {
-  const [articles, setArticles] = useState([]);
-  const [stats, setStats] = useState({});
-  const [categories, setCategories] = useState([]);
-  const [filter, setFilter] = useState('draft');
-  const [category, setCategory] = useState('all');
+function Articles() {
+  const { session } = useAuth();
+  const [allArticles, setAllArticles] = useState([]);
+  const [publications, setPublications] = useState([]);
+  const [publication, setPublication] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date_desc');
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'cards'
+  const [viewMode, setViewMode] = useState('list');
   const [loading, setLoading] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState(null);
-  const [searchVisible, setSearchVisible] = useState(false);
-  const [searchCountdown, setSearchCountdown] = useState(3600); // 1 hour in seconds
-  const [postCountdown, setPostCountdown] = useState(7200); // 2 hours in seconds
+  const [searchCountdown, setSearchCountdown] = useState(3600);
+  const [postCountdown, setPostCountdown] = useState(7200);
+
+  // Letterman API key management
+  const [hasKey, setHasKey] = useState(false);
+  const [keyInput, setKeyInput] = useState('');
+  const [showKeyInput, setShowKeyInput] = useState(false);
+  const [savingKey, setSavingKey] = useState(false);
+  const [keyError, setKeyError] = useState('');
+  const [apiError, setApiError] = useState('');
 
   useEffect(() => {
-    loadMockArticles();
-  }, [filter, category, sortBy]);
+    if (session) {
+      loadArticles();      // loadArticles is the sole authority on hasKey
+      loadSettings();      // only pre-fills keyInput panel, does NOT affect hasKey
+    }
+  }, [session]);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setSearchCountdown(prev => (prev > 0 ? prev - 1 : 3600)); // Reset to 1 hour
-      setPostCountdown(prev => (prev > 0 ? prev - 1 : 7200)); // Reset to 2 hours
+      setSearchCountdown(prev => (prev > 0 ? prev - 1 : 3600));
+      setPostCountdown(prev => (prev > 0 ? prev - 1 : 7200));
     }, 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const loadMockArticles = () => {
-    // Mock article data
-    const mockArticles = [
-      {
-        id: 1,
-        title: "Local Business Spotlight: New Italian Restaurant Opens in Summerlin",
-        publication: "West Valley Shoutouts",
-        status: "draft",
-        image_url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=80&h=80&fit=crop",
-        created_at: "2026-02-20T10:30:00Z",
-        scrapable: true,
-        content: "A new Italian restaurant, Bella Vita Trattoria, has opened its doors in the heart of Summerlin. The family-owned establishment brings authentic Italian cuisine to the neighborhood, featuring handmade pasta, wood-fired pizzas, and traditional recipes passed down through generations. Owner Marco Rossi says the restaurant aims to create a warm, welcoming atmosphere where families can gather for memorable meals."
-      },
-      {
-        id: 2,
-        title: "Community Hero: Vegas Teacher Launches After-School STEM Program",
-        publication: "West Valley Shoutouts",
-        status: "draft",
-        image_url: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=80&h=80&fit=crop",
-        created_at: "2026-02-21T14:20:00Z",
-        scrapable: false,
-        content: "Ms. Sarah Chen, a science teacher at Green Valley High School, has launched an innovative after-school STEM program for underserved students. The program provides free robotics, coding, and engineering workshops three times a week. With support from local tech companies, students gain hands-on experience with cutting-edge technology and mentorship from industry professionals."
-      },
-      {
-        id: 3,
-        title: "Rescue Dog Finds Forever Home After 2 Years at Shelter",
-        publication: "Save The Doggy",
-        status: "draft",
-        image_url: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=80&h=80&fit=crop",
-        created_at: "2026-02-21T09:15:00Z",
-        scrapable: true,
-        content: "Max, a 5-year-old golden retriever mix, has finally found his forever home after spending nearly two years at the Henderson Animal Shelter. The sweet-natured pup was adopted by the Johnson family, who fell in love with his gentle personality and playful spirit. Shelter staff say this heartwarming adoption shows that older dogs deserve a second chance too."
-      },
-      {
-        id: 4,
-        title: "Best Tacos in Vegas: Hidden Gem in Henderson Wins Hearts",
-        publication: "Vegas Fork",
-        status: "approved",
-        image_url: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=80&h=80&fit=crop",
-        created_at: "2026-02-19T16:45:00Z",
-        scrapable: true,
-        content: "Tucked away in a Henderson strip mall, Taqueria El Comal is earning rave reviews for its authentic street tacos. Using family recipes from Jalisco, owner Carlos Martinez serves up perfectly seasoned carne asada, al pastor, and carnitas on fresh handmade tortillas. Locals say it's the best Mexican food in the valley—and the prices can't be beat."
-      },
-      {
-        id: 5,
-        title: "Local Animal Shelter Hosts Adoption Event This Weekend",
-        publication: "Save The Doggy",
-        status: "draft",
-        image_url: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=80&h=80&fit=crop",
-        created_at: "2026-02-22T08:00:00Z",
-        scrapable: true,
-        content: "The Animal Foundation will host a special adoption event this Saturday from 10 AM to 4 PM. All adoption fees are waived for dogs and cats over one year old. The shelter currently has over 200 animals looking for homes, including many loving senior pets. Volunteers will be on hand to help families find their perfect match."
-      },
-      {
-        id: 6,
-        title: "Downtown Las Vegas Adds New Food Truck Park",
-        publication: "Vegas Fork",
-        status: "published",
-        image_url: "https://images.unsplash.com/photo-1565123409695-7b5ef63a2efb?w=80&h=80&fit=crop",
-        created_at: "2026-02-18T12:30:00Z",
-        scrapable: false,
-        content: "Downtown Las Vegas Container Park has expanded with a new food truck area featuring rotating vendors every weekend. The space includes covered seating, live music, and a curated selection of local food trucks serving everything from Korean BBQ to gourmet grilled cheese. Open Friday through Sunday, 4 PM to midnight."
-      },
-      {
-        id: 7,
-        title: "Henderson Chamber of Commerce Announces Small Business Awards",
-        publication: "West Valley Shoutouts",
-        status: "approved",
-        image_url: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=80&h=80&fit=crop",
-        created_at: "2026-02-20T11:00:00Z",
-        scrapable: true,
-        content: "The Henderson Chamber of Commerce has announced nominees for its annual Small Business Excellence Awards. Categories include Innovation, Customer Service, and Community Impact. Winners will be revealed at a gala dinner on March 15th at the M Resort. Over 50 local businesses have been nominated this year."
-      },
-      {
-        id: 8,
-        title: "Senior Dog Adoption Drive: Finding Homes for Older Pups",
-        publication: "Save The Doggy",
-        status: "rejected",
-        image_url: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=80&h=80&fit=crop",
-        created_at: "2026-02-17T15:20:00Z",
-        scrapable: false,
-        content: "Local rescue groups are partnering for a month-long campaign to find homes for senior dogs. Adopters receive a free veterinary checkup, supplies starter kit, and ongoing support from experienced volunteers. Senior dogs make wonderful companions and often require less training than puppies."
-      },
-      {
-        id: 9,
-        title: "Top 10 Brunch Spots on the Strip You Need to Try",
-        publication: "Vegas Fork",
-        status: "draft",
-        image_url: "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=80&h=80&fit=crop",
-        created_at: "2026-02-21T07:45:00Z",
-        scrapable: true,
-        content: "From bottomless mimosas to decadent French toast, the Las Vegas Strip has become a brunch destination. Our top picks include Bouchon at The Venetian for classic French fare, Wicked Spoon at Cosmopolitan for variety, and Mon Ami Gabi at Paris for people-watching. Reservations recommended for weekend brunch service."
-      },
-      {
-        id: 10,
-        title: "Local Entrepreneur Opens Third Coffee Shop in Green Valley",
-        publication: "West Valley Shoutouts",
-        status: "published",
-        image_url: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=80&h=80&fit=crop",
-        created_at: "2026-02-16T13:10:00Z",
-        scrapable: true,
-        content: "Coffee entrepreneur Jessica Park has opened her third location of Daily Grind Coffee in Green Valley Ranch. The cozy cafe features locally roasted beans, fresh pastries from a nearby bakery, and a community-focused atmosphere. Park credits her success to building relationships with customers and supporting other local businesses."
-      },
-      {
-        id: 11,
-        title: "Vegas Dog Park Renovation Complete: New Features Unveiled",
-        publication: "Save The Doggy",
-        status: "approved",
-        image_url: "https://images.unsplash.com/photo-1558788353-f76d92427f16?w=80&h=80&fit=crop",
-        created_at: "2026-02-19T10:30:00Z",
-        scrapable: true,
-        content: "The newly renovated Sunset Park Dog Park reopened today with exciting upgrades. New features include separate areas for small and large dogs, agility equipment, shaded seating, and a water fountain station. The $2.3 million renovation was funded through a bond measure approved by voters last year."
-      },
-      {
-        id: 12,
-        title: "Celebrity Chef Opens Farm-to-Table Restaurant in Summerlin",
-        publication: "Vegas Fork",
-        status: "draft",
-        image_url: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=80&h=80&fit=crop",
-        created_at: "2026-02-22T09:20:00Z",
-        scrapable: false,
-        content: "Celebrity chef Michael Thompson has opened Harvest Kitchen in Downtown Summerlin, focusing on locally sourced ingredients and seasonal menus. The restaurant partners with Nevada farms and ranchers to create dishes that highlight regional flavors. The dining room features floor-to-ceiling windows overlooking Red Rock Canyon."
+  async function loadSettings() {
+    // Only used to pre-fill the key input panel — does NOT control hasKey
+    try {
+      const res = await fetch('/api/settings', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+       console.log(session.access_token)
+      const data = await res.json();
+      if (data.settings?.letterman_api_key) {
+        setKeyInput(''); // key exists, keep input blank (password masked anyway)
       }
-    ];
-
-    // Filter by status
-    let filtered = mockArticles.filter(a => a.status === filter);
-
-    // Filter by category
-    if (category !== 'all') {
-      filtered = filtered.filter(a => a.publication === category);
+    } catch {
+      // ignore
     }
+  }
 
-    // Sort
-    if (sortBy === 'date_desc') {
-      filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    } else if (sortBy === 'date_asc') {
-      filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-    } else if (sortBy === 'title') {
-      filtered.sort((a, b) => a.title.localeCompare(b.title));
+  async function saveKey() {
+    if (!keyInput.trim()) return;
+    setSavingKey(true);
+    setKeyError('');
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ key: 'letterman_api_key', value: keyInput.trim() }),
+      });
+     
+      if (!res.ok) throw new Error('Failed to save');
+      setHasKey(true);
+      setShowKeyInput(false);
+      setKeyInput('');
+      loadArticles();
+    } catch {
+      setKeyError('Failed to save key. Please try again.');
+    } finally {
+      setSavingKey(false);
     }
+  }
 
-    // Calculate stats
-    const statsCalc = {
-      draft: mockArticles.filter(a => a.status === 'draft').length,
-      approved: mockArticles.filter(a => a.status === 'approved').length,
-      published: mockArticles.filter(a => a.status === 'published').length,
-      rejected: mockArticles.filter(a => a.status === 'rejected').length
-    };
+  async function loadArticles() {
+    setLoading(true);
+    setApiError('');
+    try {
+      const res = await fetch('/api/articles', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = await res.json();
 
-    // Calculate categories
-    const categoryMap = {};
-    mockArticles.forEach(a => {
-      if (!categoryMap[a.publication]) {
-        categoryMap[a.publication] = 0;
+      if (data.noKey) {
+        setHasKey(false);
+        setLoading(false);
+        return;
       }
-      categoryMap[a.publication]++;
-    });
 
-    const categoriesCalc = Object.keys(categoryMap).map(name => {
-      let emoji = '📍';
-      if (name === 'Save The Doggy') emoji = '🐕';
-      if (name === 'Vegas Fork') emoji = '🍴';
-      
-      return {
-        name,
-        emoji,
-        count: categoryMap[name]
-      };
-    });
+      if (!res.ok) {
+        setApiError(data.error || `API error (${res.status})`);
+        setLoading(false);
+        return;
+      }
 
-    setArticles(filtered);
-    setStats(statsCalc);
-    setCategories(categoriesCalc);
-    setLoading(false);
-  };
+      setHasKey(true); // key found (DB or env var)
+      const fetched = data.articles || [];
+      setAllArticles(fetched);
 
-  const filteredArticles = articles.filter(article => 
-    searchTerm === '' || 
-    (article.title && article.title.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+      const pubMap = {};
+      fetched.forEach(a => {
+        if (a.publication) {
+          if (!pubMap[a.publication]) pubMap[a.publication] = 0;
+          pubMap[a.publication]++;
+        }
+      });
+      setPublications(Object.keys(pubMap).map(name => ({ name, count: pubMap[name] })));
+    } catch (err) {
+      console.error('Failed to load articles:', err);
+      setApiError('Network error — could not reach the server.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  const handleApprove = (articleId) => {
-    console.log('Approved article:', articleId);
-    loadMockArticles();
-  };
-
-  const handleReject = (articleId) => {
-    console.log('Rejected article:', articleId);
-    loadMockArticles();
-  };
+  // Compute filtered articles directly — no intermediate state or useEffect needed
+  let filteredArticles = publication === 'all' ? allArticles : allArticles.filter(a => a.publication === publication);
+  if (sortBy === 'date_desc') filteredArticles = [...filteredArticles].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  else if (sortBy === 'date_asc') filteredArticles = [...filteredArticles].sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+  else if (sortBy === 'title') filteredArticles = [...filteredArticles].sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+  if (searchTerm) filteredArticles = filteredArticles.filter(a => a.title?.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const formatTime = (seconds) => {
     const hours = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
-    if (hours > 0) {
-      return `${hours}h ${mins}m`;
-    } else if (mins > 0) {
-      return `${mins}m ${secs}s`;
-    } else {
-      return `${secs}s`;
-    }
+    if (hours > 0) return `${hours}h ${mins}m`;
+    if (mins > 0) return `${mins}m ${secs}s`;
+    return `${secs}s`;
   };
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1423' }}>
+      <div className="flex min-h-screen">
         <NavigationSidebar />
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
-          Loading articles...
-        </div>
+        <div className="flex-1 flex items-center justify-center text-gray-400">Loading articles...</div>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1423' }}>
+    <div className="flex min-h-screen">
       <NavigationSidebar />
-      
-      <main style={{ flex: 1, padding: '32px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', background: '#0D1423', position: 'relative' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          
+      <main className="flex-1 p-8 pt-16 md:pt-8">
+        <div className="max-w-7xl mx-auto">
+
           {/* Header */}
-          <div style={{ 
-            marginBottom: '24px',
-            animation: 'fadeIn 0.6s ease-out'
-          }}>
-            <h1 style={{ 
-              fontSize: '30px', 
-              fontWeight: '700', 
-              background: 'linear-gradient(90deg, #22d3ee, #60a5fa, #a78bfa, #22d3ee)',
-              backgroundSize: '200% 100%',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              marginBottom: '4px',
-              animation: 'gradientShift 3s ease infinite'
-            }}>
-              Article Cue Board
-            </h1>
-            <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '4px' }}>Article review and publishing</p>
-          </div>
-
-          {/* Publications Dropdown + View Toggle */}
-          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-            {/* Publications Dropdown */}
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              style={{
-                padding: '6px 16px',
-                background: 'rgba(31, 41, 55, 0.5)',
-                border: '1px solid rgba(75, 85, 99, 0.5)',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '13px',
-                cursor: 'pointer',
-                outline: 'none',
-                fontWeight: '600'
-              }}
-            >
-              <option value="all">All Publications</option>
-              {categories.map(cat => (
-                <option key={cat.name} value={cat.name}>
-                  {cat.emoji} {cat.name}
-                </option>
-              ))}
-            </select>
-            
-            {/* View Toggle */}
-            <div style={{ display: 'flex', gap: '4px', background: 'rgba(31, 41, 55, 0.5)', borderRadius: '8px', padding: '4px', border: '1px solid rgba(75, 85, 99, 0.5)' }}>
-              <button
-                onClick={() => setViewMode('list')}
-                style={{
-                  padding: '6px 16px',
-                  background: viewMode === 'list' ? '#8b5cf6' : 'transparent',
-                  border: 'none',
-                  borderRadius: '6px',
-                  color: '#fff',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  fontWeight: '600'
-                }}
-              >
-                📋 List
-              </button>
-              <button
-                onClick={() => setViewMode('cards')}
-                style={{
-                  padding: '6px 16px',
-                  background: viewMode === 'cards' ? '#8b5cf6' : 'transparent',
-                  border: 'none',
-                  borderRadius: '6px',
-                  color: '#fff',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  fontWeight: '600'
-                }}
-              >
-                🎴 Cards
-              </button>
+          <div className="mb-6 flex justify-between items-start flex-wrap gap-3">
+            <div>
+              <h1 className="text-3xl font-bold gradient-text mb-1">📰 Article Cue Board</h1>
+              <p className="text-sm text-gray-400">Article review and publishing</p>
             </div>
-          </div>
-
-          {/* Status Banner - Desktop only */}
-          <div className="status-banner" style={{
-            background: 'rgba(75, 85, 99, 0.1)',
-            border: '1px solid rgba(75, 85, 99, 0.3)',
-            borderRadius: '12px',
-            padding: '12px 20px',
-            marginBottom: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '16px'
-          }}>
-            {/* Article Search */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-              <div style={{
-                fontSize: '24px',
-                animation: 'spin 2s linear infinite'
-              }}>🔍</div>
-              <div>
-                <div className="status-title" style={{ color: '#a78bfa', fontSize: '13px', fontWeight: '600' }}>
-                  Next article search
-                </div>
-                <div className="status-time" style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
-                  In {formatTime(searchCountdown)} (automated)
-                </div>
-              </div>
-            </div>
-            
-            {/* Separator */}
-            <div style={{ width: '1px', height: '40px', background: 'rgba(75, 85, 99, 0.3)' }}></div>
-            
-            {/* Letterman Posting */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-              <div style={{ fontSize: '24px' }}>📰</div>
-              <div>
-                <div className="status-title" style={{ color: '#60a5fa', fontSize: '13px', fontWeight: '600' }}>
-                  Next Letterman post
-                </div>
-                <div className="status-time" style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
-                  {stats.approved > 0 
-                    ? `In ${formatTime(postCountdown)} (automated)`
-                    : 'No approved articles ready'
-                  }
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <style jsx>{`
-            @keyframes fadeIn {
-              from { opacity: 0; transform: translateY(-10px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes slideUp {
-              from { opacity: 0; transform: translateY(20px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes scaleIn {
-              from { opacity: 0; transform: scale(0.95); }
-              to { opacity: 1; transform: scale(1); }
-            }
-            @keyframes pulse {
-              0%, 100% { opacity: 1; }
-              50% { opacity: 0.6; }
-            }
-            @keyframes gradientShift {
-              0% { background-position: 0% 50%; }
-              50% { background-position: 100% 50%; }
-              100% { background-position: 0% 50%; }
-            }
-            @keyframes spin {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-            }
-
-            /* Mobile Responsive */
-            @media (max-width: 768px) {
-              main {
-                padding: 16px !important;
-                padding-top: 64px !important;
-              }
-              h1 {
-                font-size: 24px !important;
-              }
-              /* Stat cards - 2 columns on mobile */
-              div[style*="gridTemplateColumns: 'repeat(4, 1fr)'"] {
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 12px !important;
-              }
-              /* Keep filters row horizontal on mobile */
-              .filters-row {
-                flex-wrap: nowrap !important;
-                overflow-x: auto !important;
-              }
-              .filters-row > input {
-                flex: 1 !important;
-                min-width: 120px !important;
-              }
-              .filters-row > select {
-                flex-shrink: 0 !important;
-              }
-              /* Card grids - 1 column */
-              div[style*="repeat(auto-fill"] {
-                grid-template-columns: 1fr !important;
-              }
-              /* Table list view - hide on mobile, show mobile list instead */
-              .desktop-table {
-                display: none !important;
-              }
-              .mobile-list {
-                display: block !important;
-              }
-              /* Categories - dropdown on mobile */
-              .desktop-categories {
-                display: none !important;
-              }
-              .mobile-categories {
-                display: block !important;
-              }
-              /* Status banner - BIGGER text on mobile */
-              .status-title {
-                font-size: 18px !important;
-              }
-              .status-time {
-                font-size: 16px !important;
-                color: #9ca3af !important;
-              }
-            }
-          `}</style>
-
-          {/* Stats Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
-            <StatCard 
-              icon="📝" 
-              count={stats.draft || 0} 
-              label="Draft"
-              active={filter === 'draft'}
-              onClick={() => setFilter('draft')}
-              delay={0}
-            />
-            <StatCard 
-              icon="✅" 
-              count={stats.approved || 0} 
-              label="Approved"
-              active={filter === 'approved'}
-              onClick={() => setFilter('approved')}
-              delay={0.1}
-            />
-            <StatCard 
-              icon="🚀" 
-              count={stats.published || 0} 
-              label="Published"
-              active={filter === 'published'}
-              onClick={() => setFilter('published')}
-              delay={0.2}
-            />
-            <StatCard 
-              icon="❌" 
-              count={stats.rejected || 0} 
-              label="Rejected"
-              active={filter === 'rejected'}
-              onClick={() => setFilter('rejected')}
-              delay={0.3}
-            />
-          </div>
-
-          {/* Categories */}
-          {categories.length > 0 && (
-            <>
-              {/* Desktop Category Buttons */}
-              <div className="desktop-categories" style={{ marginBottom: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <button
-                  onClick={() => setCategory('all')}
-                  style={{
-                    padding: '8px 16px',
-                    background: category === 'all' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                    border: '1px solid rgba(75, 85, 99, 0.5)',
-                    borderRadius: '8px',
-                    color: '#fff',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  All Publications
-                </button>
-                {categories.map(cat => (
+            {/* API key status */}
+            <div className="flex items-center gap-2">
+              {hasKey ? (
+                <>
+                  <span className="text-xs text-green-400 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-green-400 inline-block" />
+                    Letterman connected
+                  </span>
                   <button
-                    key={cat.name}
-                    onClick={() => setCategory(cat.name)}
-                    style={{
-                      padding: '8px 16px',
-                      background: category === cat.name ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                      border: '1px solid rgba(75, 85, 99, 0.5)',
-                      borderRadius: '8px',
-                      color: '#fff',
-                      fontSize: '13px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s'
-                    }}
+                    onClick={() => setShowKeyInput(!showKeyInput)}
+                    className="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer bg-transparent border-none"
                   >
-                    {cat.emoji} {cat.name} ({cat.count})
+                    Edit key
                   </button>
-                ))}
+                </>
+              ) : (
+                <button
+                  onClick={() => setShowKeyInput(true)}
+                  className="px-4 py-2 bg-yellow-500 text-black text-sm font-semibold rounded-lg border-none cursor-pointer hover:bg-yellow-400 transition-colors"
+                >
+                  + Connect Letterman API
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Letterman API key input panel */}
+          {showKeyInput && (
+            <div className="mb-6 bg-gray-800 border border-gray-600/50 rounded-xl p-5">
+              <h3 className="text-white font-semibold mb-1">Letterman API Key</h3>
+              <p className="text-gray-400 text-sm mb-4">
+                Paste your Letterman API key below. It will be saved securely and used to fetch your articles.
+              </p>
+              <div className="flex gap-3 flex-wrap">
+                <input
+                  type="password"
+                  placeholder="Paste your Letterman API key..."
+                  value={keyInput}
+                  onChange={e => setKeyInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && saveKey()}
+                  className="flex-1 min-w-64 bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-yellow-500"
+                />
+                <button
+                  onClick={saveKey}
+                  disabled={savingKey || !keyInput.trim()}
+                  className="px-5 py-2.5 bg-yellow-500 text-black font-semibold rounded-lg border-none cursor-pointer hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                >
+                  {savingKey ? 'Saving...' : 'Save Key'}
+                </button>
+                <button
+                  onClick={() => { setShowKeyInput(false); setKeyInput(''); setKeyError(''); }}
+                  className="px-5 py-2.5 bg-gray-700 text-gray-400 font-semibold rounded-lg border-none cursor-pointer hover:text-white transition-colors text-sm"
+                >
+                  Cancel
+                </button>
               </div>
-              
+              {keyError && <p className="mt-2 text-sm text-red-400">{keyError}</p>}
+            </div>
+          )}
+
+          {/* No key configured — placeholder */}
+          {!hasKey && !showKeyInput && (
+            <div className="glass-card rounded-2xl p-16 text-center">
+              <div className="text-5xl mb-4">🔑</div>
+              <h2 className="text-xl font-semibold text-white mb-2">Letterman API Key Required</h2>
+              <p className="text-gray-400 mb-6 text-sm">Connect your Letterman account to start fetching articles.</p>
+              <button
+                onClick={() => setShowKeyInput(true)}
+                className="px-6 py-3 bg-yellow-500 text-black font-semibold rounded-lg border-none cursor-pointer hover:bg-yellow-400 transition-colors"
+              >
+                + Connect Letterman API
+              </button>
+            </div>
+          )}
+
+          {/* Main content — only shown when key is configured */}
+          {hasKey && (
+            <>
+              {/* API error banner */}
+              {apiError && (
+                <div className="mb-4 bg-red-900/30 border border-red-700/50 rounded-xl px-4 py-3 text-sm text-red-400">
+                  ⚠️ {apiError}
+                </div>
+              )}
+              {/* Status Banner */}
+              <div className="bg-gray-600/10 border border-gray-600/30 rounded-xl px-5 py-3 mb-4 flex items-center gap-4">
+                <div className="flex items-center gap-3 flex-1">
+                  <span className="text-2xl">🔍</span>
+                  <div>
+                    <div className="text-sm font-semibold text-purple-400">Next article search</div>
+                    <div className="text-xs text-gray-500 mt-0.5">In {formatTime(searchCountdown)} (automated)</div>
+                  </div>
+                </div>
+                <div className="w-px h-10 bg-gray-600/30" />
+                <div className="flex items-center gap-3 flex-1">
+                  <span className="text-2xl">📰</span>
+                  <div>
+                    <div className="text-sm font-semibold text-blue-400">Next Letterman post</div>
+                    <div className="text-xs text-gray-500 mt-0.5">In {formatTime(postCountdown)} (automated)</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Publications Filter + View Toggle */}
+              <div className="flex justify-between items-center flex-wrap gap-3 mb-4">
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => setPublication('all')}
+                    className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${publication === 'all' ? 'bg-purple-600 border-purple-600 text-white' : 'bg-gray-800/50 border-gray-600/50 text-white hover:bg-gray-800'}`}
+                  >
+                    All Publications
+                  </button>
+                  {publications.map(pub => (
+                    <button
+                      key={pub.name}
+                      onClick={() => setPublication(pub.name)}
+                      className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${publication === pub.name ? 'bg-purple-600 border-purple-600 text-white' : 'bg-gray-800/50 border-gray-600/50 text-white hover:bg-gray-800'}`}
+                    >
+                      {pub.name} ({pub.count})
+                    </button>
+                  ))}
+                </div>
+                <div className="flex gap-1 bg-gray-800/50 border border-gray-600/50 rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`px-4 py-1.5 rounded-md text-sm font-semibold text-white cursor-pointer border-none transition-colors ${viewMode === 'list' ? 'bg-purple-600' : 'bg-transparent'}`}
+                  >
+                    📋 List
+                  </button>
+                  <button
+                    onClick={() => setViewMode('cards')}
+                    className={`px-4 py-1.5 rounded-md text-sm font-semibold text-white cursor-pointer border-none transition-colors ${viewMode === 'cards' ? 'bg-purple-600' : 'bg-transparent'}`}
+                  >
+                    🎴 Cards
+                  </button>
+                </div>
+              </div>
+
+              {/* Search + Sort */}
+              <div className="flex gap-3 flex-wrap mb-6">
+                <input
+                  type="text"
+                  placeholder="🔍 Search articles..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="flex-1 min-w-48 bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500"
+                />
+                <select
+                  value={sortBy}
+                  onChange={e => setSortBy(e.target.value)}
+                  className="bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm cursor-pointer outline-none"
+                >
+                  <option value="date_desc">Newest First</option>
+                  <option value="date_asc">Oldest First</option>
+                  <option value="title">Title</option>
+                </select>
+              </div>
+
+              {/* Articles */}
+              {filteredArticles.length === 0 ? (
+                <div className="glass-card rounded-2xl p-16 text-center text-gray-500">
+                  {searchTerm ? `No articles matching "${searchTerm}"` : 'No articles found'}
+                </div>
+              ) : viewMode === 'list' ? (
+                <div className="glass-card rounded-2xl overflow-hidden">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-gray-800/70 border-b border-gray-600/50">
+                        <th className="px-5 py-4 text-left text-xs font-semibold text-gray-400 w-16" />
+                        <th className="px-5 py-4 text-left text-xs font-semibold text-gray-400">TITLE</th>
+                        <th className="px-5 py-4 text-left text-xs font-semibold text-gray-400 w-48">PUBLICATION</th>
+                        <th className="px-5 py-4 text-left text-xs font-semibold text-gray-400 w-36">DATE</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredArticles.map((article, index) => (
+                        <ArticleRow
+                          key={article._id || article.id || index}
+                          article={article}
+                          index={index}
+                          onClick={() => setSelectedArticle(article)}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="glass-card rounded-2xl p-6">
+                  <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))' }}>
+                    {filteredArticles.map((article, index) => (
+                      <ArticleCard
+                        key={article._id || article.id || index}
+                        article={article}
+                        onClick={() => setSelectedArticle(article)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-4 text-right text-sm text-gray-400">
+                {filteredArticles.length} {filteredArticles.length === 1 ? 'article' : 'articles'}
+              </div>
             </>
           )}
 
-          {/* Search, Filters, and View Toggle */}
-          {searchVisible && (
-          <div className="filters-row" style={{ marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            {/* Mobile Category Dropdown */}
-            {categories.length > 0 && (
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="mobile-categories"
-                style={{
-                  display: 'none',
-                  padding: '10px 16px',
-                  background: 'rgba(31, 41, 55, 0.5)',
-                  border: '1px solid rgba(75, 85, 99, 0.5)',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                  outline: 'none'
-                }}
-              >
-                <option value="all">All Publications</option>
-                {categories.map(cat => (
-                  <option key={cat.name} value={cat.name}>
-                    {cat.emoji} {cat.name} ({cat.count})
-                  </option>
-                ))}
-              </select>
-            )}
-            
-            <input
-              type="text"
-              placeholder="🔍 Search articles..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                flex: 1,
-                minWidth: '200px',
-                padding: '10px 16px',
-                background: 'rgba(31, 41, 55, 0.5)',
-                border: '1px solid rgba(75, 85, 99, 0.5)',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '14px',
-                outline: 'none'
-              }}
-            />
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              style={{
-                padding: '10px 16px',
-                background: 'rgba(31, 41, 55, 0.5)',
-                border: '1px solid rgba(75, 85, 99, 0.5)',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '14px',
-                cursor: 'pointer',
-                outline: 'none'
-              }}
-            >
-              <option value="date_desc">Newest First</option>
-              <option value="date_asc">Oldest First</option>
-              <option value="title">Title</option>
-            </select>
-          </div>
-          )}
-
-          {/* Articles - List or Card View */}
-          {filteredArticles.length === 0 ? (
-            <div style={{
-              background: 'rgba(17, 24, 39, 0.5)',
-              borderRadius: '16px',
-              border: '1px solid rgba(75, 85, 99, 0.5)',
-              textAlign: 'center', 
-              padding: '64px', 
-              color: '#6b7280',
-              animation: 'scaleIn 0.4s ease-out 0.4s both'
-            }}>
-              {searchTerm ? `No articles matching "${searchTerm}"` : `No ${filter} articles`}
-            </div>
-          ) : viewMode === 'list' ? (
-            // LIST VIEW
-            <div style={{
-              background: 'rgba(17, 24, 39, 0.5)',
-              borderRadius: '16px',
-              border: '1px solid rgba(75, 85, 99, 0.5)',
-              overflow: 'hidden',
-              animation: 'scaleIn 0.4s ease-out 0.4s both'
-            }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }} className="desktop-table">
-                <thead>
-                  <tr style={{ 
-                    background: 'rgba(31, 41, 55, 0.7)', 
-                    borderBottom: '1px solid rgba(75, 85, 99, 0.5)' 
-                  }}>
-                    <th style={{ padding: '16px 20px', textAlign: 'left', color: '#9ca3af', fontSize: '13px', fontWeight: '600', width: '60px' }}>
-                      
-                    </th>
-                    <th style={{ padding: '16px 20px', textAlign: 'left', color: '#9ca3af', fontSize: '13px', fontWeight: '600', width: '60px' }}>
-                      
-                    </th>
-                    <th style={{ padding: '16px 20px', textAlign: 'left', color: '#9ca3af', fontSize: '13px', fontWeight: '600' }}>
-                      TITLE
-                    </th>
-                    <th style={{ padding: '16px 20px', textAlign: 'left', color: '#9ca3af', fontSize: '13px', fontWeight: '600', width: '200px' }}>
-                      PUBLICATION
-                    </th>
-                    <th style={{ padding: '16px 20px', textAlign: 'left', color: '#9ca3af', fontSize: '13px', fontWeight: '600', width: '140px' }}>
-                      DATE
-                    </th>
-                    <th style={{ padding: '16px 20px', textAlign: 'center', color: '#9ca3af', fontSize: '13px', fontWeight: '600', width: '180px' }}>
-                      ACTIONS
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredArticles.map((article, index) => (
-                    <ArticleRow 
-                      key={article.id} 
-                      article={article}
-                      index={index}
-                      onClick={() => setSelectedArticle(article)}
-                      onApprove={() => handleApprove(article.id)}
-                      onReject={() => handleReject(article.id)}
-                      showActions={filter === 'draft'}
-                    />
-                  ))}
-                </tbody>
-              </table>
-              
-              {/* Mobile List View */}
-              <div className="mobile-list" style={{ display: 'none', padding: '16px' }}>
-                {filteredArticles.map((article) => (
-                  <div key={article.id} style={{
-                    background: 'rgba(31, 41, 55, 0.7)',
-                    borderRadius: '8px',
-                    padding: '12px',
-                    marginBottom: '12px',
-                    border: '1px solid rgba(75, 85, 99, 0.5)'
-                  }}>
-                    <div style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
-                      <img src={article.image_url} alt="" style={{ width: '60px', height: '60px', borderRadius: '6px', objectFit: 'cover', filter: 'grayscale(100%)' }} />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ color: '#fff', fontSize: '22px', fontWeight: '600', marginBottom: '8px', lineHeight: 1.3 }}>
-                          {article.title}
-                        </div>
-                        <div style={{ display: 'flex', gap: '8px', fontSize: '12px', color: '#9ca3af' }}>
-                          <span>{article.publication}</span>
-                          <span>•</span>
-                          <span>{new Date(article.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                        </div>
-                      </div>
-                    </div>
-                    {filter === 'draft' && (
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button
-                          onClick={() => handleApprove(article.id)}
-                          style={{
-                            flex: 1,
-                            padding: '10px',
-                            background: 'transparent',
-                            border: 'none',
-                            borderRadius: '6px',
-                            color: '#10b981',
-                            fontSize: '20px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          ✓
-                        </button>
-                        <button
-                          onClick={() => handleReject(article.id)}
-                          style={{
-                            flex: 1,
-                            padding: '10px',
-                            background: 'transparent',
-                            border: 'none',
-                            borderRadius: '6px',
-                            color: '#ef4444',
-                            fontSize: '20px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            // CARD VIEW
-            <div style={{
-              background: 'rgba(17, 24, 39, 0.5)',
-              borderRadius: '16px',
-              padding: '24px',
-              border: '1px solid rgba(75, 85, 99, 0.5)',
-              animation: 'scaleIn 0.4s ease-out 0.4s both'
-            }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
-                {filteredArticles.map((article) => (
-                  <ArticleCard 
-                    key={article.id} 
-                    article={article}
-                    onClick={() => setSelectedArticle(article)}
-                    onApprove={() => handleApprove(article.id)}
-                    onReject={() => handleReject(article.id)}
-                    showActions={filter === 'draft'}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div style={{ marginTop: '16px', textAlign: 'right', color: '#9ca3af', fontSize: '14px' }}>
-            {filteredArticles.length} {filteredArticles.length === 1 ? 'article' : 'articles'}
-          </div>
         </div>
       </main>
 
       {/* Article Modal */}
       {selectedArticle && (
-        <ArticleModal 
-          article={selectedArticle} 
-          onClose={() => setSelectedArticle(null)} 
-        />
+        <ArticleModal article={selectedArticle} onClose={() => setSelectedArticle(null)} />
       )}
     </div>
   );
 }
 
-function StatCard({ icon, count, label, active, onClick, delay = 0 }) {
-  return (
-    <div 
-      onClick={onClick}
-      style={{
-        padding: '16px',
-        background: active ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-        borderRadius: '12px',
-        cursor: 'pointer',
-        transition: 'all 0.3s',
-        border: `1px solid ${active ? '#8b5cf6' : 'rgba(75, 85, 99, 0.5)'}`,
-        transform: active ? 'scale(1.05)' : 'none',
-        animation: `slideUp 0.5s ease-out ${delay}s both`
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ fontSize: '28px' }}>{icon}</div>
-        <div>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: active ? '#fff' : '#06b6d4', lineHeight: 1, marginBottom: '4px' }}>
-            {count}
-          </div>
-          <div style={{ fontSize: '12px', color: active ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>
-            {label}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+function ArticleRow({ article, index, onClick }) {
+  const date = article.created_at || article.createdAt;
+  const imageUrl = article.image_url || article.image;
 
-function ArticleRow({ article, index, onClick, onApprove, onReject, showActions }) {
-  const [isHovered, setIsHovered] = React.useState(false);
-  
-  const publicationColors = {
-    'West Valley Shoutouts': '#8b5cf6',
-    'Save The Doggy': '#ec4899',
-    'Vegas Fork': '#f59e0b'
-  };
-  
   return (
-    <tr 
-      style={{
-        background: isHovered ? 'rgba(139, 92, 246, 0.1)' : (index % 2 === 0 ? 'rgba(31, 41, 55, 0.3)' : 'transparent'),
-        borderBottom: '1px solid rgba(75, 85, 99, 0.3)',
-        transition: 'all 0.3s ease',
-        transform: isHovered ? 'scale(1.01)' : 'none'
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <tr
+      className={`border-b border-gray-600/30 hover:bg-purple-900/10 transition-colors cursor-pointer ${index % 2 === 0 ? 'bg-gray-800/30' : ''}`}
+      onClick={onClick}
     >
-      {/* Thumbnail */}
-      <td style={{ padding: '12px 20px' }}>
-        <div style={{ 
-          width: '48px', 
-          height: '48px', 
-          borderRadius: '8px', 
-          overflow: 'hidden',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-        }}>
-          {article.image_url ? (
-            <img 
-              src={article.image_url} 
-              alt="" 
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
+      <td className="px-5 py-3">
+        <div className="w-12 h-12 rounded-lg overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 flex-shrink-0">
+          {imageUrl ? (
+            <img src={imageUrl} alt="" className="w-full h-full object-cover" />
           ) : (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>
-              📰
-            </div>
+            <div className="w-full h-full flex items-center justify-center text-xl">📰</div>
           )}
         </div>
       </td>
-
-      {/* Scrapable Indicator */}
-      <td style={{ padding: '12px 20px', textAlign: 'center' }}>
-        <div 
-          style={{ 
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: article.scrapable ? '#10b981' : '#ef4444',
-            margin: '0 auto',
-            boxShadow: article.scrapable ? '0 0 8px rgba(16, 185, 129, 0.5)' : '0 0 8px rgba(239, 68, 68, 0.5)',
-            animation: 'pulse 2s ease-in-out infinite'
-          }} 
-          title={article.scrapable ? 'Can be scraped' : 'Protected - cannot scrape'}
-        />
-      </td>
-
-      {/* Title */}
-      <td style={{ padding: '12px 20px' }}>
-        <div 
-          onClick={onClick}
-          style={{ 
-            color: isHovered ? '#60a5fa' : '#fff', 
-            fontSize: '14px', 
-            fontWeight: '500', 
-            lineHeight: 1.4,
-            cursor: 'pointer',
-            transition: 'color 0.2s'
-          }}
-        >
-          {article.title}
+      <td className="px-5 py-3">
+        <div className="text-white text-sm font-medium leading-snug hover:text-blue-400 transition-colors">
+          {article.title || 'Untitled'}
         </div>
       </td>
-
-      {/* Publication */}
-      <td style={{ padding: '12px 20px' }}>
-        <div style={{ 
-          display: 'inline-block',
-          padding: '6px 12px', 
-          background: publicationColors[article.publication] || '#6b7280',
-          borderRadius: '6px', 
-          fontSize: '12px',
-          color: '#fff',
-          fontWeight: '600'
-        }}>
-          {article.publication === 'West Valley Shoutouts' && '📍 '}
-          {article.publication === 'Save The Doggy' && '🐕 '}
-          {article.publication === 'Vegas Fork' && '🍴 '}
-          {article.publication}
-        </div>
-      </td>
-
-      {/* Date */}
-      <td style={{ padding: '12px 20px', color: '#9ca3af', fontSize: '13px' }}>
-        {new Date(article.created_at).toLocaleDateString('en-US', { 
-          month: 'short', 
-          day: 'numeric',
-          year: 'numeric'
-        })}
-      </td>
-
-      {/* Actions */}
-      <td style={{ padding: '12px 20px', textAlign: 'center' }}>
-        {showActions && (
-          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', opacity: isHovered ? 1 : 0, transition: 'opacity 0.2s' }}>
-            <button
-              onClick={onApprove}
-              style={{
-                padding: '6px 16px',
-                background: '#10b981',
-                border: 'none',
-                borderRadius: '6px',
-                color: 'white',
-                fontSize: '12px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              ✓ Approve
-            </button>
-            <button
-              onClick={onReject}
-              style={{
-                padding: '6px 16px',
-                background: '#ef4444',
-                border: 'none',
-                borderRadius: '6px',
-                color: 'white',
-                fontSize: '12px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              ✕ Reject
-            </button>
-          </div>
+      <td className="px-5 py-3">
+        {article.publication && (
+          <span className="px-3 py-1 bg-purple-600 rounded text-xs font-semibold text-white">
+            {article.publication}
+          </span>
         )}
+      </td>
+      <td className="px-5 py-3 text-gray-400 text-sm">
+        {date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
       </td>
     </tr>
   );
 }
 
-function ArticleCard({ article, onClick, onApprove, onReject, showActions }) {
-  const [isHovered, setIsHovered] = React.useState(false);
-  
+function ArticleCard({ article, onClick }) {
+  const date = article.created_at || article.createdAt;
+  const imageUrl = article.image_url || article.image;
+
   return (
-    <div 
-      style={{
-        background: 'rgba(31, 41, 55, 0.7)',
-        borderRadius: '12px',
-        border: `1px solid ${isHovered ? 'rgba(139, 92, 246, 0.5)' : 'rgba(75, 85, 99, 0.5)'}`,
-        overflow: 'hidden',
-        transition: 'all 0.3s ease',
-        boxShadow: isHovered ? '0 8px 16px rgba(139, 92, 246, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
-        transform: isHovered ? 'translateY(-4px)' : 'none'
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <div
+      className="bg-gray-800/70 rounded-xl border border-gray-600/50 overflow-hidden cursor-pointer hover:border-purple-500/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-900/20 transition-all"
+      onClick={onClick}
     >
-      {/* Article Preview */}
-      <div 
-        onClick={onClick}
-        style={{ 
-          aspectRatio: '4/5', 
-          background: article.image_url ? 'transparent' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          position: 'relative',
-          overflow: 'hidden',
-          filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
-          transition: 'filter 0.3s ease',
-          cursor: 'pointer'
-        }}
-      >
-        {article.image_url ? (
-          <img 
-            src={article.image_url.replace('w=80&h=80', 'w=400&h=500')} 
-            alt={article.title || 'Article preview'}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover'
-            }}
-          />
+      <div className="aspect-[4/5] bg-gradient-to-br from-indigo-500 to-purple-600 relative overflow-hidden grayscale hover:grayscale-0 transition-all">
+        {imageUrl ? (
+          <img src={imageUrl} alt={article.title} className="w-full h-full object-cover" />
         ) : (
-          <div style={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '48px',
-            color: 'white'
-          }}>
-            📰
-          </div>
+          <div className="w-full h-full flex items-center justify-center text-5xl text-white">📰</div>
         )}
-        
-        {/* Scrapable Badge */}
-        <div style={{
-          position: 'absolute',
-          top: '12px',
-          right: '12px',
-          background: article.scrapable ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-          backdropFilter: 'blur(8px)',
-          borderRadius: '50%',
-          width: '12px',
-          height: '12px',
-          border: `2px solid ${article.scrapable ? '#10b981' : '#ef4444'}`,
-          boxShadow: article.scrapable ? '0 0 12px rgba(16, 185, 129, 0.6)' : '0 0 12px rgba(239, 68, 68, 0.6)',
-          animation: 'pulse 2s ease-in-out infinite'
-        }} title={article.scrapable ? 'Can be scraped' : 'Protected - cannot scrape'}>
-        </div>
       </div>
-
-      {/* Content */}
-      <div style={{ padding: '16px' }}>
-        <h3 
-          onClick={onClick}
-          style={{ 
-            color: isHovered ? '#60a5fa' : '#fff', 
-            fontSize: '14px', 
-            fontWeight: '600', 
-            marginBottom: '8px', 
-            lineHeight: 1.4,
-            cursor: 'pointer',
-            transition: 'color 0.2s'
-          }}
-        >
-          {article.title || 'Untitled Article'}
-        </h3>
-        
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+      <div className="p-4">
+        <h3 className="text-white text-sm font-semibold mb-2 leading-snug">{article.title || 'Untitled'}</h3>
+        <div className="flex gap-2 flex-wrap">
           {article.publication && (
-            <span style={{ 
-              padding: '4px 8px', 
-              background: '#1f2937', 
-              borderRadius: '6px', 
-              fontSize: '11px',
-              color: '#9ca3af'
-            }}>
-              {article.publication}
-            </span>
+            <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">{article.publication}</span>
           )}
-          {article.created_at && (
-            <span style={{ 
-              padding: '4px 8px', 
-              background: '#1f2937', 
-              borderRadius: '6px', 
-              fontSize: '11px',
-              color: '#9ca3af'
-            }}>
-              {new Date(article.created_at).toLocaleDateString()}
+          {date && (
+            <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">
+              {new Date(date).toLocaleDateString()}
             </span>
           )}
         </div>
-
-        {showActions && isHovered && (
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={onApprove}
-              style={{
-                flex: 1,
-                padding: '8px',
-                background: '#10b981',
-                border: 'none',
-                borderRadius: '6px',
-                color: 'white',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              ✓ Approve
-            </button>
-            <button
-              onClick={onReject}
-              style={{
-                flex: 1,
-                padding: '8px',
-                background: '#ef4444',
-                border: 'none',
-                borderRadius: '6px',
-                color: 'white',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              ✕ Reject
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
 }
 
 function ArticleModal({ article, onClose }) {
+  const date = article.created_at || article.createdAt;
+  const imageUrl = article.image_url || article.image;
+
   return (
-    <div 
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0, 0, 0, 0.85)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-        padding: '20px'
-      }}
+    <div
+      className="fixed inset-0 bg-black/85 flex items-center justify-center z-50 p-5"
       onClick={onClose}
     >
-      <div 
-        style={{
-          background: '#1f2937',
-          borderRadius: '16px',
-          border: '1px solid rgba(75, 85, 99, 0.5)',
-          maxWidth: '800px',
-          width: '100%',
-          maxHeight: '90vh',
-          overflow: 'hidden',
-          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'
-        }}
-        onClick={(e) => e.stopPropagation()}
+      <div
+        className="bg-gray-800 rounded-2xl border border-gray-600/50 max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+        onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
-        <div style={{
-          padding: '24px',
-          borderBottom: '1px solid rgba(75, 85, 99, 0.5)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          gap: '16px'
-        }}>
-          <div style={{ flex: 1 }}>
-            <h2 style={{ 
-              fontSize: '24px', 
-              fontWeight: '700', 
-              color: '#fff',
-              marginBottom: '12px',
-              lineHeight: 1.3
-            }}>
-              {article.title}
-            </h2>
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <span style={{ 
-                padding: '6px 12px', 
-                background: '#8b5cf6',
-                borderRadius: '6px', 
-                fontSize: '12px',
-                color: '#fff',
-                fontWeight: '600'
-              }}>
-                {article.publication}
-              </span>
-              <span style={{ 
-                padding: '6px 12px', 
-                background: 'rgba(31, 41, 55, 0.7)',
-                borderRadius: '6px', 
-                fontSize: '12px',
-                color: '#9ca3af',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                {article.scrapable ? '??' : '??'}
-                {article.scrapable ? 'Scrapable' : 'Protected'}
-              </span>
-              <span style={{ 
-                fontSize: '13px',
-                color: '#9ca3af'
-              }}>
-                {new Date(article.created_at).toLocaleDateString('en-US', { 
-                  month: 'long', 
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
-              </span>
+        <div className="p-6 border-b border-gray-600/50 flex justify-between items-start gap-4">
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-white mb-3 leading-snug">{article.title}</h2>
+            <div className="flex gap-3 flex-wrap items-center">
+              {article.publication && (
+                <span className="px-3 py-1 bg-purple-600 rounded text-xs font-semibold text-white">{article.publication}</span>
+              )}
+              {date && (
+                <span className="text-sm text-gray-400">
+                  {new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                </span>
+              )}
             </div>
           </div>
           <button
             onClick={onClose}
-            style={{
-              background: 'rgba(31, 41, 55, 0.7)',
-              border: '1px solid rgba(75, 85, 99, 0.5)',
-              borderRadius: '8px',
-              padding: '8px 12px',
-              color: '#9ca3af',
-              cursor: 'pointer',
-              fontSize: '20px',
-              lineHeight: 1,
-              transition: 'all 0.2s'
-            }}
+            className="px-3 py-2 bg-gray-700/70 border border-gray-600/50 rounded-lg text-gray-400 cursor-pointer hover:text-white transition-colors text-xl leading-none"
           >
-            ?
+            ×
           </button>
         </div>
-
-        {/* Content */}
-        <div style={{
-          padding: '24px',
-          overflowY: 'auto',
-          maxHeight: 'calc(90vh - 180px)'
-        }}>
-          {article.image_url && (
-            <div style={{
-              marginBottom: '24px',
-              borderRadius: '12px',
-              overflow: 'hidden'
-            }}>
-              <img 
-                src={article.image_url.replace('w=80&h=80', 'w=800&h=400')} 
-                alt={article.title}
-                style={{
-                  width: '100%',
-                  height: 'auto',
-                  display: 'block'
-                }}
-              />
+        <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 160px)' }}>
+          {imageUrl && (
+            <div className="mb-6 rounded-xl overflow-hidden">
+              <img src={imageUrl} alt={article.title} className="w-full h-auto block" />
             </div>
           )}
-          
-          <div style={{
-            fontSize: '16px',
-            lineHeight: 1.7,
-            color: '#e5e7eb'
-          }}>
-            {article.content}
+          <div className="text-base leading-relaxed text-gray-200">
+            {article.content || article.body || article.description || 'No content available.'}
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+export default withAuth(Articles);
