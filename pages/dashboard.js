@@ -1,7 +1,74 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import NavigationSidebar from '../components/NavigationSidebar';
+import withAuth from '../lib/withAuth';
+import { useAuth } from '../lib/authContext';
 
-export default function Dashboard() {
+function getVideoEmbed(url) {
+  if (!url || url.startsWith('pb://')) return { type: 'none' };
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  if (ytMatch) return { type: 'iframe', src: `https://www.youtube.com/embed/${ytMatch[1]}` };
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) return { type: 'iframe', src: `https://player.vimeo.com/video/${vimeoMatch[1]}` };
+  return { type: 'video', src: url };
+}
+
+const TIMEZONES = [
+  { value: 'Pacific/Honolulu',              label: 'Hawaii (UTC-10)' },
+  { value: 'America/Anchorage',             label: 'Alaska (UTC-9/-8)' },
+  { value: 'America/Los_Angeles',           label: 'Pacific Time — LA / Vancouver (UTC-8/-7)' },
+  { value: 'America/Denver',                label: 'Mountain Time — Denver / Phoenix (UTC-7/-6)' },
+  { value: 'America/Chicago',               label: 'Central Time — Chicago / Dallas (UTC-6/-5)' },
+  { value: 'America/New_York',              label: 'Eastern Time — New York / Miami (UTC-5/-4)' },
+  { value: 'America/Sao_Paulo',             label: 'Brasilia (UTC-3)' },
+  { value: 'America/Argentina/Buenos_Aires',label: 'Buenos Aires (UTC-3)' },
+  { value: 'Atlantic/Azores',               label: 'Azores (UTC-1)' },
+  { value: 'Europe/London',                 label: 'London / Dublin (UTC+0/+1)' },
+  { value: 'Europe/Paris',                  label: 'Paris / Rome / Madrid (UTC+1/+2)' },
+  { value: 'Europe/Berlin',                 label: 'Berlin / Amsterdam (UTC+1/+2)' },
+  { value: 'Europe/Athens',                 label: 'Athens / Bucharest (UTC+2/+3)' },
+  { value: 'Europe/Moscow',                 label: 'Moscow (UTC+3)' },
+  { value: 'Asia/Dubai',                    label: 'Dubai / Abu Dhabi (UTC+4)' },
+  { value: 'Asia/Karachi',                  label: 'Karachi / Islamabad (UTC+5)' },
+  { value: 'Asia/Kolkata',                  label: 'India (UTC+5:30)' },
+  { value: 'Asia/Dhaka',                    label: 'Dhaka (UTC+6)' },
+  { value: 'Asia/Bangkok',                  label: 'Bangkok / Jakarta (UTC+7)' },
+  { value: 'Asia/Shanghai',                 label: 'China / Hong Kong (UTC+8)' },
+  { value: 'Asia/Singapore',                label: 'Singapore / Kuala Lumpur (UTC+8)' },
+  { value: 'Asia/Tokyo',                    label: 'Tokyo / Seoul (UTC+9)' },
+  { value: 'Australia/Sydney',              label: 'Sydney / Melbourne (UTC+10/+11)' },
+  { value: 'Pacific/Auckland',              label: 'Auckland (UTC+12/+13)' },
+];
+
+// Convert a datetime-local string + IANA timezone → UTC ISO string
+function getScheduledISO(datetimeLocal, timezone) {
+  if (!datetimeLocal) return null;
+  // Treat the datetime string as if it were UTC to get a reference ms value
+  const asUTC = new Date(datetimeLocal + ':00.000Z');
+  const fmt = (tz) => asUTC.toLocaleString('en-US', {
+    timeZone: tz, hour12: false,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  });
+  const parse = (s) => {
+    const [d, t] = s.split(', ');
+    const [mo, da, yr] = d.split('/').map(Number);
+    const [h, mi, se] = t.split(':').map(Number);
+    return Date.UTC(yr, mo - 1, da, h % 24, mi, se);
+  };
+  const offsetMs = parse(fmt(timezone)) - parse(fmt('UTC'));
+  return new Date(asUTC.getTime() - offsetMs).toISOString();
+}
+
+function formatBytes(bytes) {
+  if (!bytes) return '';
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function Dashboard() {
+  const { session } = useAuth();
+
+  // Clips list state
   const [clips, setClips] = useState([]);
   const [stats, setStats] = useState({});
   const [categories, setCategories] = useState([]);
@@ -10,107 +77,347 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date_desc');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [processingCount, setProcessingCount] = useState(0);
-  const [nextCheckIn, setNextCheckIn] = useState(300); // 5 minutes in seconds
-  const [nextPostIn, setNextPostIn] = useState(7200); // 2 hours in seconds (default)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [nextCheckIn, setNextCheckIn] = useState(300);
+  const [nextPostIn, setNextPostIn] = useState(7200);
+
+  // Edit modal
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingClip, setEditingClip] = useState(null);
+  const [editCaption, setEditCaption] = useState('');
+  const [editAccountIds, setEditAccountIds] = useState([]);
+  const [editAccounts, setEditAccounts] = useState([]);
+  const [loadingEditAccounts, setLoadingEditAccounts] = useState(false);
+
+  // PostBridge API key management
+  const [hasPBKey, setHasPBKey] = useState(false);
+  const [pbKeyInput, setPbKeyInput] = useState('');
+  const [showPBKeyInput, setShowPBKeyInput] = useState(false);
+  const [savingPBKey, setSavingPBKey] = useState(false);
+  const [pbKeyError, setPbKeyError] = useState('');
+
+  // API Access panel
+  const [showApiAccess, setShowApiAccess] = useState(false);
+  const [tokenCopied, setTokenCopied] = useState(false);
+
+  // Create Post modal
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [pbMedia, setPbMedia] = useState([]);
+  const [pbAccounts, setPbAccounts] = useState([]);
+  const [selectedMedia, setSelectedMedia] = useState(null);
+  const [postCaption, setPostCaption] = useState('');
+  const [selectedAccountIds, setSelectedAccountIds] = useState([]);
+  const [newPostCategory, setNewPostCategory] = useState('');
+  const [loadingMedia, setLoadingMedia] = useState(false);
+  const [createError, setCreateError] = useState('');
+  const [creating, setCreating] = useState(false);
+
+  // Next scheduled post countdown
+  const [nextScheduledAt, setNextScheduledAt] = useState(null);
+  const [nextScheduledSecs, setNextScheduledSecs] = useState(null);
+
+  // Schedule / Approve modal
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [scheduleClipId, setScheduleClipId] = useState(null);
+  const [scheduledAt, setScheduledAt] = useState('');
+  const [scheduleTimezone, setScheduleTimezone] = useState(() => Intl.DateTimeFormat().resolvedOptions().timeZone);
+  const [schedulingLoading, setSchedulingLoading] = useState(false);
+
+  useEffect(() => { if (session) fetchClips(); }, [filter, category, sortBy, session]);
 
   useEffect(() => {
-    fetchClips();
-  }, [filter, category, sortBy]);
-  
-  useEffect(() => {
     fetchProcessing();
-    
-    // Check processing every 5 minutes
     const processingInterval = setInterval(fetchProcessing, 5 * 60 * 1000);
-    
-    // Countdown timers (updates every second)
     const countdownInterval = setInterval(() => {
-      // Processing check countdown
-      setNextCheckIn(prev => {
-        if (prev <= 1) {
-          return 300; // Reset to 5 minutes
-        }
-        return prev - 1;
-      });
-      
-      // Social posting countdown
-      setNextPostIn(prev => {
-        if (prev <= 1) {
-          return 7200; // Reset to 2 hours
-        }
-        return prev - 1;
-      });
+      setNextCheckIn(prev => (prev <= 1 ? 300 : prev - 1));
+      setNextPostIn(prev => (prev <= 1 ? 7200 : prev - 1));
     }, 1000);
-    
-    return () => {
-      clearInterval(processingInterval);
-      clearInterval(countdownInterval);
-    };
+    return () => { clearInterval(processingInterval); clearInterval(countdownInterval); };
   }, []);
+
+  useEffect(() => { if (session) loadSettings(); }, [session]);
+
+  // Live countdown to next scheduled post
+  useEffect(() => {
+    if (!nextScheduledAt) { setNextScheduledSecs(null); return; }
+    const compute = () => {
+      const secs = Math.max(0, Math.floor((new Date(nextScheduledAt) - new Date()) / 1000));
+      setNextScheduledSecs(secs);
+    };
+    compute();
+    const id = setInterval(compute, 1000);
+    return () => clearInterval(id);
+  }, [nextScheduledAt]);
+
+  const authHeaders = () => ({
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${session.access_token}`,
+  });
+
+  const loadSettings = async () => {
+    try {
+      const res = await fetch('/api/settings', { headers: { Authorization: `Bearer ${session.access_token}` } });
+      const data = await res.json();
+      if (data.settings?.postbridge_api_key) setHasPBKey(true);
+    } catch { /* ignore */ }
+  };
+
+  const savePBKey = async () => {
+    if (!pbKeyInput.trim()) return;
+    setSavingPBKey(true);
+    setPbKeyError('');
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ key: 'postbridge_api_key', value: pbKeyInput.trim() }),
+      });
+      if (!res.ok) throw new Error('Failed to save');
+      setHasPBKey(true);
+      setShowPBKeyInput(false);
+      setPbKeyInput('');
+    } catch {
+      setPbKeyError('Failed to save key. Please try again.');
+    } finally {
+      setSavingPBKey(false);
+    }
+  };
 
   const fetchProcessing = async () => {
     try {
       const res = await fetch('/api/processing');
       const data = await res.json();
       setProcessingCount(data.processing || 0);
-      setNextCheckIn(300); // Reset countdown on fetch
+      setNextCheckIn(300);
     } catch (err) {
       console.error('Error fetching processing count:', err);
     }
   };
-  
+
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
-  
+
   const formatLongTime = (seconds) => {
     const hours = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
-    if (hours > 0) {
-      return `${hours}h ${mins}m`;
-    } else if (mins > 0) {
-      return `${mins}m ${secs}s`;
-    } else {
-      return `${secs}s`;
-    }
+    if (hours > 0) return `${hours}h ${mins}m`;
+    if (mins > 0) return `${mins}m ${secs}s`;
+    return `${secs}s`;
   };
 
   const fetchClips = async () => {
+    setRefreshing(true);
     try {
       const params = new URLSearchParams({ filter, category, sortBy });
-      const res = await fetch(`/api/clips?${params}`);
+      const res = await fetch(`/api/clips?${params}`, {
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+      });
       const data = await res.json();
-      setClips(data.clips);
-      setStats(data.stats);
+      let clipsData = data.clips || [];
+
+      // Resolve pb://media/{id} URLs to real video URLs
+      const pbClips = clipsData.filter(c => c.clip_url?.startsWith('pb://media/'));
+      if (pbClips.length > 0 && session) {
+        const resolved = await Promise.all(
+          pbClips.map(c => {
+            const mediaId = c.clip_url.replace('pb://media/', '');
+            return fetch(`/api/postbridge/media/${mediaId}`, {
+              headers: { Authorization: `Bearer ${session.access_token}` },
+            })
+              .then(r => r.json())
+              .then(d => ({ clip_id: c.clip_id, url: d.object?.url || null }))
+              .catch(() => ({ clip_id: c.clip_id, url: null }));
+          })
+        );
+        const urlMap = {};
+        resolved.forEach(({ clip_id, url }) => { if (url) urlMap[clip_id] = url; });
+        clipsData = clipsData.map(c => urlMap[c.clip_id] ? { ...c, clip_url: urlMap[c.clip_id] } : c);
+      }
+
+      setClips(clipsData);
+      setStats(data.stats || {});
+      setNextScheduledAt(data.stats?.next_scheduled_at || null);
       setCategories(data.categories || []);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching clips:', err);
+    } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const filteredClips = clips.filter(clip => 
-    searchTerm === '' || 
-    (clip.title && clip.title.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredClips = clips.filter(clip =>
+    searchTerm === '' || (clip.title && clip.title.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const handleApprove = async (clipId) => {
+  // ── Create Post ──────────────────────────────────────────────────
+  const openCreateModal = async () => {
+    setShowCreateModal(true);
+    setLoadingMedia(true);
+    setCreateError('');
+    setSelectedMedia(null);
+    setPostCaption('');
+    setSelectedAccountIds([]);
+    setNewPostCategory('');
     try {
-      await fetch('/api/approve', {
+      const [mediaRes, accountsRes] = await Promise.all([
+        fetch('/api/postbridge/media', { headers: { Authorization: `Bearer ${session.access_token}` } }),
+        fetch('/api/postbridge/accounts', { headers: { Authorization: `Bearer ${session.access_token}` } }),
+      ]);
+      const [mediaData, accountsData] = await Promise.all([mediaRes.json(), accountsRes.json()]);
+      if (!mediaRes.ok) throw new Error(mediaData.error || 'Failed to load media');
+      setPbMedia((mediaData.data || []).filter(m => !m.object?.isDeleted));
+      setPbAccounts(accountsData.data || []);
+    } catch (err) {
+      setCreateError(err.message || 'Failed to load PostBridge data.');
+    } finally {
+      setLoadingMedia(false);
+    }
+  };
+
+  const toggleAccount = (id) => {
+    setSelectedAccountIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleCreatePost = async () => {
+    if (!selectedMedia) { setCreateError('Please select a video from the library.'); return; }
+    if (selectedAccountIds.length === 0) { setCreateError('Please select at least one social account.'); return; }
+    setCreateError('');
+    setCreating(true);
+    try {
+      const res = await fetch('/api/clips', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clipId })
+        headers: authHeaders(),
+        body: JSON.stringify({
+          postbridge_media_id: selectedMedia.id,
+          postbridge_media_url: selectedMedia.object?.url || '',
+          title: selectedMedia.object?.name || postCaption || 'Untitled',
+          caption: postCaption,
+          account_ids: selectedAccountIds,
+          category: newPostCategory,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setCreateError(data.error || 'Failed to create draft.');
+        return;
+      }
+      setShowCreateModal(false);
+      fetchClips();
+    } catch {
+      setCreateError('Failed to create post. Please try again.');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  // ── Approve / Schedule ───────────────────────────────────────────
+  const handleApprove = (clip) => {
+    setScheduleClipId(clip.clip_id);
+    setScheduledAt('');
+    setScheduleTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    setShowScheduleModal(true);
+  };
+
+  const handleScheduleApprove = async () => {
+    if (!scheduleClipId) return;
+    setSchedulingLoading(true);
+    try {
+      const isoScheduledAt = scheduledAt ? getScheduledISO(scheduledAt, scheduleTimezone) : null;
+      const res = await fetch('/api/approve', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ clipId: scheduleClipId, scheduledAt: isoScheduledAt }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(`Could not approve:\n\n${data.error}`);
+        return;
+      }
+      setShowScheduleModal(false);
+      setScheduleClipId(null);
+      fetchClips();
+    } catch {
+      alert('Failed to approve clip. Please try again.');
+    } finally {
+      setSchedulingLoading(false);
+    }
+  };
+
+  // ── Other actions ────────────────────────────────────────────────
+  const openEditModal = async (clip) => {
+    setEditingClip({ ...clip });
+    setEditCaption(clip.suggested_caption || '');
+    setEditAccountIds([]);
+    setEditAccounts([]);
+    setShowEditModal(true);
+    // Load accounts + current post selections for PostBridge clips
+    if (clip.postbridge_post_id && session) {
+      setLoadingEditAccounts(true);
+      try {
+        const headers = { Authorization: `Bearer ${session.access_token}` };
+        const [accountsRes, postRes] = await Promise.all([
+          fetch('/api/postbridge/accounts', { headers }),
+          fetch(`/api/postbridge/posts/${clip.postbridge_post_id}`, { headers }),
+        ]);
+        const [accountsData, postData] = await Promise.all([accountsRes.json(), postRes.json()]);
+        setEditAccounts(accountsData.data || []);
+        // Pre-check whichever accounts are already on the draft
+        if (Array.isArray(postData.social_accounts)) {
+          setEditAccountIds(postData.social_accounts.map(a => (typeof a === 'object' ? a.id : a)));
+        }
+      } catch { /* ignore */ }
+      setLoadingEditAccounts(false);
+    }
+  };
+
+  const toggleEditAccount = (id) => {
+    setEditAccountIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const handleUpdateClip = async () => {
+    if (!editingClip.title.trim()) return;
+    try {
+      await fetch('/api/clips', {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          clip_id: editingClip.clip_id,
+          title: editingClip.title,
+          clip_url: editingClip.clip_url,
+          category: editingClip.category,
+          caption: editCaption,
+          // Always send account_ids for PostBridge clips so selections are saved
+          account_ids: editingClip.postbridge_post_id ? editAccountIds : undefined,
+        }),
+      });
+      setShowEditModal(false);
+      setEditingClip(null);
+      fetchClips();
+    } catch (err) {
+      console.error('Error updating clip:', err);
+    }
+  };
+
+  const handleDeleteClip = async (clipId) => {
+    if (!confirm('Remove this post? It will be moved to Rejected and reverted to draft in PostBridge (media is kept).')) return;
+    try {
+      await fetch('/api/clips', {
+        method: 'DELETE',
+        headers: authHeaders(),
+        body: JSON.stringify({ clip_id: clipId }),
       });
       fetchClips();
     } catch (err) {
-      console.error('Error approving clip:', err);
+      console.error('Error deleting clip:', err);
     }
   };
 
@@ -119,7 +426,7 @@ export default function Dashboard() {
       await fetch('/api/reject', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clipId })
+        body: JSON.stringify({ clipId }),
       });
       fetchClips();
     } catch (err) {
@@ -129,380 +436,225 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1423' }}>
+      <div className="flex min-h-screen">
         <NavigationSidebar />
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
-          Loading clips...
-        </div>
+        <div className="flex-1 flex items-center justify-center text-gray-400">Loading clips...</div>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1423' }}>
+    <div className="flex min-h-screen">
       <NavigationSidebar />
-      
-      <main style={{ flex: 1, padding: '32px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', background: '#0D1423', position: 'relative' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-          
-          {/* Hamburger Menu - Top Right */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="hamburger-menu"
-            style={{
-              position: 'fixed',
-              top: '16px',
-              right: '16px',
-              zIndex: 1001,
-              background: '#1f2937',
-              border: '1px solid #374151',
-              borderRadius: '8px',
-              padding: '12px',
-              color: '#fff',
-              cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-            }}
-          >
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
+      <main className="flex-1 p-4 md:p-8 pt-16 md:pt-8">
+        <div className="max-w-7xl mx-auto">
 
-          {/* Publications Menu Dropdown */}
-          {mobileMenuOpen && (
-            <>
-              <div
-                onClick={() => setMobileMenuOpen(false)}
-                style={{
-                  position: 'fixed',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'rgba(0, 0, 0, 0.5)',
-                  zIndex: 999
-                }}
-              />
-              <div style={{
-                position: 'fixed',
-                top: '72px',
-                right: '16px',
-                background: '#1f2937',
-                border: '1px solid #374151',
-                borderRadius: '12px',
-                padding: '8px',
-                zIndex: 1000,
-                minWidth: '200px',
-                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)'
-              }}>
-                <div style={{ padding: '8px 12px', color: '#9ca3af', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
-                  Publications
-                </div>
-                <a href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px', background: 'rgba(139, 92, 246, 0.2)' }}>
-                  <span style={{ fontSize: '20px' }}>🎬</span>
-                  <span style={{ fontSize: '14px' }}>Video Board</span>
-                </a>
-                <a href="/articles" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '20px' }}>📰</span>
-                  <span style={{ fontSize: '14px' }}>Article Board</span>
-                </a>
-                <a href="/ideas" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '20px' }}>💡</span>
-                  <span style={{ fontSize: '14px' }}>Idea Board</span>
-                </a>
-                <div style={{ height: '1px', background: '#374151', margin: '8px 0' }} />
-                <a href="https://dashboard-gilt-one-zc4y5uu95v.vercel.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '20px' }}>🎛️</span>
-                  <span style={{ fontSize: '14px' }}>Command Center</span>
-                </a>
-                <a href="https://kanban-rho-ivory.vercel.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '20px' }}>👥</span>
-                  <span style={{ fontSize: '14px' }}>Team Board</span>
-                </a>
-                <a href="/openclaw" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '20px' }}>🤖</span>
-                  <span style={{ fontSize: '14px' }}>OpenClaw Board</span>
-                </a>
-              </div>
-            </>
-          )}
-          
           {/* Header */}
-          <div style={{ 
-            marginBottom: '24px',
-            animation: 'fadeIn 0.6s ease-out'
-          }}>
-            <h1 style={{ 
-              fontSize: '30px', 
-              fontWeight: '700', 
-              background: 'linear-gradient(90deg, #22d3ee, #60a5fa, #a78bfa, #22d3ee)',
-              backgroundSize: '200% 100%',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              marginBottom: '4px',
-              animation: 'gradientShift 3s ease infinite'
-            }}>
-              Video Cue Board
-            </h1>
-            <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '4px' }}>Video clip review and publishing</p>
+          <div className="mb-6 flex justify-between items-center gap-3">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold gradient-text mb-1">🎬 Video Cue Board</h1>
+              <p className="text-sm text-gray-400">Create and schedule social posts</p>
+            </div>
+            {hasPBKey && (
+              <button
+                onClick={openCreateModal}
+                className="px-4 md:px-6 py-3 bg-purple-600 rounded-lg text-white text-sm font-semibold cursor-pointer hover:scale-105 transition-transform border-none whitespace-nowrap flex-shrink-0"
+              >
+                + Create Post
+              </button>
+            )}
           </div>
 
-          {/* Status Banner - Always visible */}
-          <div style={{
-            background: 'rgba(75, 85, 99, 0.1)',
-            border: '1px solid rgba(75, 85, 99, 0.3)',
-            borderRadius: '12px',
-            padding: '12px 20px',
-            marginBottom: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
-            animation: 'slideUp 0.5s ease-out 0.2s both',
-            boxShadow: '0 4px 12px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            {/* Processing Status */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '12px', 
-              flex: 1,
-              padding: '8px 12px',
-              borderRadius: '8px',
-              background: processingCount > 0 ? 'rgba(167, 139, 250, 0.1)' : 'transparent',
-              transition: 'all 0.3s ease'
-            }}>
-              <div style={{
-                fontSize: '24px',
-                animation: processingCount > 0 ? 'spin 2s linear infinite' : 'pulse 2s ease-in-out infinite',
-                filter: processingCount > 0 ? 'drop-shadow(0 0 8px rgba(167, 139, 250, 0.6))' : 'none'
-              }}>⚙️</div>
+          {/* PostBridge connection */}
+          <div className="mb-4 flex items-center gap-3 justify-end">
+            {hasPBKey ? (
+              <>
+                <span className="text-xs text-green-400 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-green-400 inline-block" />
+                  PostBridge connected
+                </span>
+                <button
+                  onClick={() => setShowPBKeyInput(!showPBKeyInput)}
+                  className="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer bg-transparent border-none"
+                >
+                  Update key
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setShowPBKeyInput(true)}
+                className="px-4 py-2 bg-yellow-500 text-black text-sm font-semibold rounded-lg border-none cursor-pointer hover:bg-yellow-400 transition-colors"
+              >
+                + Connect PostBridge
+              </button>
+            )}
+            <span className="text-gray-600 text-xs">|</span>
+            <button
+              onClick={() => setShowApiAccess(!showApiAccess)}
+              className="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer bg-transparent border-none"
+            >
+              API Access
+            </button>
+          </div>
+
+          {/* PostBridge API key input panel */}
+          {showPBKeyInput && (
+            <div className="mb-6 bg-gray-800 border border-gray-600/50 rounded-xl p-5">
+              <h3 className="text-white font-semibold mb-1">PostBridge API Key</h3>
+              <p className="text-gray-400 text-sm mb-4">
+                Paste your PostBridge API key below to connect your media library and social accounts.
+              </p>
+              <div className="flex gap-3 flex-wrap">
+                <input
+                  type="password"
+                  placeholder="Paste your PostBridge API key..."
+                  value={pbKeyInput}
+                  onChange={e => setPbKeyInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && savePBKey()}
+                  className="flex-1 min-w-64 bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-yellow-500"
+                />
+                <button
+                  onClick={savePBKey}
+                  disabled={savingPBKey || !pbKeyInput.trim()}
+                  className="px-5 py-2.5 bg-yellow-500 text-black text-sm font-semibold rounded-lg border-none cursor-pointer hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {savingPBKey ? 'Saving...' : 'Save Key'}
+                </button>
+                <button
+                  onClick={() => { setShowPBKeyInput(false); setPbKeyInput(''); setPbKeyError(''); }}
+                  className="px-5 py-2.5 bg-gray-700/70 border border-gray-600/50 rounded-lg text-gray-400 text-sm font-semibold cursor-pointer hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+              {pbKeyError && <p className="text-red-400 text-xs mt-3">{pbKeyError}</p>}
+            </div>
+          )}
+
+          {/* API Access panel */}
+          {showApiAccess && (
+            <div className="mb-6 bg-gray-800 border border-gray-600/50 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="text-white font-semibold">API Access</h3>
+                <a
+                  href="/api-docs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-purple-400 hover:text-purple-300 transition-colors"
+                >
+                  View API Docs →
+                </a>
+              </div>
+              <p className="text-gray-400 text-sm mb-4">
+                Use your bearer token to authenticate API requests. Pass it as{' '}
+                <code className="text-purple-300 bg-gray-700/60 px-1 rounded text-xs">Authorization: Bearer &lt;token&gt;</code>
+              </p>
+              <div className="flex gap-3 flex-wrap items-center">
+                <input
+                  type="text"
+                  readOnly
+                  value={session?.access_token ? `${session.access_token.slice(0, 20)}••••••••••••••••••••` : '—'}
+                  className="flex-1 min-w-48 bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-2.5 text-gray-300 text-sm outline-none font-mono cursor-default select-none"
+                />
+                <button
+                  onClick={() => {
+                    if (!session?.access_token) return;
+                    navigator.clipboard.writeText(session.access_token);
+                    setTokenCopied(true);
+                    setTimeout(() => setTokenCopied(false), 2000);
+                  }}
+                  className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold rounded-lg border-none cursor-pointer transition-colors"
+                >
+                  {tokenCopied ? '✓ Copied!' : 'Copy Token'}
+                </button>
+              </div>
+              <p className="text-gray-600 text-xs mt-3">Token expires when your session ends. Re-login to get a fresh token.</p>
+            </div>
+          )}
+
+          {/* Status Banner */}
+          <div className="bg-gray-600/10 border border-gray-600/30 rounded-xl px-4 py-3 mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+            <div className={`flex items-center gap-3 flex-1 px-3 py-2 rounded-lg transition-colors ${stats.approved > 0 ? 'bg-blue-400/10' : processingCount > 0 ? 'bg-purple-400/10' : ''}`}>
+              <span className="text-2xl">{stats.approved > 0 ? '📅' : '⚙️'}</span>
               <div>
-                <div style={{ 
-                  color: processingCount > 0 ? '#a78bfa' : '#9ca3af', 
-                  fontSize: '13px', 
-                  fontWeight: '600',
-                  animation: processingCount > 0 ? 'pulse 2s ease-in-out infinite' : 'none'
-                }}>
-                  {processingCount > 0 
-                    ? `${processingCount} video${processingCount > 1 ? 's' : ''} being edited`
-                    : 'No videos processing'
-                  }
+                <div className={`text-sm font-semibold ${stats.approved > 0 ? 'text-blue-400' : processingCount > 0 ? 'text-purple-400' : 'text-gray-400'}`}>
+                  {stats.approved > 0
+                    ? `${stats.approved} post${stats.approved > 1 ? 's' : ''} scheduled`
+                    : processingCount > 0
+                      ? `${processingCount} video${processingCount > 1 ? 's' : ''} being edited`
+                      : 'No posts scheduled'}
                 </div>
-                <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
-                  Next check: {formatTime(nextCheckIn)}
+                <div className="text-xs text-gray-500 mt-0.5">
+                  {nextScheduledSecs !== null
+                    ? `Next post in: ${formatLongTime(nextScheduledSecs)}`
+                    : `Next check: ${formatTime(nextCheckIn)}`}
                 </div>
               </div>
             </div>
-            
-            {/* Separator */}
-            <div style={{ 
-              width: '1px', 
-              height: '40px', 
-              background: 'linear-gradient(180deg, rgba(139, 92, 246, 0) 0%, rgba(139, 92, 246, 0.5) 50%, rgba(139, 92, 246, 0) 100%)',
-              animation: 'pulse 3s ease-in-out infinite'
-            }}></div>
-            
-            {/* Social Posting Timer */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '12px', 
-              flex: 1,
-              padding: '8px 12px',
-              borderRadius: '8px',
-              background: stats.approved > 0 ? 'rgba(96, 165, 250, 0.1)' : 'transparent',
-              transition: 'all 0.3s ease'
-            }}>
-              <div style={{ 
-                fontSize: '24px',
-                animation: stats.approved > 0 ? 'pulse 2s ease-in-out infinite' : 'none',
-                filter: stats.approved > 0 ? 'drop-shadow(0 0 8px rgba(96, 165, 250, 0.6))' : 'none'
-              }}>🚀</div>
+            <div className="hidden sm:block w-px h-10 bg-purple-500/50" />
+            <div className={`flex items-center gap-3 flex-1 px-3 py-2 rounded-lg transition-colors ${stats.approved > 0 ? 'bg-blue-400/10' : ''}`}>
+              <span className="text-2xl">🚀</span>
               <div>
-                <div style={{ 
-                  color: '#60a5fa', 
-                  fontSize: '13px', 
-                  fontWeight: '600',
-                  animation: stats.approved > 0 ? 'pulse 2s ease-in-out infinite' : 'none'
-                }}>
-                  Next social post
-                </div>
-                <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>
-                  {stats.approved > 0 
-                    ? `In ${formatLongTime(nextPostIn)} (automated)`
-                    : 'No approved clips ready'
-                  }
+                <div className="text-sm font-semibold text-blue-400">Scheduled posts</div>
+                <div className="text-xs text-gray-500 mt-0.5">
+                  {stats.approved > 0 ? `${stats.approved} post${stats.approved > 1 ? 's' : ''} approved` : 'No approved posts yet'}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Stats Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
-            <StatCard 
-              icon="⏳" 
-              count={stats.pending || 0} 
-              label="Pending"
-              active={filter === 'pending'}
-              onClick={() => setFilter('pending')}
-              delay={0}
-            />
-            <StatCard 
-              icon="✅" 
-              count={stats.approved || 0} 
-              label="Approved"
-              active={filter === 'approved'}
-              onClick={() => setFilter('approved')}
-              delay={0.1}
-            />
-            <StatCard 
-              icon="🚀" 
-              count={stats.published || 0} 
-              label="Published"
-              active={filter === 'published'}
-              onClick={() => setFilter('published')}
-              delay={0.2}
-            />
-            <StatCard 
-              icon="❌" 
-              count={stats.rejected || 0} 
-              label="Rejected"
-              active={filter === 'rejected'}
-              onClick={() => setFilter('rejected')}
-              delay={0.3}
-            />
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4">
+            {[
+              { icon: '⏳', label: 'Pending', key: 'pending' },
+              { icon: '✅', label: 'Approved', key: 'approved' },
+              { icon: '🚀', label: 'Published', key: 'published' },
+              { icon: '❌', label: 'Rejected', key: 'rejected' },
+            ].map(({ icon, label, key }) => (
+              <button
+                key={key}
+                onClick={() => setFilter(key)}
+                className={`p-3 md:p-4 rounded-xl border cursor-pointer transition-all text-left ${filter === key ? 'bg-purple-600 border-purple-600 scale-105' : 'bg-gray-800/50 border-gray-600/50 hover:bg-gray-800'}`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{icon}</span>
+                  <div>
+                    <div className={`text-2xl font-bold leading-none mb-1 ${filter === key ? 'text-white' : 'text-cyan-400'}`}>{stats[key] || 0}</div>
+                    <div className={`text-xs ${filter === key ? 'text-white/70' : 'text-gray-500'}`}>{label}</div>
+                  </div>
+                </div>
+              </button>
+            ))}
           </div>
-          
-          <style jsx>{`
-            @keyframes fadeIn {
-              from { opacity: 0; transform: translateY(-10px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes slideUp {
-              from { opacity: 0; transform: translateY(20px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes scaleIn {
-              from { opacity: 0; transform: scale(0.95); }
-              to { opacity: 1; transform: scale(1); }
-            }
-            @keyframes gradientShift {
-              0% { background-position: 0% 50%; }
-              50% { background-position: 100% 50%; }
-              100% { background-position: 0% 50%; }
-            }
-            @keyframes spin {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-            }
-            @keyframes pulse {
-              0%, 100% { opacity: 1; }
-              50% { opacity: 0.7; }
-            }
-            @keyframes glow {
-              0%, 100% { filter: brightness(1); }
-              50% { filter: brightness(1.3); }
-            }
-
-            /* Mobile Responsive */
-            @media (max-width: 768px) {
-              main {
-                padding: 16px !important;
-                padding-top: 64px !important;
-              }
-              h1 {
-                font-size: 24px !important;
-              }
-              /* Stat cards - 2 columns on mobile */
-              div[style*="gridTemplateColumns: 'repeat(4, 1fr)'"] {
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 12px !important;
-              }
-              /* Search/filter row - stack vertically */
-              div[style*="flexWrap: 'wrap'"] {
-                flex-direction: column !important;
-              }
-              /* Card grids - 2 columns on mobile */
-              div[style*="repeat(auto-fill"] {
-                grid-template-columns: repeat(2, 1fr) !important;
-              }
-            }
-          `}</style>
 
           {/* Categories */}
           {categories.length > 0 && (
-            <div style={{ marginBottom: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => setCategory('all')}
-                style={{
-                  padding: '8px 16px',
-                  background: category === 'all' ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                  border: '1px solid rgba(75, 85, 99, 0.5)',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-              >
-                All Categories
-              </button>
-              {categories.map(cat => (
+            <div className="flex gap-2 flex-wrap mb-4">
+              {['all', ...categories.map(c => c.name)].map(cat => (
                 <button
-                  key={cat.name}
-                  onClick={() => setCategory(cat.name)}
-                  style={{
-                    padding: '8px 16px',
-                    background: category === cat.name ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-                    border: '1px solid rgba(75, 85, 99, 0.5)',
-                    borderRadius: '8px',
-                    color: '#fff',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
+                  key={cat}
+                  onClick={() => setCategory(cat)}
+                  className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${category === cat ? 'bg-purple-600 border-purple-600 text-white' : 'bg-gray-800/50 border-gray-600/50 text-white hover:bg-gray-800'}`}
                 >
-                  {cat.emoji} {cat.name} ({cat.count})
+                  {cat === 'all' ? 'All Categories' : `${categories.find(c => c.name === cat)?.emoji || ''} ${cat} (${categories.find(c => c.name === cat)?.count || 0})`}
                 </button>
               ))}
             </div>
           )}
 
-          {/* Search and Filters */}
-          <div style={{ marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          {/* Search + Sort */}
+          <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <input
               type="text"
               placeholder="🔍 Search clips..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                flex: 1,
-                minWidth: '200px',
-                padding: '10px 16px',
-                background: 'rgba(31, 41, 55, 0.5)',
-                border: '1px solid rgba(75, 85, 99, 0.5)',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '14px',
-                outline: 'none'
-              }}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="flex-1 bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500"
             />
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              style={{
-                padding: '10px 16px',
-                background: 'rgba(31, 41, 55, 0.5)',
-                border: '1px solid rgba(75, 85, 99, 0.5)',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '14px',
-                cursor: 'pointer',
-                outline: 'none'
-              }}
+              onChange={e => setSortBy(e.target.value)}
+              className="w-full sm:w-auto bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm cursor-pointer outline-none"
             >
               <option value="date_desc">Newest First</option>
               <option value="date_asc">Oldest First</option>
@@ -511,35 +663,34 @@ export default function Dashboard() {
             </select>
           </div>
 
-          {/* Clips Section - in a box like Control Panel */}
-          <div style={{
-            background: 'rgba(17, 24, 39, 0.5)',
-            borderRadius: '16px',
-            padding: '24px',
-            border: '1px solid rgba(75, 85, 99, 0.5)',
-            animation: 'scaleIn 0.4s ease-out 0.4s both'
-          }}>
-            <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#fff' }}>
-                📹 Video Clips
-              </h2>
-              <div style={{ color: '#9ca3af', fontSize: '14px' }}>
-                {filteredClips.length} clips
+          {/* Clips Grid */}
+          <div className="glass-card rounded-2xl p-4 md:p-6">
+            <div className="flex justify-between items-center mb-5">
+              <h2 className="text-lg font-semibold text-white">📹 Video Posts</h2>
+              <div className="flex items-center gap-3">
+                {refreshing && (
+                  <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                    <div className="w-3 h-3 border-2 border-gray-600 border-t-purple-400 rounded-full animate-spin" />
+                    Refreshing...
+                  </div>
+                )}
+                <span className="text-sm text-gray-400">{filteredClips.length} clips</span>
               </div>
             </div>
-
             {filteredClips.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '64px', color: '#6b7280' }}>
+              <div className="text-center py-16 text-gray-500">
                 {searchTerm ? `No clips matching "${searchTerm}"` : `No ${filter} clips`}
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
-                {filteredClips.map((clip) => (
-                  <ClipCard 
-                    key={clip.clip_id} 
+              <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))' }}>
+                {filteredClips.map(clip => (
+                  <ClipCard
+                    key={clip.clip_id}
                     clip={clip}
-                    onApprove={() => handleApprove(clip.clip_id)}
+                    onApprove={() => handleApprove(clip)}
                     onReject={() => handleReject(clip.clip_id)}
+                    onEdit={() => openEditModal(clip)}
+                    onDelete={() => handleDeleteClip(clip.clip_id)}
                     showActions={filter === 'pending'}
                   />
                 ))}
@@ -548,154 +699,345 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
-    </div>
-  );
-}
 
-function StatCard({ icon, count, label, active, onClick, delay = 0, style }) {
-  return (
-    <div 
-      onClick={onClick}
-      style={{
-        padding: '16px',
-        background: active ? '#8b5cf6' : 'rgba(31, 41, 55, 0.5)',
-        borderRadius: '12px',
-        cursor: 'pointer',
-        transition: 'all 0.3s',
-        border: `1px solid ${active ? '#8b5cf6' : 'rgba(75, 85, 99, 0.5)'}`,
-        transform: active ? 'scale(1.05)' : 'none',
-        animation: `slideUp 0.5s ease-out ${delay}s both`,
-        ...style
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ fontSize: '28px' }}>{icon}</div>
-        <div>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: active ? '#fff' : '#06b6d4', lineHeight: 1, marginBottom: '4px' }}>
-            {count}
-          </div>
-          <div style={{ fontSize: '12px', color: active ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>
-            {label}
+      {/* ── Create Post Modal ─────────────────────────────────────── */}
+      {showCreateModal && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-end sm:items-center justify-center z-50 p-0 sm:p-5"
+          onClick={() => setShowCreateModal(false)}
+        >
+          <div
+            className="bg-gray-800 rounded-t-2xl sm:rounded-2xl border border-gray-600/50 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="p-5 md:p-8">
+              <h2 className="text-2xl font-bold text-white mb-1">📱 Create Post</h2>
+              <p className="text-gray-400 text-sm mb-6">Pick a video from your PostBridge library, add a caption and choose accounts.</p>
+
+              {loadingMedia ? (
+                <div className="text-center py-12 text-gray-400">Loading your PostBridge library...</div>
+              ) : (
+                <div className="flex flex-col gap-5">
+
+                  {/* Media picker */}
+                  <div>
+                    <p className="text-white text-sm font-semibold mb-2">Select Video</p>
+                    {pbMedia.length === 0 ? (
+                      <div className="text-gray-500 text-sm py-4 text-center bg-gray-700/30 rounded-lg">No videos found in your PostBridge library.</div>
+                    ) : (
+                      <div className="flex flex-col gap-2 max-h-52 overflow-y-auto pr-1">
+                        {pbMedia.map(item => (
+                          <button
+                            key={item.id}
+                            onClick={() => setSelectedMedia(item)}
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg border text-left cursor-pointer transition-colors w-full ${selectedMedia?.id === item.id ? 'border-purple-500 bg-purple-600/20' : 'border-gray-600/50 bg-gray-700/30 hover:bg-gray-700/60'}`}
+                          >
+                            <span className="text-xl flex-shrink-0">🎬</span>
+                            <div className="min-w-0">
+                              <div className="text-white text-sm font-medium truncate">{item.object?.name || item.id}</div>
+                              <div className="text-gray-400 text-xs">{formatBytes(item.object?.size_bytes)}</div>
+                            </div>
+                            {selectedMedia?.id === item.id && <span className="ml-auto text-purple-400 flex-shrink-0">✓</span>}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Selected video preview */}
+                  {selectedMedia?.object?.url && (
+                    <div>
+                      <p className="text-white text-sm font-semibold mb-2">Preview</p>
+                      <video
+                        key={selectedMedia.id}
+                        src={selectedMedia.object.url}
+                        controls
+                        preload="metadata"
+                        playsInline
+                        className="w-full rounded-lg bg-black"
+                        style={{ maxHeight: '200px' }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Caption */}
+                  <div>
+                    <p className="text-white text-sm font-semibold mb-2">Caption</p>
+                    <textarea
+                      placeholder="Write your caption..."
+                      value={postCaption}
+                      onChange={e => setPostCaption(e.target.value)}
+                      rows={3}
+                      className="w-full bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500 resize-none"
+                    />
+                  </div>
+
+                  {/* Social accounts */}
+                  <div>
+                    <p className="text-white text-sm font-semibold mb-2">Post to Accounts</p>
+                    {pbAccounts.length === 0 ? (
+                      <div className="text-gray-500 text-sm py-3 text-center bg-gray-700/30 rounded-lg">No social accounts found in PostBridge.</div>
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        {pbAccounts.map(account => (
+                          <label
+                            key={account.id}
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg border cursor-pointer transition-colors ${selectedAccountIds.includes(account.id) ? 'border-purple-500 bg-purple-600/20' : 'border-gray-600/50 bg-gray-700/30 hover:bg-gray-700/60'}`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedAccountIds.includes(account.id)}
+                              onChange={() => toggleAccount(account.id)}
+                              className="accent-purple-500"
+                            />
+                            <span className="text-white text-sm font-medium capitalize">{account.platform}</span>
+                            <span className="text-gray-400 text-sm">@{account.username}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Category */}
+                  <div>
+                    <p className="text-white text-sm font-semibold mb-2">Category <span className="text-gray-500 font-normal">(optional)</span></p>
+                    <input
+                      type="text"
+                      placeholder="e.g. Marketing, Product..."
+                      value={newPostCategory}
+                      onChange={e => setNewPostCategory(e.target.value)}
+                      className="w-full bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500"
+                    />
+                  </div>
+
+                  {createError && <p className="text-red-400 text-sm">{createError}</p>}
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleCreatePost}
+                      disabled={creating}
+                      className="flex-1 py-3 bg-purple-600 border-none rounded-lg text-white text-sm font-semibold cursor-pointer hover:bg-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {creating ? 'Creating Draft...' : 'Create Draft'}
+                    </button>
+                    <button
+                      onClick={() => setShowCreateModal(false)}
+                      className="flex-1 py-3 bg-gray-700/70 border border-gray-600/50 rounded-lg text-gray-400 text-sm font-semibold cursor-pointer hover:text-white transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* ── Schedule / Approve Modal ──────────────────────────────── */}
+      {showScheduleModal && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-5"
+          onClick={() => { setShowScheduleModal(false); setScheduleClipId(null); }}
+        >
+          <div
+            className="bg-gray-800 rounded-2xl border border-gray-600/50 max-w-md w-full p-6 shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <h2 className="text-xl font-bold text-white mb-1">📅 Approve & Schedule</h2>
+            <p className="text-gray-400 text-sm mb-6">Set a publish time, or leave blank to post immediately.</p>
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="text-white text-sm font-semibold block mb-2">Schedule for</label>
+                <input
+                  type="datetime-local"
+                  value={scheduledAt}
+                  onChange={e => setScheduledAt(e.target.value)}
+                  className="w-full bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500"
+                />
+                <p className="text-gray-500 text-xs mt-1.5">Leave empty to post immediately when approved.</p>
+              </div>
+              {scheduledAt && (
+                <div>
+                  <label className="text-white text-sm font-semibold block mb-2">Timezone</label>
+                  <select
+                    value={scheduleTimezone}
+                    onChange={e => setScheduleTimezone(e.target.value)}
+                    className="w-full bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500 cursor-pointer"
+                  >
+                    {!TIMEZONES.find(t => t.value === scheduleTimezone) && (
+                      <option value={scheduleTimezone}>{scheduleTimezone} (detected)</option>
+                    )}
+                    {TIMEZONES.map(tz => (
+                      <option key={tz.value} value={tz.value}>{tz.label}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div className="flex gap-3 mt-2">
+                <button
+                  onClick={handleScheduleApprove}
+                  disabled={schedulingLoading}
+                  className="flex-1 py-3 bg-green-600 border-none rounded-lg text-white text-sm font-semibold cursor-pointer hover:bg-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {schedulingLoading ? 'Approving...' : scheduledAt ? '✓ Schedule Post' : '✓ Approve Now'}
+                </button>
+                <button
+                  onClick={() => { setShowScheduleModal(false); setScheduleClipId(null); }}
+                  className="flex-1 py-3 bg-gray-700/70 border border-gray-600/50 rounded-lg text-gray-400 text-sm font-semibold cursor-pointer hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit Clip Modal ───────────────────────────────────────── */}
+      {showEditModal && editingClip && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-end sm:items-center justify-center z-50 p-0 sm:p-5"
+          onClick={() => { setShowEditModal(false); setEditingClip(null); }}
+        >
+          <div
+            className="bg-gray-800 rounded-t-2xl sm:rounded-2xl border border-gray-600/50 max-w-xl w-full p-5 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <h2 className="text-2xl font-bold text-white mb-6">✏️ Edit Post</h2>
+            <div className="flex flex-col gap-4">
+              <div>
+                <p className="text-white text-sm font-semibold mb-2">Caption</p>
+                <textarea
+                  placeholder="Write your caption..."
+                  value={editCaption}
+                  onChange={e => setEditCaption(e.target.value)}
+                  rows={3}
+                  className="w-full bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500 resize-none"
+                />
+              </div>
+              <div>
+                <p className="text-white text-sm font-semibold mb-2">Title</p>
+                <input
+                  type="text"
+                  placeholder="Title..."
+                  value={editingClip.title}
+                  onChange={e => setEditingClip({ ...editingClip, title: e.target.value })}
+                  className="w-full bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500"
+                />
+              </div>
+              <div>
+                <p className="text-white text-sm font-semibold mb-2">Category</p>
+                <input
+                  type="text"
+                  placeholder="Category (optional)..."
+                  value={editingClip.category || ''}
+                  onChange={e => setEditingClip({ ...editingClip, category: e.target.value })}
+                  className="w-full bg-gray-700/70 border border-gray-600/50 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500"
+                />
+              </div>
+              {/* Social accounts — only for PostBridge clips */}
+              {editingClip.postbridge_post_id && (
+                <div>
+                  <p className="text-white text-sm font-semibold mb-2">Post to Accounts</p>
+                  {loadingEditAccounts ? (
+                    <div className="text-gray-400 text-sm py-3 text-center">Loading accounts...</div>
+                  ) : editAccounts.length === 0 ? (
+                    <div className="text-gray-500 text-sm py-3 text-center bg-gray-700/30 rounded-lg">No social accounts found in PostBridge.</div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {editAccounts.map(account => (
+                        <label
+                          key={account.id}
+                          className={`flex items-center gap-3 px-4 py-3 rounded-lg border cursor-pointer transition-colors ${editAccountIds.includes(account.id) ? 'border-purple-500 bg-purple-600/20' : 'border-gray-600/50 bg-gray-700/30 hover:bg-gray-700/60'}`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={editAccountIds.includes(account.id)}
+                            onChange={() => toggleEditAccount(account.id)}
+                            className="accent-purple-500"
+                          />
+                          <span className="text-white text-sm font-medium capitalize">{account.platform}</span>
+                          <span className="text-gray-400 text-sm">@{account.username}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleUpdateClip}
+                  className="flex-1 py-3 bg-purple-600 border-none rounded-lg text-white text-sm font-semibold cursor-pointer hover:bg-purple-500 transition-colors"
+                >
+                  Save Changes
+                </button>
+                <button
+                  onClick={() => { setShowEditModal(false); setEditingClip(null); }}
+                  className="flex-1 py-3 bg-gray-700/70 border border-gray-600/50 rounded-lg text-gray-400 text-sm font-semibold cursor-pointer hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function ClipCard({ clip, onApprove, onReject, showActions }) {
-  const [isHovered, setIsHovered] = React.useState(false);
-  
+function ClipCard({ clip, onApprove, onReject, onEdit, onDelete, showActions }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const embed = getVideoEmbed(clip.clip_url);
+
   return (
-    <div 
-      style={{
-        background: 'rgba(31, 41, 55, 0.7)',
-        borderRadius: '12px',
-        border: `1px solid ${isHovered ? 'rgba(139, 92, 246, 0.5)' : 'rgba(75, 85, 99, 0.5)'}`,
-        overflow: 'hidden',
-        transition: 'all 0.3s ease',
-        boxShadow: isHovered ? '0 8px 16px rgba(139, 92, 246, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
-        transform: isHovered ? 'translateY(-4px)' : 'none'
-      }}
+    <div
+      className={`bg-gray-800/70 rounded-xl border overflow-hidden transition-all ${isHovered ? 'border-purple-500/50 -translate-y-1 shadow-lg shadow-purple-900/20' : 'border-gray-600/50'}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Video Player */}
-      <div style={{ 
-        aspectRatio: '4/5', 
-        background: '#000',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        {clip.clip_url ? (
-          <video 
-            src={clip.clip_url}
+      {/* Video / thumbnail */}
+      <div className="aspect-[4/5] bg-black relative overflow-hidden">
+        {embed.type === 'iframe' ? (
+          <iframe src={embed.src} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen style={{ width: '100%', height: '100%', border: 'none' }} />
+        ) : embed.type === 'video' && !videoError ? (
+          <video
+            src={embed.src}
             controls
             preload="metadata"
             playsInline
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover'
-            }}
+            className="w-full h-full object-cover"
+            onError={() => setVideoError(true)}
           />
         ) : (
-          <div style={{
-            width: '100%',
-            height: '100%',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '48px',
-            color: 'white'
-          }}>
-            ▶
+          <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex flex-col items-center justify-center gap-2 text-white">
+            <span className="text-4xl">📱</span>
+            <span className="text-xs text-white/70 px-3 text-center">{clip.title || 'PostBridge Post'}</span>
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div style={{ padding: '16px' }}>
-        <h3 style={{ color: '#fff', fontSize: '14px', fontWeight: '600', marginBottom: '8px', lineHeight: 1.4 }}>
-          {clip.title || 'Untitled Clip'}
-        </h3>
-        
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-          <span style={{ 
-            padding: '4px 8px', 
-            background: '#1f2937', 
-            borderRadius: '6px', 
-            fontSize: '11px',
-            color: '#9ca3af'
-          }}>
-            {clip.viral_score || 0}/10
-          </span>
-          <span style={{ 
-            padding: '4px 8px', 
-            background: '#1f2937', 
-            borderRadius: '6px', 
-            fontSize: '11px',
-            color: '#9ca3af'
-          }}>
-            {clip.duration || '0s'}
-          </span>
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h3 className="text-white text-sm font-semibold leading-snug">{clip.suggested_caption || clip.title || 'Untitled'}</h3>
+          <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
+            <button onClick={onEdit} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: '#9ca3af', fontSize: '13px' }} title="Edit">✏️</button>
+            <button onClick={onDelete} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: '#9ca3af', fontSize: '13px' }} title="Delete">🗑</button>
+          </div>
         </div>
-
-        {showActions && isHovered && (
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={onApprove}
-              style={{
-                flex: 1,
-                padding: '8px',
-                background: '#10b981',
-                border: 'none',
-                borderRadius: '6px',
-                color: 'white',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
+        <div className="flex gap-2 mb-3 flex-wrap">
+          {clip.category && <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">{clip.category}</span>}
+          {clip.suggested_caption && <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400 truncate max-w-[120px]">{clip.suggested_caption}</span>}
+        </div>
+        {showActions && (
+          <div className="flex gap-2">
+            <button onClick={onApprove} className="flex-1 py-2 bg-green-600 border-none rounded-md text-white text-sm font-semibold cursor-pointer hover:bg-green-500 transition-colors">
               ✓ Approve
             </button>
-            <button
-              onClick={onReject}
-              style={{
-                flex: 1,
-                padding: '8px',
-                background: '#ef4444',
-                border: 'none',
-                borderRadius: '6px',
-                color: 'white',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
+            <button onClick={onReject} className="flex-1 py-2 bg-red-600 border-none rounded-md text-white text-sm font-semibold cursor-pointer hover:bg-red-500 transition-colors">
               ✕ Reject
             </button>
           </div>
@@ -704,3 +1046,5 @@ function ClipCard({ clip, onApprove, onReject, showActions }) {
     </div>
   );
 }
+
+export default withAuth(Dashboard);
