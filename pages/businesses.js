@@ -198,6 +198,20 @@ export default function BusinessBoard() {
   const cards = selectedBusiness?.cards || [];
   const resources = selectedBusiness?.resources || [];
 
+  // Calculate progress
+  const getColumnProgress = (column) => {
+    const columnCards = cards.filter(c => c.column === column);
+    if (columnCards.length === 0) return { done: 0, total: 0, percent: 0 };
+    const done = columnCards.filter(c => c.labels?.includes('done')).length;
+    return { done, total: columnCards.length, percent: Math.round((done / columnCards.length) * 100) };
+  };
+
+  const overallProgress = () => {
+    if (cards.length === 0) return { done: 0, total: 0, percent: 0 };
+    const done = cards.filter(c => c.labels?.includes('done')).length;
+    return { done, total: cards.length, percent: Math.round((done / cards.length) * 100) };
+  };
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1423' }}>
       <NavigationSidebar />
@@ -258,21 +272,47 @@ export default function BusinessBoard() {
             </div>
 
             {selectedBusiness && (
-              <button
-                onClick={() => setShowResources(!showResources)}
-                style={{
-                  background: showResources ? '#8b5cf6' : '#374151',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '10px 16px',
-                  color: '#fff',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  cursor: 'pointer'
-                }}
-              >
-                📎 Resources ({resources.length})
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                {/* Overall Progress */}
+                <div style={{ 
+                  background: '#1f2937', 
+                  borderRadius: '8px', 
+                  padding: '12px 16px',
+                  minWidth: isMobile ? '100%' : '280px'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span style={{ color: '#9ca3af', fontSize: '13px' }}>Overall Progress</span>
+                    <span style={{ color: '#fff', fontSize: '13px', fontWeight: '600' }}>
+                      {overallProgress().done}/{overallProgress().total} ({overallProgress().percent}%)
+                    </span>
+                  </div>
+                  <div style={{ background: '#374151', borderRadius: '4px', height: '8px', overflow: 'hidden' }}>
+                    <div style={{ 
+                      background: overallProgress().percent === 100 ? '#10b981' : '#8b5cf6',
+                      height: '100%', 
+                      width: `${overallProgress().percent}%`,
+                      borderRadius: '4px',
+                      transition: 'width 0.3s ease'
+                    }} />
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setShowResources(!showResources)}
+                  style={{
+                    background: showResources ? '#8b5cf6' : '#374151',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '10px 16px',
+                    color: '#fff',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    cursor: 'pointer'
+                  }}
+                >
+                  📎 Resources ({resources.length})
+                </button>
+              </div>
             )}
           </div>
 
@@ -444,31 +484,50 @@ export default function BusinessBoard() {
                   }}
                 >
                   {/* Column Header */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <h3 style={{ color: '#fff', margin: 0, fontSize: '16px', fontWeight: '600' }}>
-                      {column}
-                      <span style={{ color: '#6b7280', fontWeight: '400', marginLeft: '8px' }}>
-                        ({cards.filter(c => c.column === column).length})
-                      </span>
-                    </h3>
-                    <button
-                      onClick={() => setShowAddCard(column)}
-                      style={{
-                        background: '#374151',
-                        border: 'none',
-                        borderRadius: '6px',
-                        width: '28px',
-                        height: '28px',
-                        color: '#9ca3af',
-                        cursor: 'pointer',
-                        fontSize: '18px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      +
-                    </button>
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <h3 style={{ color: '#fff', margin: 0, fontSize: '16px', fontWeight: '600' }}>
+                        {column}
+                      </h3>
+                      <button
+                        onClick={() => setShowAddCard(column)}
+                        style={{
+                          background: '#374151',
+                          border: 'none',
+                          borderRadius: '6px',
+                          width: '28px',
+                          height: '28px',
+                          color: '#9ca3af',
+                          cursor: 'pointer',
+                          fontSize: '18px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+                    {/* Column Progress Bar */}
+                    <div style={{ marginBottom: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                        <span style={{ color: '#6b7280', fontSize: '12px' }}>
+                          {getColumnProgress(column).done}/{getColumnProgress(column).total} done
+                        </span>
+                        <span style={{ color: getColumnProgress(column).percent === 100 ? '#10b981' : '#8b5cf6', fontSize: '12px', fontWeight: '600' }}>
+                          {getColumnProgress(column).percent}%
+                        </span>
+                      </div>
+                      <div style={{ background: '#374151', borderRadius: '3px', height: '6px', overflow: 'hidden' }}>
+                        <div style={{ 
+                          background: getColumnProgress(column).percent === 100 ? '#10b981' : '#8b5cf6',
+                          height: '100%', 
+                          width: `${getColumnProgress(column).percent}%`,
+                          borderRadius: '3px',
+                          transition: 'width 0.3s ease'
+                        }} />
+                      </div>
+                    </div>
                   </div>
 
                   {/* Cards */}
