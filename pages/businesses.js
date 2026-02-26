@@ -24,6 +24,15 @@ export default function BusinessBoard() {
   const [newResource, setNewResource] = useState({ title: '', url: '', type: 'link' });
   const [showAddResource, setShowAddResource] = useState(false);
   const [draggedCard, setDraggedCard] = useState(null);
+  const [activeColumn, setActiveColumn] = useState(null); // for mobile column tabs
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     fetchBusinesses();
@@ -193,13 +202,13 @@ export default function BusinessBoard() {
     <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1423' }}>
       <NavigationSidebar />
       
-      <main style={{ flex: 1, padding: '24px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+      <main style={{ flex: 1, padding: isMobile ? '16px' : '24px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
         <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
           
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#fff', margin: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px', flexDirection: isMobile ? 'column' : 'row' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
+              <h1 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: '700', color: '#fff', margin: 0 }}>
                 🏢 Business Board
               </h1>
               
@@ -218,7 +227,8 @@ export default function BusinessBoard() {
                   color: '#fff',
                   fontSize: '15px',
                   cursor: 'pointer',
-                  minWidth: '200px'
+                  minWidth: isMobile ? '100%' : '200px',
+                  flex: isMobile ? '1' : 'none'
                 }}
               >
                 {businesses.length === 0 && <option value="">No businesses yet</option>}
@@ -387,10 +397,41 @@ export default function BusinessBoard() {
             </div>
           )}
 
+          {/* Mobile Column Tabs */}
+          {selectedBusiness && isMobile && (
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', overflowX: 'auto', paddingBottom: '8px' }}>
+              {columns.map(col => (
+                <button
+                  key={col}
+                  onClick={() => setActiveColumn(col)}
+                  style={{
+                    background: (activeColumn || columns[0]) === col ? '#8b5cf6' : '#1f2937',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '10px 16px',
+                    color: '#fff',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
+                  }}
+                >
+                  {col} ({cards.filter(c => c.column === col).length})
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* Kanban Board */}
           {selectedBusiness ? (
-            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${columns.length}, 1fr)`, gap: '16px', minHeight: '60vh' }}>
-              {columns.map(column => (
+            <div style={{ 
+              display: isMobile ? 'block' : 'grid', 
+              gridTemplateColumns: isMobile ? '1fr' : `repeat(${columns.length}, 1fr)`, 
+              gap: '16px', 
+              minHeight: isMobile ? 'auto' : '60vh' 
+            }}>
+              {(isMobile ? [activeColumn || columns[0]] : columns).map(column => (
                 <div
                   key={column}
                   onDragOver={handleDragOver}
@@ -527,8 +568,9 @@ export default function BusinessBoard() {
           <div style={{
             background: '#1f2937',
             borderRadius: '16px',
-            padding: '24px',
-            width: '400px',
+            padding: '20px',
+            width: '90%',
+            maxWidth: '400px',
             border: '1px solid #374151'
           }} onClick={e => e.stopPropagation()}>
             <h2 style={{ color: '#fff', margin: '0 0 20px', fontSize: '20px' }}>Add New Business</h2>
@@ -576,11 +618,12 @@ export default function BusinessBoard() {
           <div style={{
             background: '#1f2937',
             borderRadius: '16px',
-            padding: '24px',
-            width: '450px',
+            padding: '20px',
+            width: '90%',
+            maxWidth: '450px',
             border: '1px solid #374151'
           }} onClick={e => e.stopPropagation()}>
-            <h2 style={{ color: '#fff', margin: '0 0 20px', fontSize: '20px' }}>
+            <h2 style={{ color: '#fff', margin: '0 0 20px', fontSize: '18px' }}>
               Add Card to {showAddCard}
             </h2>
             <input
@@ -667,12 +710,15 @@ export default function BusinessBoard() {
           <div style={{
             background: '#1f2937',
             borderRadius: '16px',
-            padding: '24px',
-            width: '500px',
-            border: '1px solid #374151'
+            padding: '20px',
+            width: '90%',
+            maxWidth: '500px',
+            border: '1px solid #374151',
+            maxHeight: '90vh',
+            overflowY: 'auto'
           }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ color: '#fff', margin: 0, fontSize: '20px' }}>Edit Card</h2>
+              <h2 style={{ color: '#fff', margin: 0, fontSize: '18px' }}>Edit Card</h2>
               <button
                 onClick={() => handleDeleteCard(showEditCard.id)}
                 style={{ background: '#dc2626', border: 'none', borderRadius: '6px', padding: '8px 12px', color: '#fff', cursor: 'pointer', fontSize: '13px' }}
