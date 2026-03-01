@@ -309,7 +309,7 @@ function Projects() {
       {/* Add/Edit Modal */}
       {modal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0D1423] border border-gray-700 rounded-2xl p-6 w-full max-w-lg">
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-lg">
             <h2 className="text-xl font-bold text-white mb-4">
               {modal.mode === "add" ? "Add Project" : "Edit Project"}
             </h2>
@@ -381,7 +381,7 @@ function Projects() {
       {/* Delete Confirm */}
       {deleteId && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0D1423] border border-gray-700 rounded-2xl p-6 w-full max-w-sm">
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-sm">
             <h2 className="text-lg font-bold text-white mb-2">
               Delete Project?
             </h2>
@@ -434,11 +434,11 @@ function ProjectCard({ project, onEdit, onDelete }) {
       </p>
       <div className="flex gap-2 flex-wrap mb-3">
         {project.category && (
-          <span className="px-2 py-1 bg-[#0D1423] rounded text-xs text-gray-400">
+          <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">
             {project.category}
           </span>
         )}
-        <span className="px-2 py-1 bg-[#0D1423] rounded text-xs text-gray-400">
+        <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">
           {new Date(project.created_at).toLocaleDateString()}
         </span>
       </div>

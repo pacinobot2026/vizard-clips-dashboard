@@ -1345,12 +1345,12 @@ function ClipCard({
         </div>
         <div className="flex gap-2 mb-3 flex-wrap">
           {clip.category && (
-            <span className="px-2 py-1 bg-[#0D1423] rounded text-xs text-gray-400">
+            <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">
               {clip.category}
             </span>
           )}
           {clip.suggested_caption && (
-            <span className="px-2 py-1 bg-[#0D1423] rounded text-xs text-gray-400 truncate max-w-[120px]">
+            <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400 truncate max-w-[120px]">
               {clip.suggested_caption}
             </span>
           )}

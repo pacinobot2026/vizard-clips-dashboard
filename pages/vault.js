@@ -157,31 +157,31 @@ function Vault() {
             gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
           }}
         >
-          <div className="bg-[#0D1423] border border-gray-800 rounded-lg p-4">
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
             <div className="text-3xl font-bold text-white mb-1">
               {items.length}
             </div>
             <div className="text-sm text-gray-400">Total</div>
           </div>
-          <div className="bg-[#0D1423] border border-gray-800 rounded-lg p-4">
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
             <div className="text-3xl font-bold text-yellow-500 mb-1">
               {getStatCount("Sales Pages")}
             </div>
             <div className="text-sm text-gray-400">Sales</div>
           </div>
-          <div className="bg-[#0D1423] border border-gray-800 rounded-lg p-4">
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
             <div className="text-3xl font-bold text-blue-500 mb-1">
               {getStatCount("Guides")}
             </div>
             <div className="text-sm text-gray-400">Guides</div>
           </div>
-          <div className="bg-[#0D1423] border border-gray-800 rounded-lg p-4">
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
             <div className="text-3xl font-bold text-green-500 mb-1">
               {getStatCount("Emails")}
             </div>
             <div className="text-sm text-gray-400">Emails</div>
           </div>
-          <div className="bg-[#0D1423] border border-gray-800 rounded-lg p-4">
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
             <div className="text-3xl font-bold text-purple-500 mb-1">
               {getStatCount("Product Templates")}
             </div>
@@ -196,14 +196,14 @@ function Vault() {
             placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full mb-4 px-3 py-3 bg-[#0D1423] border border-gray-800 rounded-lg text-white text-sm outline-none focus:border-yellow-500"
+            className="w-full mb-4 px-3 py-3 bg-gray-900 border border-gray-800 rounded-lg text-white text-sm outline-none focus:border-yellow-500"
           />
 
           {/* Category Filter */}
           <div className="flex gap-2 mb-4 min-[960px]:flex-wrap  max-[960px] max-w-[81dvw] max-[960px]:overflow-x-auto w-full max-[960px]:pb-4">
             <button
               onClick={() => setSelectedCategory("all")}
-              className={`px-4 shrink-0 py-2 rounded-lg font-medium cursor-pointer border-none transition-colors ${selectedCategory === "all" ? "bg-yellow-500 text-black" : "bg-[#0D1423] text-gray-400 hover:text-white"}`}
+              className={`px-4 shrink-0 py-2 rounded-lg font-medium cursor-pointer border-none transition-colors ${selectedCategory === "all" ? "bg-yellow-500 text-black" : "bg-gray-900 text-gray-400 hover:text-white"}`}
             >
               All
             </button>
@@ -211,7 +211,7 @@ function Vault() {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 shrink-0 py-2 rounded-lg font-medium cursor-pointer border-none transition-colors ${selectedCategory === cat ? "bg-yellow-500 text-black" : "bg-[#0D1423] text-gray-400 hover:text-white"}`}
+                className={`px-4 shrink-0 py-2 rounded-lg font-medium cursor-pointer border-none transition-colors ${selectedCategory === cat ? "bg-yellow-500 text-black" : "bg-gray-900 text-gray-400 hover:text-white"}`}
               >
                 {cat} ({getStatCount(cat)})
               </button>
@@ -222,7 +222,7 @@ function Vault() {
           <div className="flex gap-2 min-[960px]:flex-wrap  max-[960px] max-w-[81dvw] max-[960px]:overflow-x-auto w-full max-[960px]:pb-4">
             <button
               onClick={() => setSelectedType("all")}
-              className={`px-3 shrink-0 py-1.5 rounded-lg text-xs cursor-pointer border-none transition-colors ${selectedType === "all" ? "bg-blue-600 text-white" : "bg-[#0D1423] text-gray-500 hover:text-white"}`}
+              className={`px-3 shrink-0 py-1.5 rounded-lg text-xs cursor-pointer border-none transition-colors ${selectedType === "all" ? "bg-blue-600 text-white" : "bg-gray-900 text-gray-500 hover:text-white"}`}
             >
               All Types
             </button>
@@ -230,7 +230,7 @@ function Vault() {
               <button
                 key={type}
                 onClick={() => setSelectedType(type)}
-                className={`px-3 shrink-0 py-1.5 rounded-lg text-xs cursor-pointer border-none transition-colors ${selectedType === type ? "bg-blue-600 text-white" : "bg-[#0D1423] text-gray-500 hover:text-white"}`}
+                className={`px-3 shrink-0 py-1.5 rounded-lg text-xs cursor-pointer border-none transition-colors ${selectedType === type ? "bg-blue-600 text-white" : "bg-gray-900 text-gray-500 hover:text-white"}`}
               >
                 {type}
               </button>
@@ -243,7 +243,7 @@ function Vault() {
           {filteredItems.map((item) => (
             <div
               key={item.id}
-              className="group bg-[#0D1423] border border-gray-800 rounded-lg overflow-hidden hover:border-yellow-500 transition cursor-pointer"
+              className="group bg-gray-900 border border-gray-800 rounded-lg overflow-hidden hover:border-yellow-500 transition cursor-pointer"
             >
               <div className="aspect-[4/5] bg-gray-800 flex items-center justify-center grayscale group-hover:grayscale-0 transition">
                 {item.type === "Image" || item.type === "Screenshot" ? (
@@ -315,7 +315,7 @@ function Vault() {
           onClick={() => setShowUploadModal(false)}
         >
           <div
-            className="bg-[#0D1423] border border-gray-800 rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-gray-900 border border-gray-800 rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-2xl font-bold text-white mb-6">Add Resource</h2>
