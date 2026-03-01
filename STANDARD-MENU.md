@@ -31,11 +31,11 @@ All boards should have this EXACT menu structure (only changing the highlighted 
   <span style={{ fontSize: '14px' }}>Projects</span>
 </a>
 <div style={{ height: '1px', background: '#374151', margin: '8px 0' }} />
-<a href="/command-center" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+<a href="https://dashboard-gilt-one-zc4y5uu95v.vercel.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
   <span style={{ fontSize: '20px' }}>⚡</span>
   <span style={{ fontSize: '14px' }}>Command Center</span>
 </a>
-<a href="/commands" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+<a href="https://dashboard-gilt-one-zc4y5uu95v.vercel.app/commands" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
   <span style={{ fontSize: '20px' }}>⌘</span>
   <span style={{ fontSize: '14px' }}>Custom Commands</span>
 </a>
