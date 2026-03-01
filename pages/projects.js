@@ -187,7 +187,7 @@ function Projects() {
           {/* Header */}
           <div className="mb-6">
             <div>
-              <h1 className="text-3xl font-bold gradient-text mb-1">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-1">
                 📂 Projects
               </h1>
               <p className="text-sm text-gray-400">
