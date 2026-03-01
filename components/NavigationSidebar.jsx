@@ -4,17 +4,17 @@ import { useRouter } from 'next/router';
 import { useAuth } from '../lib/authContext';
 
 const NAV_ITEMS = [
-  { id: 'video',     label: 'Video Board',    icon: '🎬', href: '/dashboard',                                        enabled: true },
-  { id: 'articles',  label: 'Article Board',  icon: '📰', href: '/articles',                                         enabled: true },
-  { id: 'businesses',label: 'Business Board', icon: '🏢', href: '/businesses',                                       enabled: true },
-  { id: 'vault',     label: 'Operator Vault', icon: '🔐', href: '/vault',                                            enabled: true },
-  { id: 'ideas',     label: 'Idea Board',     icon: '💡', href: '/ideas',                                            enabled: true },
-  { id: 'bookmarks', label: 'Bookmarks',      icon: '📑', href: '/bookmarks',                                        enabled: true },
-  { id: 'shopping',  label: 'Wishlist',       icon: '💰', href: '/shopping',                                         enabled: true },
-  { id: 'projects',  label: 'Projects',       icon: '📂', href: '/projects',                                         enabled: true },
-  { id: 'control',   label: 'Command Center', icon: '🎛️', href: 'https://dashboard-gilt-one-zc4y5uu95v.vercel.app', enabled: true },
-  { id: 'team',      label: 'Team Board',     icon: '👥', href: 'https://kanban-rho-ivory.vercel.app',               enabled: true },
-  { id: 'openclaw',  label: 'OpenClaw Board', icon: '🤖', href: '/openclaw',                                         enabled: true },
+  { id: 'control',   label: 'Command Center',  icon: '🎛️', href: 'https://dashboard-gilt-one-zc4y5uu95v.vercel.app', enabled: true },
+  { id: 'openclaw',  label: 'Custom Commands', icon: '⚡', href: '/openclaw',                                         enabled: true },
+  { id: 'businesses',label: 'Business Board',  icon: '🏢', href: '/businesses',                                       enabled: true },
+  { id: 'team',      label: 'Team Board',      icon: '👥', href: 'https://kanban-rho-ivory.vercel.app',               enabled: true },
+  { id: 'vault',     label: 'Operator Vault',  icon: '🔐', href: '/vault',                                            enabled: true },
+  { id: 'projects',  label: 'Project Board',   icon: '📂', href: '/projects',                                         enabled: true },
+  { id: 'articles',  label: 'Article Board',   icon: '📰', href: '/articles',                                         enabled: true },
+  { id: 'ideas',     label: 'Idea Board',      icon: '💡', href: '/ideas',                                            enabled: true },
+  { id: 'video',     label: 'Video Cue',       icon: '🎬', href: '/dashboard',                                        enabled: true },
+  { id: 'shopping',  label: 'Wish List',       icon: '💰', href: '/shopping',                                         enabled: true },
+  { id: 'bookmarks', label: 'Resource Library',icon: '📚', href: '/bookmarks',                                        enabled: true },
 ];
 
 export default function NavigationSidebar() {
