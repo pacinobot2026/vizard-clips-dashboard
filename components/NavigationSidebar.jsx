@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { id: 'vault',     label: 'Operator Vault', icon: '🔐', href: '/vault',                                            enabled: true },
   { id: 'ideas',     label: 'Idea Board',     icon: '💡', href: '/ideas',                                            enabled: true },
   { id: 'bookmarks', label: 'Bookmarks',      icon: '📑', href: '/bookmarks',                                        enabled: true },
-  { id: 'shopping',  label: 'Shopping/Watch', icon: '🛒', href: '/shopping',                                         enabled: true },
+  { id: 'shopping',  label: 'Wishlist',       icon: '💰', href: '/shopping',                                         enabled: true },
   { id: 'projects',  label: 'Projects',       icon: '📂', href: '/projects',                                         enabled: true },
   { id: 'control',   label: 'Command Center', icon: '🎛️', href: 'https://dashboard-gilt-one-zc4y5uu95v.vercel.app', enabled: true },
   { id: 'team',      label: 'Team Board',     icon: '👥', href: 'https://kanban-rho-ivory.vercel.app',               enabled: true },
