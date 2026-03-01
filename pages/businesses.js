@@ -272,7 +272,7 @@ export default function BusinessBoard() {
   };
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "linear-gradient(to bottom right, #030712, #111827, #000000)" }}>
+    <div style={{ display: "flex", minHeight: "100vh", background: "#0D1423" }}>
       <Head>
         <title>Business Board</title>
       </Head>
@@ -312,12 +312,9 @@ export default function BusinessBoard() {
             >
               <h1
                 style={{
-                  fontSize: isMobile ? "28px" : "36px",
+                  fontSize: isMobile ? "22px" : "28px",
                   fontWeight: "700",
-                  background: "linear-gradient(to right, #60a5fa, #a78bfa)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
+                  color: "#fff",
                   margin: 0,
                 }}
               >
@@ -502,7 +499,7 @@ export default function BusinessBoard() {
                     <div
                       key={r.id}
                       style={{
-                        background: "rgba(17, 24, 39, 0.5)",
+                        background: "#111827",
                         borderRadius: "8px",
                         padding: "12px 16px",
                         display: "flex",
@@ -553,7 +550,7 @@ export default function BusinessBoard() {
                   style={{
                     marginTop: "16px",
                     padding: "16px",
-                    background: "rgba(17, 24, 39, 0.5)",
+                    background: "#111827",
                     borderRadius: "8px",
                   }}
                 >
@@ -697,7 +694,7 @@ export default function BusinessBoard() {
                     onDragOver={handleDragOver}
                     onDrop={(e) => handleDrop(e, column)}
                     style={{
-                      background: "rgba(17, 24, 39, 0.5)",
+                      background: "#111827",
                       borderRadius: "12px",
                       padding: "16px",
                       border: "1px solid #1f2937",
@@ -952,7 +949,7 @@ export default function BusinessBoard() {
               autoFocus
               style={{
                 width: "100%",
-                background: "rgba(17, 24, 39, 0.5)",
+                background: "#111827",
                 border: "1px solid #374151",
                 borderRadius: "8px",
                 padding: "12px",
@@ -1038,7 +1035,7 @@ export default function BusinessBoard() {
               autoFocus
               style={{
                 width: "100%",
-                background: "rgba(17, 24, 39, 0.5)",
+                background: "#111827",
                 border: "1px solid #374151",
                 borderRadius: "8px",
                 padding: "12px",
@@ -1055,7 +1052,7 @@ export default function BusinessBoard() {
               }
               style={{
                 width: "100%",
-                background: "rgba(17, 24, 39, 0.5)",
+                background: "#111827",
                 border: "1px solid #374151",
                 borderRadius: "8px",
                 padding: "12px",
@@ -1211,7 +1208,7 @@ export default function BusinessBoard() {
               }
               style={{
                 width: "100%",
-                background: "rgba(17, 24, 39, 0.5)",
+                background: "#111827",
                 border: "1px solid #374151",
                 borderRadius: "8px",
                 padding: "12px",
@@ -1231,7 +1228,7 @@ export default function BusinessBoard() {
               placeholder="Description"
               style={{
                 width: "100%",
-                background: "rgba(17, 24, 39, 0.5)",
+                background: "#111827",
                 border: "1px solid #374151",
                 borderRadius: "8px",
                 padding: "12px",
