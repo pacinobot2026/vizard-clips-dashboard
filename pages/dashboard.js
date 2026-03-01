@@ -1267,6 +1267,10 @@ function ClipCard({
             preload="metadata"
             playsInline
             className="w-full h-full object-cover"
+            style={{
+              filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
+              transition: 'filter 0.3s ease'
+            }}
             onError={() => setVideoError(true)}
           />
         ) : (
