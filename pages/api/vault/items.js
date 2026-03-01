@@ -19,7 +19,6 @@ export default async function handler(req, res) {
     const { data, error } = await supabase
       .from('vault_items')
       .select('*')
-      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
     
     if (error) throw error;
