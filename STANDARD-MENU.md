@@ -6,9 +6,9 @@ All boards should have this EXACT menu structure (only changing the highlighted 
 <div style={{ padding: '8px 12px', color: '#9ca3af', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
   Boards
 </div>
-<a href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+<a href="/videocue" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
   <span style={{ fontSize: '20px' }}>⊞</span>
-  <span style={{ fontSize: '14px' }}>Video Board</span>
+  <span style={{ fontSize: '14px' }}>Video Cue</span>
 </a>
 <a href="/articles" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
   <span style={{ fontSize: '20px' }}>◈</span>
@@ -22,9 +22,9 @@ All boards should have this EXACT menu structure (only changing the highlighted 
   <span style={{ fontSize: '20px' }}>▣</span>
   <span style={{ fontSize: '14px' }}>Resource Library</span>
 </a>
-<a href="/shopping" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+<a href="/wishlist" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
   <span style={{ fontSize: '20px' }}>⊡</span>
-  <span style={{ fontSize: '14px' }}>Shopping/Watch</span>
+  <span style={{ fontSize: '14px' }}>Wish List</span>
 </a>
 <a href="/projects" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
   <span style={{ fontSize: '20px' }}>▶</span>
@@ -35,7 +35,7 @@ All boards should have this EXACT menu structure (only changing the highlighted 
   <span style={{ fontSize: '20px' }}>⚡</span>
   <span style={{ fontSize: '14px' }}>Command Center</span>
 </a>
-<a href="https://nicelycontrol.com/team" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+<a href="https://kanban-rho-ivory.vercel.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
   <span style={{ fontSize: '20px' }}>▦</span>
   <span style={{ fontSize: '14px' }}>Team Board</span>
 </a>

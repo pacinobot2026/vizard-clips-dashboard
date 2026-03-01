@@ -95,7 +95,7 @@ function formatBytes(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function Dashboard() {
+function VideoCue() {
   const { session } = useAuth();
 
   // Clips list state
@@ -562,7 +562,7 @@ function Dashboard() {
     return (
       <div className="flex min-h-screen">
         <Head>
-          <title>Video Board</title>
+          <title>Video Cue</title>
         </Head>
         <NavigationSidebar />
         <div className="flex-1 flex items-center justify-center text-gray-400">
@@ -575,7 +575,7 @@ function Dashboard() {
   return (
     <div className="flex min-h-screen">
       <Head>
-        <title>Video Board</title>
+        <title>Video Cue</title>
       </Head>
       <NavigationSidebar />
       <main className="flex-1 p-4 md:p-8 pt-16 md:pt-8">
@@ -584,7 +584,7 @@ function Dashboard() {
           <div className="mb-6 flex justify-between items-center gap-3">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold gradient-text mb-1">
-                🎬 Video Cue Board
+                🎬 Video Cue
               </h1>
               <p className="text-sm text-gray-400">
                 Create and schedule social posts
@@ -1376,4 +1376,5 @@ function ClipCard({
   );
 }
 
-export default withAuth(Dashboard);
+export default withAuth(VideoCue);
+

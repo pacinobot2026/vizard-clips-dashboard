@@ -16,7 +16,7 @@ const EMPTY_FORM = {
   tags: "",
 };
 
-function Shopping() {
+function Wishlist() {
   const { session } = useAuth();
   const [allShopping, setAllShopping] = useState([]);
   const [shopping, setShopping] = useState([]);
@@ -194,7 +194,7 @@ function Shopping() {
           <div className="mb-6">
             <div>
               <h1 className="text-3xl font-bold gradient-text mb-1">
-                🛒 Shopping/Watch
+                🛒 Wishlist
               </h1>
               <p className="text-sm text-gray-400">
                 Track things to buy or watch
@@ -501,4 +501,4 @@ function ShoppingCard({ item, onEdit, onDelete }) {
   );
 }
 
-export default withAuth(Shopping);
+export default withAuth(Wishlist);
