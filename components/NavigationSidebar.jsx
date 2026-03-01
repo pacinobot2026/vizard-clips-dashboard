@@ -2,34 +2,19 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../lib/authContext';
-import { 
-  Gauge, 
-  Zap, 
-  Building2, 
-  Users, 
-  Lock, 
-  FolderKanban, 
-  FileText, 
-  Lightbulb, 
-  Video, 
-  ShoppingBag, 
-  BookOpen,
-  User,
-  LayoutGrid
-} from 'lucide-react';
 
 const NAV_ITEMS = [
-  { id: 'control',   label: 'Command Center',  icon: Gauge,        href: 'https://dashboard-gilt-one-zc4y5uu95v.vercel.app', enabled: true },
-  { id: 'openclaw',  label: 'Custom Commands', icon: Zap,          href: '/openclaw',                                         enabled: true },
-  { id: 'businesses',label: 'Business Board',  icon: Building2,    href: '/businesses',                                       enabled: true },
-  { id: 'team',      label: 'Team Board',      icon: Users,        href: 'https://kanban-rho-ivory.vercel.app',               enabled: true },
-  { id: 'vault',     label: 'Operator Vault',  icon: Lock,         href: '/vault',                                            enabled: true },
-  { id: 'projects',  label: 'Project Board',   icon: FolderKanban, href: '/projects',                                         enabled: true },
-  { id: 'articles',  label: 'Article Board',   icon: FileText,     href: '/articles',                                         enabled: true },
-  { id: 'ideas',     label: 'Idea Board',      icon: Lightbulb,    href: '/ideas',                                            enabled: true },
-  { id: 'video',     label: 'Video Cue',       icon: Video,        href: '/dashboard',                                        enabled: true },
-  { id: 'shopping',  label: 'Wish List',       icon: ShoppingBag,  href: '/shopping',                                         enabled: true },
-  { id: 'bookmarks', label: 'Resource Library',icon: BookOpen,     href: '/bookmarks',                                        enabled: true },
+  { id: 'control',   label: 'Command Center',  icon: '⚡', href: 'https://dashboard-gilt-one-zc4y5uu95v.vercel.app', enabled: true },
+  { id: 'openclaw',  label: 'Custom Commands', icon: '⌘', href: '/openclaw',                                         enabled: true },
+  { id: 'businesses',label: 'Business Board',  icon: '◉', href: '/businesses',                                       enabled: true },
+  { id: 'team',      label: 'Team Board',      icon: '▦', href: 'https://kanban-rho-ivory.vercel.app',               enabled: true },
+  { id: 'vault',     label: 'Operator Vault',  icon: '□', href: '/vault',                                            enabled: true },
+  { id: 'projects',  label: 'Project Board',   icon: '▶', href: '/projects',                                         enabled: true },
+  { id: 'articles',  label: 'Article Board',   icon: '◈', href: '/articles',                                         enabled: true },
+  { id: 'ideas',     label: 'Idea Board',      icon: '☆', href: '/ideas',                                            enabled: true },
+  { id: 'video',     label: 'Video Cue',       icon: '⊞', href: '/dashboard',                                        enabled: true },
+  { id: 'shopping',  label: 'Wish List',       icon: '⊡', href: '/shopping',                                         enabled: true },
+  { id: 'bookmarks', label: 'Resource Library',icon: '▣', href: '/bookmarks',                                        enabled: true },
 ];
 
 export default function NavigationSidebar() {
@@ -51,8 +36,8 @@ export default function NavigationSidebar() {
   const showLabel = isMobile || isExpanded;
 
   const linkClass = (href) => [
-    'relative flex items-center gap-3 px-3 py-3 text-gray-300 no-underline transition-colors hover:bg-gray-800 hover:text-white',
-    pathname === href ? 'bg-purple-900/20 border-r-2 border-purple-500' : '',
+    'relative flex items-center gap-3 px-3 py-3 text-gray-500 no-underline transition-all hover:bg-gray-900 hover:text-white',
+    pathname === href ? 'text-purple-400 bg-gray-900' : '',
   ].join(' ');
 
   return (
@@ -81,7 +66,7 @@ export default function NavigationSidebar() {
           isMobile ? 'fixed border-l' : 'static border-r',
           isMobile && !isMobileMenuOpen ? '-right-64' : 'right-0',
         ].join(' ')}
-        style={{ width: showLabel ? '192px' : '56px', background: '#111827' }}
+        style={{ width: showLabel ? '192px' : '56px', background: '#0a0a0a' }}
       >
         {/* Desktop toggle */}
         {!isMobile && (
@@ -103,7 +88,7 @@ export default function NavigationSidebar() {
         {isMobile && (
           <div className="flex items-center justify-between p-4 border-b border-gray-800">
             <div className="flex items-center gap-2">
-              <LayoutGrid className="w-5 h-5" />
+              <span className="text-lg font-light">▦</span>
               <span className="text-white font-bold">Menu</span>
             </div>
             <button onClick={() => setIsMobileMenuOpen(false)} className="text-gray-400 hover:text-white">
@@ -118,18 +103,17 @@ export default function NavigationSidebar() {
         <nav className="flex-1 py-2">
           {NAV_ITEMS.filter(item => item.enabled).map((item) => {
             const isExternal = item.href.startsWith('http');
-            const IconComponent = item.icon;
             const itemContent = (
               <>
-                <IconComponent className="w-5 h-5 flex-shrink-0" />
+                <span className="text-lg font-light flex-shrink-0">{item.icon}</span>
                 {showLabel && (
                   <span className="text-sm font-medium whitespace-nowrap overflow-hidden">{item.label}</span>
                 )}
                 {/* Tooltip */}
                 {!isMobile && !isExpanded && hoveredItem === item.id && (
-                  <div className="absolute left-full ml-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg whitespace-nowrap z-50 border border-gray-700 shadow-lg">
+                  <div className="absolute left-full ml-2 px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-md whitespace-nowrap z-50 shadow-2xl border border-gray-700">
                     {item.label}
-                    <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 border-4 border-transparent border-r-gray-800" />
+                    <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 border-[5px] border-transparent border-r-gray-900" />
                   </div>
                 )}
               </>
@@ -162,7 +146,7 @@ export default function NavigationSidebar() {
         {/* Bottom: logo + sign out */}
         <div className="p-3 border-t border-gray-800 flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <User className="w-5 h-5 flex-shrink-0" />
+            <span className="text-lg font-light flex-shrink-0">◎</span>
             {showLabel && <span className="text-sm font-bold text-white whitespace-nowrap overflow-hidden">{firstName}</span>}
           </div>
           {showLabel && (
