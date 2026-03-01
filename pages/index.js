@@ -8,7 +8,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading) {
-      router.replace(session ? '/dashboard' : '/login');
+      router.replace(session ? '/videocue' : '/login');
     }
   }, [loading, session, router]);
 
