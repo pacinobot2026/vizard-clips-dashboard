@@ -459,7 +459,7 @@ export default function BusinessBoard() {
             <div
               style={{
                 background: "#1f2937",
-                borderRadius: "16px",
+                borderRadius: "12px",
                 padding: "20px",
                 marginBottom: "24px",
                 border: "1px solid #374151",
@@ -698,7 +698,7 @@ export default function BusinessBoard() {
                     onDrop={(e) => handleDrop(e, column)}
                     style={{
                       background: "rgba(17, 24, 39, 0.5)",
-                      borderRadius: "16px",
+                      borderRadius: "12px",
                       padding: "16px",
                       border: "1px solid #1f2937",
                     }}
