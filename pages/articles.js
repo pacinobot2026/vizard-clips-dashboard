@@ -598,12 +598,12 @@ function ArticleCard({ article, onClick }) {
         </h3>
         <div className="flex gap-2 flex-wrap">
           {article.publication && (
-            <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">
+            <span className="px-2 py-1 bg-[#0D1423] rounded text-xs text-gray-400">
               {article.publication}
             </span>
           )}
           {date && (
-            <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">
+            <span className="px-2 py-1 bg-[#0D1423] rounded text-xs text-gray-400">
               {new Date(date).toLocaleDateString()}
             </span>
           )}

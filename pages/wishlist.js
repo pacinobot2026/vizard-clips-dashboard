@@ -315,7 +315,7 @@ function Wishlist() {
       {/* Add/Edit Modal */}
       {modal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#0D1423] border border-gray-700 rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-white mb-4">
               {modal.mode === "add" ? "Add Item" : "Edit Item"}
             </h2>
@@ -411,7 +411,7 @@ function Wishlist() {
       {/* Delete Confirm */}
       {deleteId && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-sm">
+          <div className="bg-[#0D1423] border border-gray-700 rounded-2xl p-6 w-full max-w-sm">
             <h2 className="text-lg font-bold text-white mb-2">Delete Item?</h2>
             <p className="text-gray-400 text-sm mb-5">This cannot be undone.</p>
             <div className="flex justify-end gap-3">
@@ -479,11 +479,11 @@ function ShoppingCard({ item, onEdit, onDelete }) {
           </span>
         )}
         {item.category && (
-          <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">
+          <span className="px-2 py-1 bg-[#0D1423] rounded text-xs text-gray-400">
             {item.category}
           </span>
         )}
-        <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">
+        <span className="px-2 py-1 bg-[#0D1423] rounded text-xs text-gray-400">
           {new Date(item.created_at).toLocaleDateString()}
         </span>
       </div>

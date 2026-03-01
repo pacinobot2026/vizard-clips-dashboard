@@ -634,11 +634,11 @@ function IdeaCardGrid({ idea, onEdit, onDelete }) {
         </p>
         <div className="flex gap-2 flex-wrap mb-3">
           {idea.category && (
-            <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">
+            <span className="px-2 py-1 bg-[#0D1423] rounded text-xs text-gray-400">
               {idea.category}
             </span>
           )}
-          <span className="px-2 py-1 bg-gray-900 rounded text-xs text-gray-400">
+          <span className="px-2 py-1 bg-[#0D1423] rounded text-xs text-gray-400">
             {new Date(idea.created_at).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
