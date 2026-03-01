@@ -81,7 +81,7 @@ export default function NavigationSidebar() {
           isMobile ? 'fixed border-l' : 'static border-r',
           isMobile && !isMobileMenuOpen ? '-right-64' : 'right-0',
         ].join(' ')}
-        style={{ width: showLabel ? '192px' : '56px', background: '#111827' }}
+        style={{ width: showLabel ? '192px' : '64px', background: '#111827' }}
       >
         {/* Desktop toggle */}
         {!isMobile && (
@@ -103,7 +103,9 @@ export default function NavigationSidebar() {
         {isMobile && (
           <div className="flex items-center justify-between p-4 border-b border-gray-800">
             <div className="flex items-center gap-2">
-              <LayoutGrid className="w-5 h-5" />
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-700/50">
+                <LayoutGrid className="w-5 h-5" />
+              </div>
               <span className="text-white font-bold">Menu</span>
             </div>
             <button onClick={() => setIsMobileMenuOpen(false)} className="text-gray-400 hover:text-white">
@@ -121,7 +123,9 @@ export default function NavigationSidebar() {
             const IconComponent = item.icon;
             const itemContent = (
               <>
-                <IconComponent className="w-5 h-5 flex-shrink-0" />
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-700/50 flex-shrink-0">
+                  <IconComponent className="w-5 h-5" />
+                </div>
                 {showLabel && (
                   <span className="text-sm font-medium whitespace-nowrap overflow-hidden">{item.label}</span>
                 )}
@@ -162,7 +166,9 @@ export default function NavigationSidebar() {
         {/* Bottom: logo + sign out */}
         <div className="p-3 border-t border-gray-800 flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <User className="w-5 h-5 flex-shrink-0" />
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-700/50 flex-shrink-0">
+              <User className="w-5 h-5" />
+            </div>
             {showLabel && <span className="text-sm font-bold text-white whitespace-nowrap overflow-hidden">{firstName}</span>}
           </div>
           {showLabel && (
