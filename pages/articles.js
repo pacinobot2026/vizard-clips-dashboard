@@ -12,7 +12,7 @@ function Articles() {
   const [publication, setPublication] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("date_desc");
-  const [viewMode, setViewMode] = useState("list");
+  const [viewMode, setViewMode] = useState("cards");
   const [loading, setLoading] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [searchCountdown, setSearchCountdown] = useState(3600);
