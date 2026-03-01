@@ -1,7 +1,7 @@
 {
-  "name": "vizard-clips-dashboard",
+  "name": "nicelycontrol-boards",
   "version": "1.0.0",
-  "description": "Vizard clips review and publishing dashboard",
+  "description": "Nicely Control - All Boards Dashboard",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
