@@ -8,11 +8,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading) {
-      if (session) {
-        window.location.href = 'https://dashboard-gilt-one-zc4y5uu95v.vercel.app';
-      } else {
-        router.replace('/login');
-      }
+      router.replace(session ? '/videocue' : '/login');
     }
   }, [loading, session, router]);
 
