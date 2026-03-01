@@ -263,7 +263,21 @@ function Dashboard() {
   };
 
   const fetchClips = async () => {
-    setRefreshing(true);
+    // Check cache first
+    const cacheKey = `clips-${filter}-${category}-${sortBy}`;
+    const cached = getCache(cacheKey);
+    if (cached) {
+      setClips(cached.clips || []);
+      setStats(cached.stats || {});
+      setNextScheduledAt(cached.stats?.next_scheduled_at || null);
+      setCategories(cached.categories || []);
+      setLoading(false);
+      setRefreshing(false);
+    } else {
+      setRefreshing(true);
+    }
+
+    // Fetch fresh data
     try {
       const params = new URLSearchParams({ filter, category, sortBy });
       const res = await fetch(`/api/clips?${params}`, {
@@ -303,6 +317,14 @@ function Dashboard() {
       setStats(data.stats || {});
       setNextScheduledAt(data.stats?.next_scheduled_at || null);
       setCategories(data.categories || []);
+      
+      // Cache the resolved data
+      setCache(cacheKey, { 
+        clips: clipsData, 
+        stats: data.stats,
+        categories: data.categories 
+      });
+      
       setLoading(false);
     } catch (err) {
       console.error("Error fetching clips:", err);
