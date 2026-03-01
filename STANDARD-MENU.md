@@ -31,7 +31,7 @@ All boards should have this EXACT menu structure (only changing the highlighted 
   <span style={{ fontSize: '14px' }}>Projects</span>
 </a>
 <div style={{ height: '1px', background: '#374151', margin: '8px 0' }} />
-<a href="/videocue" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+<a href="https://nicelycontrol.com" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
   <span style={{ fontSize: '20px' }}>⚡</span>
   <span style={{ fontSize: '14px' }}>Command Center</span>
 </a>
