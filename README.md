@@ -13,7 +13,7 @@ Live at: **https://nicelycontrol.com**
 - **Idea Board** - Capture and organize ideas
 - **Video Cue** - Video clips review and social publishing
 - **Wish List** - Shopping and resource tracking
-- **Bookmarks** - Resource library
+- **Resource Library** - Save and organize useful links
 
 ## Features
 
