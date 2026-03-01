@@ -61,9 +61,15 @@ function Ideas() {
   }
 
   function applyFilters(source) {
-    let filtered = source.filter((i) => i.status === filter);
-    if (category !== "all")
+    let filtered = source;
+    
+    // If category is selected, ignore status filter - show all in that category
+    if (category !== "all") {
       filtered = filtered.filter((i) => i.category === category);
+    } else {
+      // Only apply status filter when showing all categories
+      filtered = filtered.filter((i) => i.status === filter);
+    }
 
     if (sortBy === "date_desc")
       filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
