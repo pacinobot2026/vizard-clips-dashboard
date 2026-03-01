@@ -3,6 +3,7 @@ import Head from "next/head";
 import NavigationSidebar from "../components/NavigationSidebar";
 import withAuth from "../lib/withAuth";
 import { useAuth } from "../lib/authContext";
+import { getCache, setCache } from "../lib/cache";
 
 function Articles() {
   const { session } = useAuth();
@@ -41,7 +42,7 @@ function Articles() {
   }, []);
 
   async function loadSettings() {
-    // Only used to pre-fill the key input panel — does NOT control hasKey
+    // Only used to pre-fill the key input panel - does NOT control hasKey
     try {
       const res = await fetch("/api/settings", {
         headers: { Authorization: `Bearer ${session.access_token}` },
@@ -86,7 +87,27 @@ function Articles() {
   }
 
   async function loadArticles() {
-    setLoading(true);
+    // Check cache first
+    const cached = getCache('articles');
+    if (cached) {
+      setAllArticles(cached.articles || []);
+      const pubMap = {};
+      (cached.articles || []).forEach((a) => {
+        if (a.publication) {
+          if (!pubMap[a.publication]) pubMap[a.publication] = 0;
+          pubMap[a.publication]++;
+        }
+      });
+      setPublications(
+        Object.keys(pubMap).map((name) => ({ name, count: pubMap[name] })),
+      );
+      setHasKey(true);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+
+    // Fetch fresh data
     setApiError("");
     try {
       const res = await fetch("/api/articles", {
@@ -106,9 +127,12 @@ function Articles() {
         return;
       }
 
-      setHasKey(true); // key found (DB or env var)
+      setHasKey(true);
       const fetched = data.articles || [];
       setAllArticles(fetched);
+
+      // Update cache
+      setCache('articles', { articles: fetched });
 
       const pubMap = {};
       fetched.forEach((a) => {
@@ -122,13 +146,15 @@ function Articles() {
       );
     } catch (err) {
       console.error("Failed to load articles:", err);
-      setApiError("Network error — could not reach the server.");
+      if (!cached) {
+        setApiError("Network error - could not reach the server.");
+      }
     } finally {
       setLoading(false);
     }
   }
 
-  // Compute filtered articles directly — no intermediate state or useEffect needed
+  // Compute filtered articles directly - no intermediate state or useEffect needed
   let filteredArticles =
     publication === "all"
       ? allArticles
@@ -260,7 +286,7 @@ function Articles() {
             </div>
           )}
 
-          {/* No key configured — placeholder */}
+          {/* No key configured - placeholder */}
           {!hasKey && !showKeyInput && (
             <div className="glass-card rounded-2xl p-16 text-center">
               <div className="text-5xl mb-4">🔑</div>
@@ -279,7 +305,7 @@ function Articles() {
             </div>
           )}
 
-          {/* Main content — only shown when key is configured */}
+          {/* Main content - only shown when key is configured */}
           {hasKey && (
             <>
               {/* API error banner */}
@@ -485,7 +511,7 @@ function ArticleRow({ article, index, onClick }) {
               day: "numeric",
               year: "numeric",
             })
-          : "—"}
+          : "-"}
       </td>
     </tr>
   );
