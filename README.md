@@ -6,6 +6,8 @@ Live at: **https://nicelycontrol.com**
 
 ## Boards
 
+- **Command Center** - Business intelligence dashboard (sales, ads, systems)
+- **Custom Commands** - Complete OpenClaw command reference
 - **Business Board** - Track all business projects and revenue streams
 - **Operator Vault** - Secure credentials and sensitive info
 - **Project Board** - Active projects and tasks
