@@ -216,7 +216,7 @@ function ResourceLibrary() {
               <button
                 key={key}
                 onClick={() => setFilter(key)}
-                className={`p-4 rounded-xl border cursor-pointer transition-all text-left ${filter === key ? "bg-purple-600 border-purple-600 scale-105" : "bg-[#0D1423]/50 border-gray-600/50 hover:bg-[#0D1423]"}`}
+                className={`p-4 rounded-xl border cursor-pointer transition-all text-left ${filter === key ? "bg-purple-600 border-purple-600 scale-105" : "bg-gray-800/50 border-gray-600/50 hover:bg-gray-800"}`}
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{icon}</span>
@@ -244,7 +244,7 @@ function ResourceLibrary() {
                 <button
                   key={cat}
                   onClick={() => setCategory(cat)}
-                  className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${category === cat ? "bg-purple-600 border-purple-600 text-white" : "bg-[#0D1423]/50 border-gray-600/50 text-white hover:bg-[#0D1423]"}`}
+                  className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${category === cat ? "bg-purple-600 border-purple-600 text-white" : "bg-gray-800/50 border-gray-600/50 text-white hover:bg-gray-800"}`}
                 >
                   {cat === "all"
                     ? "All Categories"
@@ -261,12 +261,12 @@ function ResourceLibrary() {
               placeholder="🔍 Search bookmarks..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 min-w-48 bg-[#0D1423]/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500"
+              className="flex-1 min-w-48 bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500"
             />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-[#0D1423]/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm cursor-pointer outline-none"
+              className="bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm cursor-pointer outline-none"
             >
               <option value="date_desc">Newest First</option>
               <option value="date_asc">Oldest First</option>
@@ -322,7 +322,7 @@ function ResourceLibrary() {
                 onChange={(e) =>
                   setForm((f) => ({ ...f, title: e.target.value }))
                 }
-                className="bg-[#0D1423] border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500"
+                className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500"
               />
               <input
                 placeholder="URL"
@@ -330,7 +330,7 @@ function ResourceLibrary() {
                 onChange={(e) =>
                   setForm((f) => ({ ...f, url: e.target.value }))
                 }
-                className="bg-[#0D1423] border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500"
+                className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500"
               />
               <textarea
                 placeholder="Description"
@@ -339,7 +339,7 @@ function ResourceLibrary() {
                   setForm((f) => ({ ...f, description: e.target.value }))
                 }
                 rows={3}
-                className="bg-[#0D1423] border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500 resize-none"
+                className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500 resize-none"
               />
               <input
                 placeholder="Category"
@@ -347,14 +347,14 @@ function ResourceLibrary() {
                 onChange={(e) =>
                   setForm((f) => ({ ...f, category: e.target.value }))
                 }
-                className="bg-[#0D1423] border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500"
+                className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500"
               />
               <select
                 value={form.status}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, status: e.target.value }))
                 }
-                className="bg-[#0D1423] border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500"
+                className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500"
               >
                 <option value="read-later">Read Later</option>
                 <option value="favorites">Favorites</option>
@@ -366,7 +366,7 @@ function ResourceLibrary() {
                 onChange={(e) =>
                   setForm((f) => ({ ...f, tags: e.target.value }))
                 }
-                className="bg-[#0D1423] border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500"
+                className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-purple-500"
               />
             </div>
             <div className="flex justify-end gap-3 mt-5">
@@ -419,7 +419,7 @@ function ResourceLibrary() {
 
 function BookmarkCard({ bookmark, onEdit, onDelete }) {
   return (
-    <div className="group bg-[#0D1423]/70 rounded-xl border border-gray-600/50 p-4 transition-all hover:border-purple-500/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-900/20">
+    <div className="group bg-gray-800/70 rounded-xl border border-gray-600/50 p-4 transition-all hover:border-purple-500/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-900/20">
       <div className="flex items-start justify-between gap-2 mb-2">
         <a
           href={bookmark.url}

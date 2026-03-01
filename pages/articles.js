@@ -290,7 +290,7 @@ function Articles() {
 
           {/* Letterman API key input panel */}
           {showKeyInput && (
-            <div className="mb-6 bg-[#0D1423] border border-gray-600/50 rounded-xl p-5">
+            <div className="mb-6 bg-gray-800 border border-gray-600/50 rounded-xl p-5">
               <h3 className="text-white font-semibold mb-1">
                 Letterman API Key
               </h3>
@@ -391,7 +391,7 @@ function Articles() {
                 <div className="flex gap-2 flex-wrap">
                   <button
                     onClick={() => setPublication("all")}
-                    className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${publication === "all" ? "bg-purple-600 border-purple-600 text-white" : "bg-[#0D1423]/50 border-gray-600/50 text-white hover:bg-[#0D1423]"}`}
+                    className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${publication === "all" ? "bg-purple-600 border-purple-600 text-white" : "bg-gray-800/50 border-gray-600/50 text-white hover:bg-gray-800"}`}
                   >
                     All Publications
                   </button>
@@ -399,13 +399,13 @@ function Articles() {
                     <button
                       key={pub.name}
                       onClick={() => setPublication(pub.name)}
-                      className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${publication === pub.name ? "bg-purple-600 border-purple-600 text-white" : "bg-[#0D1423]/50 border-gray-600/50 text-white hover:bg-[#0D1423]"}`}
+                      className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${publication === pub.name ? "bg-purple-600 border-purple-600 text-white" : "bg-gray-800/50 border-gray-600/50 text-white hover:bg-gray-800"}`}
                     >
                       {pub.name} ({pub.count})
                     </button>
                   ))}
                 </div>
-                <div className="flex gap-1 bg-[#0D1423]/50 border border-gray-600/50 rounded-lg p-1">
+                <div className="flex gap-1 bg-gray-800/50 border border-gray-600/50 rounded-lg p-1">
                   <button
                     onClick={() => setViewMode("list")}
                     className={`px-4 py-1.5 rounded-md text-sm font-semibold text-white cursor-pointer border-none transition-colors ${viewMode === "list" ? "bg-purple-600" : "bg-transparent"}`}
@@ -428,12 +428,12 @@ function Articles() {
                   placeholder="🔍 Search articles..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="flex-1 min-w-48 bg-[#0D1423]/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500"
+                  className="flex-1 min-w-48 bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500"
                 />
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-[#0D1423]/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm cursor-pointer outline-none"
+                  className="bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm cursor-pointer outline-none"
                 >
                   <option value="date_desc">Newest First</option>
                   <option value="date_asc">Oldest First</option>
@@ -460,7 +460,7 @@ function Articles() {
                 <div className="glass-card rounded-2xl overflow-hidden">
                   <table className="w-full border-collapse">
                     <thead>
-                      <tr className="bg-[#0D1423]/70 border-b border-gray-600/50">
+                      <tr className="bg-gray-800/70 border-b border-gray-600/50">
                         <th className="px-5 py-4 text-left text-xs font-semibold text-gray-400 w-16" />
                         <th className="px-5 py-4 text-left text-xs font-semibold text-gray-400">
                           TITLE
@@ -531,7 +531,7 @@ function ArticleRow({ article, index, onClick }) {
 
   return (
     <tr
-      className={`border-b border-gray-600/30 hover:bg-purple-900/10 transition-colors cursor-pointer ${index % 2 === 0 ? "bg-[#0D1423]/30" : ""}`}
+      className={`border-b border-gray-600/30 hover:bg-purple-900/10 transition-colors cursor-pointer ${index % 2 === 0 ? "bg-gray-800/30" : ""}`}
       onClick={onClick}
     >
       <td className="px-5 py-3">
@@ -576,7 +576,7 @@ function ArticleCard({ article, onClick }) {
 
   return (
     <div
-      className="bg-[#0D1423]/70 rounded-xl border border-gray-600/50 overflow-hidden cursor-pointer hover:border-purple-500/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-900/20 transition-all"
+      className="bg-gray-800/70 rounded-xl border border-gray-600/50 overflow-hidden cursor-pointer hover:border-purple-500/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-900/20 transition-all"
       onClick={onClick}
     >
       <div className="aspect-[4/5] bg-gradient-to-br from-indigo-500 to-purple-600 relative overflow-hidden grayscale hover:grayscale-0 transition-all">
@@ -623,7 +623,7 @@ function ArticleModal({ article, onClose }) {
       onClick={onClose}
     >
       <div
-        className="bg-[#0D1423] rounded-2xl border border-gray-600/50 max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+        className="bg-gray-800 rounded-2xl border border-gray-600/50 max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 border-b border-gray-600/50 flex justify-between items-start gap-4">
