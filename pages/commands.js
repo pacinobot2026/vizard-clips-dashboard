@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import NavigationSidebar from '../components/NavigationSidebar';
+import withAuth from '../lib/withAuth';
 
-export default function Commands() {
+function Commands() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
@@ -128,325 +129,105 @@ export default function Commands() {
 
   const getCategoryColor = (category) => {
     const colors = {
-      Business: '#10b981',
-      Email: '#3b82f6',
-      Content: '#8b5cf6',
-      Marketing: '#f59e0b',
-      Support: '#ec4899',
-      System: '#6b7280'
+      Business: 'bg-green-500',
+      Email: 'bg-blue-500',
+      Content: 'bg-purple-500',
+      Marketing: 'bg-amber-500',
+      Support: 'bg-pink-500',
+      System: 'bg-gray-500'
     };
-    return colors[category] || '#6b7280';
+    return colors[category] || 'bg-gray-500';
   };
 
   return (
     <div className="flex min-h-screen">
       <Head>
-        <title>Custom Commands | OpenClaw</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Custom Commands</title>
       </Head>
-      
       <NavigationSidebar />
-      
-      <div className="container">
-        {/* Header */}
-        <header className="header">
-        <h1>⌘ Custom Commands</h1>
-        <p className="subtitle">Quick shortcuts for common workflows</p>
-      </header>
-
-      {/* Search & Filters */}
-      <div className="controls">
-        <div className="search-box">
-          <span className="search-icon">🔍</span>
-          <input
-            type="text"
-            placeholder="Search commands..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-        </div>
-
-        <div className="category-pills">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`pill ${selectedCategory === cat ? 'active' : ''}`}
-            >
-              {cat === 'all' ? 'All' : cat}
-              {cat !== 'all' && (
-                <span className="count">
-                  {commands.filter(c => c.category === cat).length}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Results count */}
-      <div className="results-meta">
-        <span>{filteredCommands.length} command{filteredCommands.length !== 1 ? 's' : ''}</span>
-      </div>
-
-      {/* Commands Grid */}
-      <div className="commands-grid">
-        {filteredCommands.map((cmd, idx) => (
-          <div key={idx} className="command-card">
-            <div className="card-header">
-              <code className="command-name">{cmd.command}</code>
-              <span
-                className="category-badge"
-                style={{ backgroundColor: getCategoryColor(cmd.category) }}
-              >
-                {cmd.category}
-              </span>
+      <main className="flex-1 p-8 pt-16 md:pt-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="mb-6">
+            <div>
+              <h1 className="text-3xl font-bold gradient-text mb-1">
+                ⌘ Custom Commands
+              </h1>
+              <p className="text-sm text-gray-400">
+                Quick shortcuts for common workflows
+              </p>
             </div>
-            <p className="card-description">{cmd.description}</p>
-            <p className="card-details">{cmd.details}</p>
           </div>
-        ))}
-      </div>
 
-      {filteredCommands.length === 0 && (
-        <div className="empty-state">
-          <div className="empty-icon">⌘</div>
-          <p>No commands found</p>
-          <span className="empty-hint">Try a different search or category</span>
+          {/* Search */}
+          <div className="mb-4">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search commands..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 pl-10 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+              />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">🔍</span>
+            </div>
+          </div>
+
+          {/* Category Filters */}
+          <div className="flex gap-2 flex-wrap mb-4">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${
+                  selectedCategory === cat
+                    ? 'bg-purple-600 border-purple-600 text-white'
+                    : 'bg-gray-800/50 border-gray-600/50 text-white hover:bg-gray-800'
+                }`}
+              >
+                {cat === 'all' ? 'All' : cat}
+                {cat !== 'all' && (
+                  <span className="ml-2 text-xs opacity-75">
+                    {commands.filter(c => c.category === cat).length}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Results Count */}
+          <div className="mb-4 text-sm text-gray-400">
+            {filteredCommands.length} command{filteredCommands.length !== 1 ? 's' : ''}
+          </div>
+
+          {/* Commands Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredCommands.map((cmd, idx) => (
+              <div key={idx} className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
+                <div className="flex items-start justify-between mb-2">
+                  <code className="text-purple-400 font-mono font-semibold">{cmd.command}</code>
+                  <span className={`${getCategoryColor(cmd.category)} text-white text-xs px-2 py-1 rounded-full`}>
+                    {cmd.category}
+                  </span>
+                </div>
+                <p className="text-white font-medium mb-1">{cmd.description}</p>
+                <p className="text-sm text-gray-400">{cmd.details}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Empty State */}
+          {filteredCommands.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">⌘</div>
+              <p className="text-gray-400 text-lg mb-2">No commands found</p>
+              <p className="text-sm text-gray-500">Try a different search or category</p>
+            </div>
+          )}
         </div>
-      )}
-
-      <style jsx>{`
-        .container {
-          flex: 1;
-          min-height: 100vh;
-          background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
-          padding: 2rem;
-          padding-top: 4rem;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
-        
-        @media (min-width: 768px) {
-          .container {
-            padding-top: 2rem;
-          }
-        }
-
-        .header {
-          margin-bottom: 2rem;
-        }
-
-        .header h1 {
-          font-size: 2.5rem;
-          font-weight: 700;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          margin: 0 0 0.5rem 0;
-        }
-
-        .subtitle {
-          color: #9ca3af;
-          font-size: 1rem;
-          margin: 0;
-        }
-
-        .controls {
-          display: flex;
-          gap: 1.5rem;
-          margin-bottom: 2rem;
-          flex-wrap: wrap;
-        }
-
-        .search-box {
-          position: relative;
-          flex: 1;
-          min-width: 300px;
-        }
-
-        .search-icon {
-          position: absolute;
-          left: 1rem;
-          top: 50%;
-          transform: translateY(-50%);
-          font-size: 1.2rem;
-        }
-
-        .search-input {
-          width: 100%;
-          padding: 0.875rem 1rem 0.875rem 3rem;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 12px;
-          color: white;
-          font-size: 1rem;
-          outline: none;
-          transition: all 0.2s;
-        }
-
-        .search-input:focus {
-          border-color: #667eea;
-          background: rgba(255, 255, 255, 0.08);
-        }
-
-        .category-pills {
-          display: flex;
-          gap: 0.75rem;
-          flex-wrap: wrap;
-        }
-
-        .pill {
-          padding: 0.5rem 1rem;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 20px;
-          color: #9ca3af;
-          font-size: 0.875rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.2s;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-
-        .pill:hover {
-          background: rgba(255, 255, 255, 0.08);
-          color: white;
-        }
-
-        .pill.active {
-          background: #667eea;
-          border-color: #667eea;
-          color: white;
-        }
-
-        .count {
-          background: rgba(255, 255, 255, 0.2);
-          padding: 0.125rem 0.5rem;
-          border-radius: 12px;
-          font-size: 0.75rem;
-          font-weight: 600;
-        }
-
-        .results-meta {
-          color: #6b7280;
-          font-size: 0.875rem;
-          margin-bottom: 1.5rem;
-        }
-
-        .commands-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-          gap: 1.5rem;
-        }
-
-        .command-card {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 16px;
-          padding: 1.5rem;
-          transition: all 0.3s;
-          cursor: pointer;
-        }
-
-        .command-card:hover {
-          background: rgba(255, 255, 255, 0.06);
-          border-color: rgba(102, 126, 234, 0.5);
-          transform: translateY(-4px);
-          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
-        }
-
-        .card-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: start;
-          margin-bottom: 1rem;
-          gap: 1rem;
-        }
-
-        .command-name {
-          font-family: 'Monaco', 'Consolas', monospace;
-          font-size: 1.125rem;
-          font-weight: 600;
-          color: #667eea;
-          background: rgba(102, 126, 234, 0.1);
-          padding: 0.375rem 0.75rem;
-          border-radius: 8px;
-          white-space: nowrap;
-        }
-
-        .category-badge {
-          padding: 0.25rem 0.75rem;
-          border-radius: 12px;
-          color: white;
-          font-size: 0.75rem;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .card-description {
-          color: white;
-          font-size: 1rem;
-          font-weight: 500;
-          margin: 0 0 0.75rem 0;
-        }
-
-        .card-details {
-          color: #9ca3af;
-          font-size: 0.875rem;
-          line-height: 1.5;
-          margin: 0;
-        }
-
-        .empty-state {
-          text-align: center;
-          padding: 4rem 2rem;
-        }
-
-        .empty-icon {
-          font-size: 4rem;
-          margin-bottom: 1rem;
-          opacity: 0.3;
-        }
-
-        .empty-state p {
-          color: white;
-          font-size: 1.25rem;
-          font-weight: 500;
-          margin: 0 0 0.5rem 0;
-        }
-
-        .empty-hint {
-          color: #6b7280;
-          font-size: 0.875rem;
-        }
-
-        @media (max-width: 768px) {
-          .container {
-            padding: 1rem;
-          }
-
-          .header h1 {
-            font-size: 2rem;
-          }
-
-          .controls {
-            flex-direction: column;
-          }
-
-          .search-box {
-            min-width: 100%;
-          }
-
-          .commands-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
-      </div>
+      </main>
     </div>
   );
 }
+
+export default withAuth(Commands);
