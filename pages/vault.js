@@ -3,6 +3,7 @@ import Head from "next/head";
 import NavigationSidebar from "../components/NavigationSidebar";
 import withAuth from "../lib/withAuth";
 import { useAuth } from "../lib/authContext";
+import { getCache, setCache } from "../lib/cache";
 
 function Vault() {
   const { session } = useAuth();
@@ -49,6 +50,13 @@ function Vault() {
   }, [session]);
 
   const fetchItems = async () => {
+    // Check cache first
+    const cached = getCache('vault');
+    if (cached) {
+      setItems(cached.items || []);
+    }
+
+    // Fetch fresh data
     try {
       const res = await fetch("/api/vault/items", {
         headers: session?.access_token
@@ -57,6 +65,7 @@ function Vault() {
       });
       const data = await res.json();
       setItems(data.items || []);
+      setCache('vault', { items: data.items || [] });
     } catch (err) {
       console.error("Error fetching items:", err);
     }
