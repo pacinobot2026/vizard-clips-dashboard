@@ -3,17 +3,17 @@ import { useRouter } from 'next/router';
 import { useAuth } from '../lib/authContext';
 
 const NAV_ITEMS = [
-  { id: 'control',    label: 'Command Center',  icon: '⚡', href: 'https://dashboard-gilt-one-zc4y5uu95v.vercel.app' },
-  { id: 'commands',   label: 'Custom Commands', icon: '⌘', href: 'https://dashboard-gilt-one-zc4y5uu95v.vercel.app/commands' },
-  { id: 'businesses', label: 'Business Board',  icon: '◉', href: 'https://nicelycontrol.com/businesses' },
+  { id: 'control',    label: 'Command Center',  icon: '⚡', href: '/command-center' },
+  { id: 'commands',   label: 'Custom Commands', icon: '⌘', href: '/commands' },
+  { id: 'businesses', label: 'Business Board',  icon: '◉', href: '/businesses' },
   { id: 'team',       label: 'Team Board',      icon: '▦', href: 'https://kanban-rho-ivory.vercel.app' },
-  { id: 'vault',      label: 'Operator Vault',  icon: '□', href: 'https://nicelycontrol.com/vault' },
-  { id: 'projects',   label: 'Project Board',   icon: '▶', href: 'https://nicelycontrol.com/projects' },
-  { id: 'articles',   label: 'Article Board',   icon: '◈', href: 'https://nicelycontrol.com/articles' },
-  { id: 'ideas',      label: 'Idea Board',      icon: '☆', href: 'https://nicelycontrol.com/ideas' },
-  { id: 'video',      label: 'Video Cue',       icon: '⊞', href: 'https://nicelycontrol.com/videocue' },
-  { id: 'wishlist',   label: 'Wish List',       icon: '⊡', href: 'https://nicelycontrol.com/wishlist' },
-  { id: 'resourcelibrary',  label: 'Resource Library',icon: '▣', href: 'https://nicelycontrol.com/resourcelibrary' },
+  { id: 'vault',      label: 'Operator Vault',  icon: '□', href: '/vault' },
+  { id: 'projects',   label: 'Project Board',   icon: '▶', href: '/projects' },
+  { id: 'articles',   label: 'Article Board',   icon: '◈', href: '/articles' },
+  { id: 'ideas',      label: 'Idea Board',      icon: '☆', href: '/ideas' },
+  { id: 'video',      label: 'Video Cue',       icon: '⊞', href: '/videocue' },
+  { id: 'wishlist',   label: 'Wish List',       icon: '⊡', href: '/wishlist' },
+  { id: 'resourcelibrary',  label: 'Resource Library',icon: '▣', href: '/resourcelibrary' },
 ];
 
 export default function NavigationSidebar() {
