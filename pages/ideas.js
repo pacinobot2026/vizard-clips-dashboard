@@ -3,6 +3,7 @@ import Head from "next/head";
 import NavigationSidebar from "../components/NavigationSidebar";
 import withAuth from "../lib/withAuth";
 import { useAuth } from "../lib/authContext";
+import { getCache, setCache } from "../lib/cache";
 
 function Ideas() {
   const { session } = useAuth();
@@ -35,13 +36,23 @@ function Ideas() {
   }, [allIdeas, filter, category, sortBy]);
 
   async function loadIdeas() {
-    setLoading(true);
+    // Check cache first
+    const cached = getCache('ideas');
+    if (cached) {
+      setAllIdeas(cached.ideas || []);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+
+    // Fetch fresh data
     try {
       const res = await fetch("/api/ideas", {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       const data = await res.json();
       setAllIdeas(data.ideas || []);
+      setCache('ideas', { ideas: data.ideas || [] });
     } catch (err) {
       console.error("Failed to load ideas:", err);
     } finally {

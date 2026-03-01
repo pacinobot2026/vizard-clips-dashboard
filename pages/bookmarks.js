@@ -3,6 +3,7 @@ import Head from "next/head";
 import NavigationSidebar from "../components/NavigationSidebar";
 import withAuth from "../lib/withAuth";
 import { useAuth } from "../lib/authContext";
+import { getCache, setCache } from "../lib/cache";
 
 const EMPTY_FORM = {
   title: "",
@@ -37,13 +38,23 @@ function Bookmarks() {
   }, [allBookmarks, filter, category, sortBy]);
 
   async function loadBookmarks() {
-    setLoading(true);
+    // Check cache first
+    const cached = getCache('bookmarks');
+    if (cached) {
+      setAllBookmarks(cached.bookmarks || []);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+
+    // Fetch fresh data
     try {
       const res = await fetch("/api/bookmarks", {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       const data = await res.json();
       setAllBookmarks(data.bookmarks || []);
+      setCache('bookmarks', { bookmarks: data.bookmarks || [] });
     } catch (err) {
       console.error("Failed to load bookmarks:", err);
     } finally {

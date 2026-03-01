@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import NavigationSidebar from "../components/NavigationSidebar";
+import { getCache, setCache } from "../lib/cache";
 
 const DEFAULT_COLUMNS = ["Marketing", "Follow-up", "Research", "Delivery"];
 const LABEL_COLORS = {
@@ -49,6 +50,17 @@ export default function BusinessBoard() {
   }, []);
 
   const fetchBusinesses = async () => {
+    // Check cache first
+    const cached = getCache('businesses');
+    if (cached) {
+      setBusinesses(cached.businesses || []);
+      if (cached.businesses?.length > 0 && !selectedBusiness) {
+        setSelectedBusiness(cached.businesses[0]);
+      }
+      setLoading(false);
+    }
+
+    // Fetch fresh data
     try {
       const res = await fetch("/api/businesses");
       const data = await res.json();
@@ -56,6 +68,7 @@ export default function BusinessBoard() {
       if (data.businesses?.length > 0 && !selectedBusiness) {
         setSelectedBusiness(data.businesses[0]);
       }
+      setCache('businesses', { businesses: data.businesses || [] });
       setLoading(false);
     } catch (err) {
       console.error("Error fetching businesses:", err);

@@ -3,6 +3,7 @@ import Head from "next/head";
 import NavigationSidebar from "../components/NavigationSidebar";
 import withAuth from "../lib/withAuth";
 import { useAuth } from "../lib/authContext";
+import { getCache, setCache } from "../lib/cache";
 
 const EMPTY_FORM = {
   title: "",
@@ -39,13 +40,23 @@ function Shopping() {
   }, [allShopping, filter, category, sortBy]);
 
   async function loadShopping() {
-    setLoading(true);
+    // Check cache first
+    const cached = getCache('shopping');
+    if (cached) {
+      setAllShopping(cached.items || []);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+
+    // Fetch fresh data
     try {
       const res = await fetch("/api/shopping", {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       const data = await res.json();
       setAllShopping(data.items || []);
+      setCache('shopping', { items: data.items || [] });
     } catch (err) {
       console.error("Failed to load shopping items:", err);
     } finally {
