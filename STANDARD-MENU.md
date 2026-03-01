@@ -7,40 +7,40 @@ All boards should have this EXACT menu structure (only changing the highlighted 
   Boards
 </div>
 <a href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-  <span style={{ fontSize: '20px' }}>??</span>
+  <span style={{ fontSize: '20px' }}>⊞</span>
   <span style={{ fontSize: '14px' }}>Video Board</span>
 </a>
 <a href="/articles" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-  <span style={{ fontSize: '20px' }}>??</span>
+  <span style={{ fontSize: '20px' }}>◈</span>
   <span style={{ fontSize: '14px' }}>Article Board</span>
 </a>
 <a href="/ideas" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-  <span style={{ fontSize: '20px' }}>??</span>
+  <span style={{ fontSize: '20px' }}>☆</span>
   <span style={{ fontSize: '14px' }}>Idea Board</span>
 </a>
 <a href="/bookmarks" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-  <span style={{ fontSize: '20px' }}>??</span>
+  <span style={{ fontSize: '20px' }}>▣</span>
   <span style={{ fontSize: '14px' }}>Bookmarks</span>
 </a>
 <a href="/shopping" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-  <span style={{ fontSize: '20px' }}>??</span>
+  <span style={{ fontSize: '20px' }}>⊡</span>
   <span style={{ fontSize: '14px' }}>Shopping/Watch</span>
 </a>
 <a href="/projects" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-  <span style={{ fontSize: '20px' }}>??</span>
+  <span style={{ fontSize: '20px' }}>▶</span>
   <span style={{ fontSize: '14px' }}>Projects</span>
 </a>
 <div style={{ height: '1px', background: '#374151', margin: '8px 0' }} />
-<a href="https://dashboard-gilt-one-zc4y5uu95v.vercel.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-  <span style={{ fontSize: '20px' }}>???</span>
+<a href="https://nicelycontrol.com" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+  <span style={{ fontSize: '20px' }}>⚡</span>
   <span style={{ fontSize: '14px' }}>Command Center</span>
 </a>
-<a href="https://kanban-rho-ivory.vercel.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-  <span style={{ fontSize: '20px' }}>??</span>
+<a href="https://nicelycontrol.com/team" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+  <span style={{ fontSize: '20px' }}>▦</span>
   <span style={{ fontSize: '14px' }}>Team Board</span>
 </a>
 <a href="/openclaw" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
-  <span style={{ fontSize: '20px' }}>??</span>
+  <span style={{ fontSize: '20px' }}>⌘</span>
   <span style={{ fontSize: '14px' }}>OpenClaw Board</span>
 </a>
 ```
