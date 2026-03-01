@@ -634,7 +634,7 @@ function VideoCue() {
 
           {/* PostBridge API key input panel */}
           {showPBKeyInput && (
-            <div className="mb-6 bg-gray-800 border border-gray-600/50 rounded-xl p-5">
+            <div className="mb-6 bg-[#0D1423] border border-gray-600/50 rounded-xl p-5">
               <h3 className="text-white font-semibold mb-1">
                 PostBridge API Key
               </h3>
@@ -677,7 +677,7 @@ function VideoCue() {
 
           {/* API Access panel */}
           {showApiAccess && (
-            <div className="mb-6 bg-gray-800 border border-gray-600/50 rounded-xl p-5">
+            <div className="mb-6 bg-[#0D1423] border border-gray-600/50 rounded-xl p-5">
               <div className="flex items-center justify-between mb-1">
                 <h3 className="text-white font-semibold">API Access</h3>
                 <a
@@ -779,7 +779,7 @@ function VideoCue() {
               <button
                 key={key}
                 onClick={() => setFilter(key)}
-                className={`p-3 md:p-4 rounded-xl border cursor-pointer transition-all text-left ${filter === key ? "bg-purple-600 border-purple-600 scale-105" : "bg-gray-800/50 border-gray-600/50 hover:bg-gray-800"}`}
+                className={`p-3 md:p-4 rounded-xl border cursor-pointer transition-all text-left ${filter === key ? "bg-purple-600 border-purple-600 scale-105" : "bg-[#0D1423]/50 border-gray-600/50 hover:bg-[#0D1423]"}`}
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{icon}</span>
@@ -807,7 +807,7 @@ function VideoCue() {
                 <button
                   key={cat}
                   onClick={() => setCategory(cat)}
-                  className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${category === cat ? "bg-purple-600 border-purple-600 text-white" : "bg-gray-800/50 border-gray-600/50 text-white hover:bg-gray-800"}`}
+                  className={`px-4 py-2 rounded-lg border text-sm cursor-pointer transition-colors ${category === cat ? "bg-purple-600 border-purple-600 text-white" : "bg-[#0D1423]/50 border-gray-600/50 text-white hover:bg-[#0D1423]"}`}
                 >
                   {cat === "all"
                     ? "All Categories"
@@ -824,12 +824,12 @@ function VideoCue() {
               placeholder="🔍 Search clips..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500"
+              className="flex-1 bg-[#0D1423]/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-purple-500"
             />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full sm:w-auto bg-gray-800/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm cursor-pointer outline-none"
+              className="w-full sm:w-auto bg-[#0D1423]/50 border border-gray-600/50 rounded-lg px-4 py-2.5 text-white text-sm cursor-pointer outline-none"
             >
               <option value="date_desc">Newest First</option>
               <option value="date_asc">Oldest First</option>
@@ -893,7 +893,7 @@ function VideoCue() {
           onClick={() => setShowCreateModal(false)}
         >
           <div
-            className="bg-gray-800 rounded-t-2xl sm:rounded-2xl border border-gray-600/50 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
+            className="bg-[#0D1423] rounded-t-2xl sm:rounded-2xl border border-gray-600/50 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-5 md:p-8">
@@ -1067,7 +1067,7 @@ function VideoCue() {
           }}
         >
           <div
-            className="bg-gray-800 rounded-2xl border border-gray-600/50 max-w-md w-full p-6 shadow-2xl"
+            className="bg-[#0D1423] rounded-2xl border border-gray-600/50 max-w-md w-full p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-xl font-bold text-white mb-1">
@@ -1151,7 +1151,7 @@ function VideoCue() {
           }}
         >
           <div
-            className="bg-gray-800 rounded-t-2xl sm:rounded-2xl border border-gray-600/50 max-w-xl w-full p-5 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
+            className="bg-[#0D1423] rounded-t-2xl sm:rounded-2xl border border-gray-600/50 max-w-xl w-full p-5 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-2xl font-bold text-white mb-6">✏️ Edit Post</h2>
@@ -1270,7 +1270,7 @@ function ClipCard({
 
   return (
     <div
-      className={`bg-gray-800/70 rounded-xl border overflow-hidden transition-all ${isHovered ? "border-purple-500/50 -translate-y-1 shadow-lg shadow-purple-900/20" : "border-gray-600/50"}`}
+      className={`bg-[#0D1423]/70 rounded-xl border overflow-hidden transition-all ${isHovered ? "border-purple-500/50 -translate-y-1 shadow-lg shadow-purple-900/20" : "border-gray-600/50"}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

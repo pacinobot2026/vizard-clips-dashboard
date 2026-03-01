@@ -245,7 +245,7 @@ function Vault() {
               key={item.id}
               className="group bg-[#0D1423] border border-gray-800 rounded-lg overflow-hidden hover:border-yellow-500 transition cursor-pointer"
             >
-              <div className="aspect-[4/5] bg-gray-800 flex items-center justify-center grayscale group-hover:grayscale-0 transition">
+              <div className="aspect-[4/5] bg-[#0D1423] flex items-center justify-center grayscale group-hover:grayscale-0 transition">
                 {item.type === "Image" || item.type === "Screenshot" ? (
                   <img
                     src={item.url}
@@ -269,7 +269,7 @@ function Vault() {
                   {item.title}
                 </h3>
                 <div className="flex items-center gap-1 md:gap-2 mb-1 md:mb-2">
-                  <span className="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 bg-gray-800 text-gray-300 rounded">
+                  <span className="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 bg-[#0D1423] text-gray-300 rounded">
                     {item.category}
                   </span>
                   <span className="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 bg-blue-900 text-blue-300 rounded">
@@ -331,7 +331,7 @@ function Vault() {
                   onChange={(e) =>
                     setUploadForm({ ...uploadForm, title: e.target.value })
                   }
-                  className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm outline-none focus:border-yellow-500"
+                  className="w-full px-3 py-2.5 bg-[#0D1423] border border-gray-700 rounded-lg text-white text-sm outline-none focus:border-yellow-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -344,7 +344,7 @@ function Vault() {
                     onChange={(e) =>
                       setUploadForm({ ...uploadForm, category: e.target.value })
                     }
-                    className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm outline-none"
+                    className="w-full px-3 py-2.5 bg-[#0D1423] border border-gray-700 rounded-lg text-white text-sm outline-none"
                   >
                     {categories.map((cat) => (
                       <option key={cat} value={cat}>
@@ -362,7 +362,7 @@ function Vault() {
                     onChange={(e) =>
                       setUploadForm({ ...uploadForm, type: e.target.value })
                     }
-                    className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm outline-none"
+                    className="w-full px-3 py-2.5 bg-[#0D1423] border border-gray-700 rounded-lg text-white text-sm outline-none"
                   >
                     {types.map((type) => (
                       <option key={type} value={type}>
@@ -384,7 +384,7 @@ function Vault() {
                     setUploadForm({ ...uploadForm, url: e.target.value })
                   }
                   placeholder="https://... or /training/filename.png"
-                  className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm outline-none focus:border-yellow-500"
+                  className="w-full px-3 py-2.5 bg-[#0D1423] border border-gray-700 rounded-lg text-white text-sm outline-none focus:border-yellow-500"
                 />
               </div>
               <div>
@@ -398,7 +398,7 @@ function Vault() {
                   }
                   rows={3}
                   placeholder="What makes this example effective? Key elements to notice..."
-                  className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm outline-none resize-y"
+                  className="w-full px-3 py-2.5 bg-[#0D1423] border border-gray-700 rounded-lg text-white text-sm outline-none resize-y"
                 />
               </div>
               <div>
@@ -412,7 +412,7 @@ function Vault() {
                     setUploadForm({ ...uploadForm, tags: e.target.value })
                   }
                   placeholder="high-converting, template, swipe-file"
-                  className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm outline-none focus:border-yellow-500"
+                  className="w-full px-3 py-2.5 bg-[#0D1423] border border-gray-700 rounded-lg text-white text-sm outline-none focus:border-yellow-500"
                 />
               </div>
               <div className="flex gap-4 mt-4">
@@ -425,7 +425,7 @@ function Vault() {
                 <button
                   type="button"
                   onClick={() => setShowUploadModal(false)}
-                  className="px-6 py-3 bg-gray-800 text-gray-400 font-semibold rounded-lg cursor-pointer border-none hover:text-white transition-colors text-sm"
+                  className="px-6 py-3 bg-[#0D1423] text-gray-400 font-semibold rounded-lg cursor-pointer border-none hover:text-white transition-colors text-sm"
                 >
                   Cancel
                 </button>

@@ -332,8 +332,8 @@ export default function BusinessBoard() {
                   setSelectedBusiness(biz);
                 }}
                 style={{
-                  background: "#1f2937",
-                  border: "1px solid #374151",
+                  background: "#0D1423",
+                  border: "1px solid #1f2937",
                   borderRadius: "8px",
                   padding: "10px 16px",
                   color: "#fff",
@@ -385,7 +385,7 @@ export default function BusinessBoard() {
                 {/* Overall Progress */}
                 <div
                   style={{
-                    background: "#1f2937",
+                    background: "#0D1423",
                     borderRadius: "8px",
                     padding: "12px 16px",
                     minWidth: isMobile ? "100%" : "280px",
@@ -414,7 +414,7 @@ export default function BusinessBoard() {
                   </div>
                   <div
                     style={{
-                      background: "#374151",
+                      background: "#1f2937",
                       borderRadius: "4px",
                       height: "8px",
                       overflow: "hidden",
@@ -438,7 +438,7 @@ export default function BusinessBoard() {
                 <button
                   onClick={() => setShowResources(!showResources)}
                   style={{
-                    background: showResources ? "#8b5cf6" : "#374151",
+                    background: showResources ? "#8b5cf6" : "#1f2937",
                     border: "none",
                     borderRadius: "8px",
                     padding: "10px 16px",
@@ -458,11 +458,11 @@ export default function BusinessBoard() {
           {showResources && selectedBusiness && (
             <div
               style={{
-                background: "#1f2937",
+                background: "#0D1423",
                 borderRadius: "16px",
                 padding: "20px",
                 marginBottom: "24px",
-                border: "1px solid #374151",
+                border: "1px solid #1f2937",
               }}
             >
               <div
@@ -508,7 +508,7 @@ export default function BusinessBoard() {
                         display: "flex",
                         alignItems: "center",
                         gap: "10px",
-                        border: "1px solid #374151",
+                        border: "1px solid #1f2937",
                       }}
                     >
                       <span>
@@ -566,8 +566,8 @@ export default function BusinessBoard() {
                     }
                     style={{
                       width: "100%",
-                      background: "#1f2937",
-                      border: "1px solid #374151",
+                      background: "#0D1423",
+                      border: "1px solid #1f2937",
                       borderRadius: "6px",
                       padding: "10px",
                       color: "#fff",
@@ -583,8 +583,8 @@ export default function BusinessBoard() {
                     }
                     style={{
                       width: "100%",
-                      background: "#1f2937",
-                      border: "1px solid #374151",
+                      background: "#0D1423",
+                      border: "1px solid #1f2937",
                       borderRadius: "6px",
                       padding: "10px",
                       color: "#fff",
@@ -598,8 +598,8 @@ export default function BusinessBoard() {
                         setNewResource({ ...newResource, type: e.target.value })
                       }
                       style={{
-                        background: "#1f2937",
-                        border: "1px solid #374151",
+                        background: "#0D1423",
+                        border: "1px solid #1f2937",
                         borderRadius: "6px",
                         padding: "10px",
                         color: "#fff",
@@ -625,7 +625,7 @@ export default function BusinessBoard() {
                     <button
                       onClick={() => setShowAddResource(false)}
                       style={{
-                        background: "#374151",
+                        background: "#1f2937",
                         border: "none",
                         borderRadius: "6px",
                         padding: "10px 16px",
@@ -726,7 +726,7 @@ export default function BusinessBoard() {
                         <button
                           onClick={() => setShowAddCard(column)}
                           style={{
-                            background: "#374151",
+                            background: "#1f2937",
                             border: "none",
                             borderRadius: "6px",
                             width: "28px",
@@ -770,7 +770,7 @@ export default function BusinessBoard() {
                         </div>
                         <div
                           style={{
-                            background: "#374151",
+                            background: "#1f2937",
                             borderRadius: "3px",
                             height: "6px",
                             overflow: "hidden",
@@ -809,11 +809,11 @@ export default function BusinessBoard() {
                             onDragStart={(e) => handleDragStart(e, card)}
                             onClick={() => setShowEditCard(card)}
                             style={{
-                              background: "#1f2937",
+                              background: "#0D1423",
                               borderRadius: "8px",
                               padding: "14px",
                               cursor: "pointer",
-                              border: "1px solid #374151",
+                              border: "1px solid #1f2937",
                               transition: "transform 0.1s, box-shadow 0.1s",
                             }}
                             onMouseEnter={(e) => {
@@ -931,12 +931,12 @@ export default function BusinessBoard() {
         >
           <div
             style={{
-              background: "#1f2937",
+              background: "#0D1423",
               borderRadius: "16px",
               padding: "20px",
               width: "90%",
               maxWidth: "400px",
-              border: "1px solid #374151",
+              border: "1px solid #1f2937",
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -953,7 +953,7 @@ export default function BusinessBoard() {
               style={{
                 width: "100%",
                 background: "#0D1423",
-                border: "1px solid #374151",
+                border: "1px solid #1f2937",
                 borderRadius: "8px",
                 padding: "12px",
                 color: "#fff",
@@ -971,7 +971,7 @@ export default function BusinessBoard() {
               <button
                 onClick={() => setShowAddBusiness(false)}
                 style={{
-                  background: "#374151",
+                  background: "#1f2937",
                   border: "none",
                   borderRadius: "8px",
                   padding: "10px 20px",
@@ -1016,12 +1016,12 @@ export default function BusinessBoard() {
         >
           <div
             style={{
-              background: "#1f2937",
+              background: "#0D1423",
               borderRadius: "16px",
               padding: "20px",
               width: "90%",
               maxWidth: "450px",
-              border: "1px solid #374151",
+              border: "1px solid #1f2937",
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -1039,7 +1039,7 @@ export default function BusinessBoard() {
               style={{
                 width: "100%",
                 background: "#0D1423",
-                border: "1px solid #374151",
+                border: "1px solid #1f2937",
                 borderRadius: "8px",
                 padding: "12px",
                 color: "#fff",
@@ -1056,7 +1056,7 @@ export default function BusinessBoard() {
               style={{
                 width: "100%",
                 background: "#0D1423",
-                border: "1px solid #374151",
+                border: "1px solid #1f2937",
                 borderRadius: "8px",
                 padding: "12px",
                 color: "#fff",
@@ -1084,7 +1084,7 @@ export default function BusinessBoard() {
                     style={{
                       background: newCard.labels.includes(label)
                         ? LABEL_COLORS[label].bg
-                        : "#374151",
+                        : "#1f2937",
                       color: newCard.labels.includes(label)
                         ? LABEL_COLORS[label].text
                         : "#9ca3af",
@@ -1120,7 +1120,7 @@ export default function BusinessBoard() {
                   });
                 }}
                 style={{
-                  background: "#374151",
+                  background: "#1f2937",
                   border: "none",
                   borderRadius: "8px",
                   padding: "10px 20px",
@@ -1165,12 +1165,12 @@ export default function BusinessBoard() {
         >
           <div
             style={{
-              background: "#1f2937",
+              background: "#0D1423",
               borderRadius: "16px",
               padding: "20px",
               width: "90%",
               maxWidth: "500px",
-              border: "1px solid #374151",
+              border: "1px solid #1f2937",
               maxHeight: "90vh",
               overflowY: "auto",
             }}
@@ -1212,7 +1212,7 @@ export default function BusinessBoard() {
               style={{
                 width: "100%",
                 background: "#0D1423",
-                border: "1px solid #374151",
+                border: "1px solid #1f2937",
                 borderRadius: "8px",
                 padding: "12px",
                 color: "#fff",
@@ -1232,7 +1232,7 @@ export default function BusinessBoard() {
               style={{
                 width: "100%",
                 background: "#0D1423",
-                border: "1px solid #374151",
+                border: "1px solid #1f2937",
                 borderRadius: "8px",
                 padding: "12px",
                 color: "#fff",
@@ -1262,7 +1262,7 @@ export default function BusinessBoard() {
                     }
                     style={{
                       background:
-                        showEditCard.column === col ? "#8b5cf6" : "#374151",
+                        showEditCard.column === col ? "#8b5cf6" : "#1f2937",
                       color: "#fff",
                       border: "none",
                       borderRadius: "6px",
@@ -1308,7 +1308,7 @@ export default function BusinessBoard() {
                     style={{
                       background: (showEditCard.labels || []).includes(label)
                         ? LABEL_COLORS[label].bg
-                        : "#374151",
+                        : "#1f2937",
                       color: (showEditCard.labels || []).includes(label)
                         ? LABEL_COLORS[label].text
                         : "#9ca3af",
@@ -1337,7 +1337,7 @@ export default function BusinessBoard() {
               <button
                 onClick={() => setShowEditCard(null)}
                 style={{
-                  background: "#374151",
+                  background: "#1f2937",
                   border: "none",
                   borderRadius: "8px",
                   padding: "10px 20px",
