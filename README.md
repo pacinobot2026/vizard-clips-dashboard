@@ -2,7 +2,7 @@
 
 **All your operational boards in one place**
 
-Live at: **https://boards.nicelycontrol.com**
+Live at: **https://nicelycontrol.com**
 
 ## Boards
 
@@ -29,7 +29,7 @@ Live at: **https://boards.nicelycontrol.com**
 - **Auth**: Supabase
 - **Storage**: Supabase + localStorage cache
 - **Deployment**: Vercel
-- **Domain**: boards.nicelycontrol.com
+- **Domain**: nicelycontrol.com
 
 ## Local Development
 
@@ -56,7 +56,7 @@ POSTBRIDGE_API_KEY=your_postbridge_key
 
 Auto-deploys to Vercel on push to main branch.
 
-**Production URL**: https://boards.nicelycontrol.com
+**Production URL**: https://nicelycontrol.com
 
 ---
 
