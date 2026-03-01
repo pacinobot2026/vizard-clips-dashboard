@@ -14,7 +14,7 @@ const EMPTY_FORM = {
   tags: "",
 };
 
-function Bookmarks() {
+function ResourceLibrary() {
   const { session } = useAuth();
   const [allBookmarks, setAllBookmarks] = useState([]);
   const [bookmarks, setBookmarks] = useState([]);
@@ -168,7 +168,7 @@ function Bookmarks() {
     return (
       <div className="flex min-h-screen">
         <Head>
-          <title>Bookmarks</title>
+          <title>Resource Library</title>
         </Head>
         <NavigationSidebar />
         <div className="flex-1 flex items-center justify-center text-gray-400">
@@ -181,7 +181,7 @@ function Bookmarks() {
   return (
     <div className="flex min-h-screen">
       <Head>
-        <title>Bookmarks</title>
+        <title>Resource Library</title>
       </Head>
       <NavigationSidebar />
       <main className="flex-1 p-8 pt-16 md:pt-8">
@@ -190,7 +190,7 @@ function Bookmarks() {
           <div className="mb-6">
             <div>
               <h1 className="text-3xl font-bold gradient-text mb-1">
-                📑 Bookmarks
+                📑 Resource Library
               </h1>
               <p className="text-sm text-gray-400">
                 Save and organize useful links
@@ -471,4 +471,4 @@ function BookmarkCard({ bookmark, onEdit, onDelete }) {
   );
 }
 
-export default withAuth(Bookmarks);
+export default withAuth(ResourceLibrary);

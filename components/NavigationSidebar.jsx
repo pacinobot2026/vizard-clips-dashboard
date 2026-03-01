@@ -13,7 +13,7 @@ const NAV_ITEMS = [
   { id: 'ideas',      label: 'Idea Board',      icon: '☆', href: 'https://nicelycontrol.com/ideas' },
   { id: 'video',      label: 'Video Cue',       icon: '⊞', href: 'https://nicelycontrol.com/dashboard' },
   { id: 'shopping',   label: 'Wish List',       icon: '⊡', href: 'https://nicelycontrol.com/shopping' },
-  { id: 'bookmarks',  label: 'Resource Library',icon: '▣', href: 'https://nicelycontrol.com/bookmarks' },
+  { id: 'resourcelibrary',  label: 'Resource Library',icon: '▣', href: 'https://nicelycontrol.com/resourcelibrary' },
 ];
 
 export default function NavigationSidebar() {

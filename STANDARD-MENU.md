@@ -18,9 +18,9 @@ All boards should have this EXACT menu structure (only changing the highlighted 
   <span style={{ fontSize: '20px' }}>☆</span>
   <span style={{ fontSize: '14px' }}>Idea Board</span>
 </a>
-<a href="/bookmarks" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
+<a href="/resourcelibrary" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
   <span style={{ fontSize: '20px' }}>▣</span>
-  <span style={{ fontSize: '14px' }}>Bookmarks</span>
+  <span style={{ fontSize: '14px' }}>Resource Library</span>
 </a>
 <a href="/shopping" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#fff', textDecoration: 'none', borderRadius: '8px' }}>
   <span style={{ fontSize: '20px' }}>⊡</span>
