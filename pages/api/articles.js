@@ -2,6 +2,26 @@ import { supabase } from '../../lib/supabase';
 
 const LETTERMAN_BASE = 'https://api.letterman.ai/api/ai/newsletters-storage';
 
+// In-memory cache
+let cache = {
+  data: null,
+  timestamp: 0,
+  ttl: 5 * 60 * 1000 // 5 minutes
+};
+
+function getCachedArticles() {
+  const now = Date.now();
+  if (cache.data && (now - cache.timestamp < cache.ttl)) {
+    return cache.data;
+  }
+  return null;
+}
+
+function setCachedArticles(articles) {
+  cache.data = articles;
+  cache.timestamp = Date.now();
+}
+
 async function getLettermanKey(req) {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
@@ -33,6 +53,17 @@ export default async function handler(req, res) {
   const LETTERMAN_API_KEY = await getLettermanKey(req);
   if (!LETTERMAN_API_KEY) {
     return res.status(400).json({ error: 'Letterman API key not configured', noKey: true });
+  }
+
+  // Allow force refresh via query parameter
+  const forceRefresh = req.query.refresh === 'true';
+
+  // Check cache first (unless force refresh)
+  if (!forceRefresh) {
+    const cached = getCachedArticles();
+    if (cached) {
+      return res.status(200).json({ articles: cached, total: cached.length, cached: true });
+    }
   }
 
   const headers = { Authorization: `Bearer ${LETTERMAN_API_KEY}` };
@@ -83,7 +114,10 @@ export default async function handler(req, res) {
       }
     }
 
-    return res.status(200).json({ articles: allArticles, total: allArticles.length });
+    // Cache the results
+    setCachedArticles(allArticles);
+
+    return res.status(200).json({ articles: allArticles, total: allArticles.length, cached: false });
   } catch (error) {
     console.error('Error fetching articles:', error.message);
     return res.status(500).json({ error: 'Failed to fetch articles' });

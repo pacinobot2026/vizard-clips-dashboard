@@ -25,6 +25,7 @@ function Articles() {
   const [savingKey, setSavingKey] = useState(false);
   const [keyError, setKeyError] = useState("");
   const [apiError, setApiError] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (session) {
@@ -83,6 +84,50 @@ function Articles() {
       setKeyError("Failed to save key. Please try again.");
     } finally {
       setSavingKey(false);
+    }
+  }
+
+  async function refreshArticles() {
+    setRefreshing(true);
+    setApiError("");
+    try {
+      const res = await fetch("/api/articles?refresh=true", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = await res.json();
+
+      if (data.noKey) {
+        setHasKey(false);
+        return;
+      }
+
+      if (!res.ok) {
+        setApiError(data.error || `API error (${res.status})`);
+        return;
+      }
+
+      setHasKey(true);
+      const fetched = data.articles || [];
+      setAllArticles(fetched);
+
+      // Update cache
+      setCache('articles', { articles: fetched });
+
+      const pubMap = {};
+      fetched.forEach((a) => {
+        if (a.publication) {
+          if (!pubMap[a.publication]) pubMap[a.publication] = 0;
+          pubMap[a.publication]++;
+        }
+      });
+      setPublications(
+        Object.keys(pubMap).map((name) => ({ name, count: pubMap[name] })),
+      );
+    } catch (err) {
+      console.error("Failed to refresh articles:", err);
+      setApiError("Network error - could not reach the server.");
+    } finally {
+      setRefreshing(false);
     }
   }
 
@@ -376,7 +421,7 @@ function Articles() {
                 </div>
               </div>
 
-              {/* Search + Sort */}
+              {/* Search + Sort + Refresh */}
               <div className="flex gap-3 flex-wrap mb-6">
                 <input
                   type="text"
@@ -394,6 +439,14 @@ function Articles() {
                   <option value="date_asc">Oldest First</option>
                   <option value="title">Title</option>
                 </select>
+                <button
+                  onClick={refreshArticles}
+                  disabled={refreshing}
+                  className="px-5 py-2.5 bg-purple-600 border-none rounded-lg text-white text-sm font-semibold cursor-pointer hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                >
+                  <span className={refreshing ? "animate-spin" : ""}>🔄</span>
+                  {refreshing ? "Refreshing..." : "Refresh"}
+                </button>
               </div>
 
               {/* Articles */}
