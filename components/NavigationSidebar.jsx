@@ -3,8 +3,8 @@ import { useRouter } from 'next/router';
 import { useAuth } from '../lib/authContext';
 
 const NAV_ITEMS = [
-  { id: 'control',    label: 'Command Center',  icon: '⚡', href: 'https://nicelycontrol.com' },
-  { id: 'openclaw',   label: 'Custom Commands', icon: '⌘', href: 'https://nicelycontrol.com/commands' },
+  { id: 'control',    label: 'Command Center',  icon: '⚡', href: '/command-center' },
+  { id: 'commands',   label: 'Custom Commands', icon: '⌘', href: '/commands' },
   { id: 'businesses', label: 'Business Board',  icon: '◉', href: 'https://nicelycontrol.com/businesses' },
   { id: 'team',       label: 'Team Board',      icon: '▦', href: 'https://kanban-rho-ivory.vercel.app' },
   { id: 'vault',      label: 'Operator Vault',  icon: '□', href: 'https://nicelycontrol.com/vault' },
