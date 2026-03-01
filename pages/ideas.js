@@ -28,8 +28,8 @@ function Ideas() {
   const [viewMode, setViewMode] = useState("cards");
 
   useEffect(() => {
-    if (session) loadIdeas();
-  }, [session]);
+    loadIdeas();
+  }, []);
 
   useEffect(() => {
     applyFilters(allIdeas);
@@ -48,7 +48,7 @@ function Ideas() {
     // Fetch fresh data
     try {
       const res = await fetch("/api/ideas", {
-        headers: { Authorization: `Bearer ${session.access_token}` },
+        
       });
       const data = await res.json();
       setAllIdeas(data.ideas || []);
@@ -667,4 +667,4 @@ function IdeaCardGrid({ idea, onEdit, onDelete }) {
   );
 }
 
-export default withAuth(Ideas);
+export default Ideas;
